@@ -9,8 +9,8 @@ spring:
       ddl-auto: validate
     database: postgresql
   datasource:
-#    url: jdbc:postgresql://${RDS_HOSTNAME:localhost}:${RDS_PORT:5432}/${RDS_DB_NAME:postgres}?currentSchema=bot
-    url: jdbc:postgresql://${RDS_HOSTNAME:45.8.251.166}:${RDS_PORT:5433}/${RDS_DB_NAME:postgres}?currentSchema=bot
+    url: jdbc:postgresql://${RDS_HOSTNAME:localhost}:${RDS_PORT:5432}/${RDS_DB_NAME:postgres}?currentSchema=bot
+#    url: jdbc:postgresql://${RDS_HOSTNAME:45.8.251.166}:${RDS_PORT:5433}/${RDS_DB_NAME:postgres}?currentSchema=bot
 #    url: jdbc:postgresql://${RDS_HOSTNAME:host.docker.internal:${RDS_PORT:5432}/${RDS_DB_NAME:bot}?currentSchema=bot
     username: ${RDS_USERNAME:postgres}
     password: ${RDS_PASSWORD:postgres}
@@ -19,22 +19,9 @@ spring:
   main:
     allow-circular-references: true
 
-  kafka:
-    bootstrap-servers: localhost:9093
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        spring:
-          json:
-            add:
-              type:
-                headers: false
-    topicName: top1
-
 bot:
-  name: LogicaScol
-  token: 5594650440:AAFbqVQvSmHwL2SCtDrkw5gQePfMRJCWahw
+  name: TradeHelperBot
+  token: 6967437002:AAEZds47kCq2KtReJ6gC_Sh-GmMGr8LDId4
   owner: 1
 
 cron:
@@ -59,3 +46,8 @@ management:
 
 server:
   port: 8882
+
+list.symbol: NOT,BTC,AAVE,BNB,OP,ARB,WLD,SOL,INJ,LINK,APT
+
+key: ${KEY:KEY}
+secret: ${SECRET:SECRET}
