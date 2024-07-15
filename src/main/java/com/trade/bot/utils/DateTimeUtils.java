@@ -9,13 +9,13 @@ public class DateTimeUtils {
 
     public static LocalTime getTime(Long milliseconds) {
         return Instant.ofEpochMilli(milliseconds)
-                .atZone(ZoneId.systemDefault())
+                .atZone(ZoneId.of("Europe/Moscow"))
                 .toLocalDateTime().toLocalTime();
     }
 
     public static LocalDateTime getDateTime(Long milliseconds) {
         return Instant.ofEpochMilli(milliseconds)
-                .atZone(ZoneId.systemDefault())
+                .atZone(ZoneId.of("Europe/Moscow"))
                 .toLocalDateTime();
     }
 }
