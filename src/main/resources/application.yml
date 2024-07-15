@@ -9,8 +9,8 @@ spring:
       ddl-auto: validate
     database: postgresql
   datasource:
-    url: jdbc:postgresql://${RDS_HOSTNAME:localhost}:${RDS_PORT:5432}/${RDS_DB_NAME:postgres}?currentSchema=bot
-#    url: jdbc:postgresql://${RDS_HOSTNAME:45.8.251.166}:${RDS_PORT:5433}/${RDS_DB_NAME:postgres}?currentSchema=bot
+#    url: jdbc:postgresql://${RDS_HOSTNAME:localhost}:${RDS_PORT:5432}/${RDS_DB_NAME:postgres}?currentSchema=bot
+    url: jdbc:postgresql://${RDS_HOSTNAME:81.163.28.222}:${RDS_PORT:5432}/${RDS_DB_NAME:postgres}?currentSchema=bot
 #    url: jdbc:postgresql://${RDS_HOSTNAME:host.docker.internal:${RDS_PORT:5432}/${RDS_DB_NAME:bot}?currentSchema=bot
     username: ${RDS_USERNAME:postgres}
     password: ${RDS_PASSWORD:postgres}
@@ -23,16 +23,6 @@ bot:
   name: TradeHelperBot
   token: 6967437002:AAEZds47kCq2KtReJ6gC_Sh-GmMGr8LDId4
   owner: 1
-
-cron:
-#  scheduler: 0 * * * * ?
-  scheduler: 0 */5 * * * *
-  job:
-    statisticEveryDay: 0 59 20 * * *
-    statusQr: 13 */5 * * * *
-    delete_qr: 0 59 20 * * *
-#    replica: 13 13 * * * *
-    replica: 13 * * * * *
 
 management:
   endpoints.web.exposure.include: 'prometheus, health'
@@ -51,3 +41,17 @@ list.symbol: NOT,BTC,AAVE,BNB,OP,ARB,WLD,SOL,INJ,LINK,APT
 
 key: ${KEY:KEY}
 secret: ${SECRET:SECRET}
+
+logging:
+  level:
+#    root: WARN
+    org.springframework: info
+    org.apache: info
+    com.zaxxer: info
+    org.hibernate.SQL: INFO
+    o.h.internal.util: info
+    o.h.internal.util.EntityPrinter: info
+    com.trade.bot.handler.OkxTradeHandler: DEBUG
+    org.hibernate.engine.jdbc: info
+    org.hibernate: ERROR
+

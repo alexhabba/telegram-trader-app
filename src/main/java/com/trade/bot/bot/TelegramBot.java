@@ -1,15 +1,16 @@
 package com.trade.bot.bot;
 
-import com.bybit.api.client.config.BybitApiConfig;
 import com.bybit.api.client.domain.websocket_message.public_channel.PublicOrderBookData;
 import com.bybit.api.client.domain.websocket_message.public_channel.WebsocketOrderbookMessage;
 import com.bybit.api.client.restApi.BybitApiCallback;
-import com.bybit.api.client.service.BybitApiClientFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trade.bot.config.BotConfig;
+import com.trade.bot.entity.Order;
 import com.trade.bot.entity.TelegramUser;
+import com.trade.bot.enums.OrderSide;
 import com.trade.bot.enums.Role;
 import com.trade.bot.repository.UserRepository;
+import com.trade.bot.service.BybitTradeFetcher;
 import com.trade.bot.service.OrderService;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.SneakyThrows;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -31,32 +33,21 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 
-import static com.trade.bot.enums.Role.ADMIN;
+import static com.trade.bot.enums.OrderType.LIMIT;
 import static com.trade.bot.enums.Role.ADMIN_DUBNA;
 import static com.trade.bot.enums.Role.ADMIN_MOSKOW;
 import static com.trade.bot.enums.Role.ADMIN_RAMENSKOE;
 import static com.trade.bot.enums.Role.ADMIN_TEST;
 import static com.trade.bot.enums.Role.ADMIN_VOSKRESENSK;
-import static com.trade.bot.enums.Role.SUPER_ADMIN;
-import static com.trade.bot.enums.Role.TEACHER_DUBNA;
-import static com.trade.bot.enums.Role.TEACHER_MOSKOW;
-import static com.trade.bot.enums.Role.TEACHER_RAMENSKOE;
-import static com.trade.bot.enums.Role.TEACHER_TEST;
-import static com.trade.bot.enums.Role.TEACHER_VOSKRESENSK;
-import static java.util.Collections.EMPTY_SET;
+import static com.trade.bot.enums.Status.PROCESSING;
 import static java.util.Objects.nonNull;
 
 @Slf4j
@@ -68,6 +59,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     private static final String START = "/start";
     private static final String CANSEL = "Отменить";
     private static final String CHOSE_SYMBOL = "Выбери инструмент";
+    private static final Set<String> OPERATION = Set.of(L_BUY, L_SELL);
+    private static final String ERROR_TEXT = "";
+    private static final String appUrl = "http://localhost:3000";
 
     @Value("${list.symbol}")
     private Set<String> symbols;
@@ -75,34 +69,20 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final UserRepository userRepository;
     private final BotConfig config;
     private final OrderService orderService;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+    private final BybitTradeFetcher bybitTradeFetcher;
 
-    private final List<Role> ADMIN_STATISTIC_DAYS = List.of(
-            ADMIN_DUBNA,
-            ADMIN_MOSKOW,
-            ADMIN_VOSKRESENSK,
-            ADMIN_RAMENSKOE,
-            ADMIN_TEST
-    );
-
-    static final String YES_BUTTON = "YES_BUTTON";
-    static final String NO_BUTTON = "NO_BUTTON";
-
-    static final String ERROR_TEXT = "Error occurred: ";
-
-    public TelegramBot(BotConfig config,
-                       UserRepository userRepository, OrderService orderService,  Set<String> symbols) {
+    public TelegramBot(BotConfig config, ObjectMapper objectMapper, BybitTradeFetcher bybitTradeFetcher,
+                       UserRepository userRepository, OrderService orderService, Set<String> symbols) {
         this.config = config;
+        this.objectMapper = objectMapper;
+        this.bybitTradeFetcher = bybitTradeFetcher;
         this.userRepository = userRepository;
         this.orderService = orderService;
         this.symbols = symbols;
 
         List<BotCommand> listofCommands = new ArrayList<>();
         listofCommands.add(new BotCommand("/start", "Добро пожаловать!"));
-        var yesButton = new InlineKeyboardButton();
-
-        yesButton.setText("Yes");
-        yesButton.setCallbackData(YES_BUTTON);
         try {
             this.execute(new SetMyCommands(listofCommands, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
@@ -124,66 +104,49 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
 
         if (update.hasMessage() && update.getMessage().hasText()) {
-            long chatId = update.getMessage().getChatId();
-            String messageText = update.getMessage().getText();
 
-            Optional<TelegramUser> byId = userRepository.findById(chatId);
+//            https://api.bybit.com/spot/v3/public/quote/trades?symbol=BTCUSDT&limit=500
+
+            long chatId = update.getMessage().getChatId();
+            String s = bybitTradeFetcher.fetchTrades();
+            if (nonNull(s)) {
+                prepareAndSendMessage(chatId, s);
+                return;
+            }
+
+            String messageText = update.getMessage().getText();
+            sendStartMessage(chatId);
             if (symbols.contains(messageText)) {
                 sendButtonStartWork(chatId, "введите цену лимитной заявки", Set.of(CANSEL));
                 prepareAndSendMessage(chatId, "или можете отменить ее, нажав кномку ниже");
-
+                orderService.updateSymbol(messageText);
                 return;
             }
-//            try {
-//                orderService.openOrder("NOT", BigDecimal.valueOf(Double.parseDouble(messageText)), x -> prepareAndSendMessage(chatId, x.toString()));
-//                return;
-//            } catch (Exception ex) {
-//                log.error("не число");
-//            }
+
+            if (orderService.orderProcessingAndWithEmptyPriceExist(PROCESSING)) {
+                String[] arrTvhAndStop = messageText.split("\\s+");
+                BybitApiCallback<Object> callback = el -> {
+                    log.info(el.toString());
+                    prepareAndSendMessage(chatId, el.toString());
+                };
+                orderService.openOrder(arrTvhAndStop[0], arrTvhAndStop[1], callback);
+                sendButtonStartWork(chatId, "Успешно", OPERATION);
+            }
+
             switch (messageText) {
                 case START:
                     registerUser(update.getMessage());
                     break;
                 case L_BUY:
-                    prepareAndSendMessage(chatId, "пока не реализована логика " + L_BUY);
+                    orderService.save(Order.builder().side(OrderSide.Buy).type(LIMIT).orderLinkId(UUID.randomUUID()).status(PROCESSING).build());
                     sendButtonStartWork(chatId, CHOSE_SYMBOL, symbols);
                     break;
                 case L_SELL:
-                    prepareAndSendMessage(chatId, "пока не реализована логика " + L_SELL);
+                    orderService.save(Order.builder().side(OrderSide.Sell).type(LIMIT).orderLinkId(UUID.randomUUID()).status(PROCESSING).build());
                     sendButtonStartWork(chatId, CHOSE_SYMBOL, symbols);
                     break;
             }
         }
-    }
-
-    private void register(long chatId) {
-
-        SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
-        message.setText("Do you really want to register?");
-
-        InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-        List<InlineKeyboardButton> rowInLine = new ArrayList<>();
-        var yesButton = new InlineKeyboardButton();
-
-        yesButton.setText("Yes");
-        yesButton.setCallbackData(YES_BUTTON);
-
-        var noButton = new InlineKeyboardButton();
-
-        noButton.setText("No");
-        noButton.setCallbackData(NO_BUTTON);
-
-        rowInLine.add(yesButton);
-        rowInLine.add(noButton);
-
-        rowsInLine.add(rowInLine);
-
-        markupInLine.setKeyboard(rowsInLine);
-        message.setReplyMarkup(markupInLine);
-
-        executeMessage(message);
     }
 
     private void registerUser(Message msg) {
@@ -360,4 +323,32 @@ public class TelegramBot extends TelegramLongPollingBot {
         });
         return ll;
     }
+
+    private void sendStartMessage(long chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
+
+        // Создаем InlineKeyboardMarkup с одной кнопкой
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText("Перейти на сайт");
+        button.setUrl("t.me/GoodTraderAppBot/GoodTraderAppBot"); // URL вашего сайта
+        row.add(button);
+        rows.add(row);
+        markup.setKeyboard(rows);
+
+        // Устанавливаем клавиатуру для сообщения
+        sendMessage.setReplyMarkup(markup);
+        sendMessage.setText("Привет! Вот ссылка на мое веб-приложение:");
+
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }

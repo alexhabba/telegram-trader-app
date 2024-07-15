@@ -1,7 +1,7 @@
-CREATE TABLE "order"
+CREATE TABLE orderr
 (
     order_link_id uuid        NOT NULL,
-    symbol        varchar(30) NOT NULL,
+    symbol        varchar(30) NULL,
     side          varchar(30) NULL,
     "type"        varchar(30) NULL,
     status        varchar(30) NULL,
