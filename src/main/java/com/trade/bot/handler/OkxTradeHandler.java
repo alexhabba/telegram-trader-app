@@ -103,7 +103,7 @@ public class OkxTradeHandler {
 
     public WebSocketFailureCallback getWebSocketFailureCallback() {
         return (x, y) -> {
-            log.debug("error {} {}", x.toString(), y.toString());
+            log.debug("error {} {}", x, y);
             connect();
         };
     }

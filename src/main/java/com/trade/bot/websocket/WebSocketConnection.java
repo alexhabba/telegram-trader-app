@@ -39,7 +39,7 @@ public class WebSocketConnection extends WebSocketListener {
     private final WebSocketClosedCallback onClosedCallback;
     private final WebSocketFailureCallback onFailureCallback;
 
-    private WebSocket webSocket;
+    private final WebSocket webSocket;
 
     public WebSocketConnection(
             WebSocketOpenCallback onOpenCallback,
