@@ -9,7 +9,7 @@ import com.bybit.api.client.service.BybitApiClientFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trade.bot.dto.WalletBalanceDto;
 import com.trade.bot.entity.Order;
-import com.trade.bot.enums.OrderSide;
+import com.trade.bot.enums.Side;
 import com.trade.bot.enums.OrderType;
 import com.trade.bot.enums.Status;
 import com.trade.bot.enums.Symbol;
@@ -57,7 +57,7 @@ public class OrderService {
     }
 
     public void openOrder(Symbol symbol, String tvh, String stop, String qty,
-                           OrderSide side, OrderType orderType, UUID orderLinkId, BybitApiCallback<Object> callback) {
+                          Side side, OrderType orderType, UUID orderLinkId, BybitApiCallback<Object> callback) {
         try {
             var client = BybitApiClientFactory.newInstance(KEY, SECRET, BybitApiConfig.MAINNET_DOMAIN, true).newAsyncTradeRestClient();
             Map<String, Object> order = Map.of(

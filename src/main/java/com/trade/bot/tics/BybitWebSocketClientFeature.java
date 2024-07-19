@@ -3,7 +3,7 @@ package com.trade.bot.tics;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trade.bot.dto.FutureBybitTradeDto;
 import com.trade.bot.entity.Tick;
-import com.trade.bot.enums.OrderSide;
+import com.trade.bot.enums.Side;
 import com.trade.bot.enums.Symbol;
 import com.trade.bot.enums.TradeLastTick;
 import com.trade.bot.repository.TickRepository;
@@ -55,7 +55,7 @@ public class BybitWebSocketClientFeature extends MainWebSocketClient {
             Tick tick = Tick.builder()
                     .quantity(q)
                     .price(p)
-                    .side(OrderSide.valueOf(operation))
+                    .side(Side.valueOf(operation))
                     .createDate(getDateTime(el.getTime()))
                     .symbol(Symbol.valueOf(symbol.replace("USDT", "")))
                     .lastTick(TradeLastTick.valueOf(el.getTradeLastTick()))

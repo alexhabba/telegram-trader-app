@@ -4,14 +4,9 @@ import com.bybit.api.client.websocket.callback.WebSocketClosedCallback;
 import com.bybit.api.client.websocket.callback.WebSocketClosingCallback;
 import com.bybit.api.client.websocket.callback.WebSocketFailureCallback;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.trade.bot.dto.SpotOkxTradeDto;
 import com.trade.bot.dto.SpotTradeDto;
 import com.trade.bot.entity.Tick;
-import com.trade.bot.enums.OrderSide;
+import com.trade.bot.enums.Side;
 import com.trade.bot.enums.Symbol;
 import com.trade.bot.repository.TickRepository;
 import com.trade.bot.websocket.WebSocketConnection;
@@ -77,7 +72,7 @@ public class BinanceTradeHandler {
         Tick tick = Tick.builder()
                 .quantity(q)
                 .price(p)
-                .side(OrderSide.valueOf(trade.isBuyerMaker() ? "Sell" : "Buy"))
+                .side(Side.valueOf(trade.isBuyerMaker() ? "Sell" : "Buy"))
                 .createDate(getDateTime(trade.getTradeTime()))
                 .symbol(Symbol.valueOf(symbol.replace("USDT", "")))
                 .exchange("binance")

@@ -1,6 +1,6 @@
 package com.trade.bot.entity;
 
-import com.trade.bot.enums.OrderSide;
+import com.trade.bot.enums.Side;
 import com.trade.bot.enums.OrderType;
 import com.trade.bot.enums.Status;
 import com.trade.bot.enums.Symbol;
@@ -19,6 +19,9 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Необходим для заявки на покупку либо продажу
+ */
 @Data
 @Entity
 @Builder
@@ -34,7 +37,7 @@ public class Order {
     private Symbol symbol;
 
     @Enumerated(EnumType.STRING)
-    private OrderSide side;
+    private Side side;
 
     @Enumerated(EnumType.STRING)
     private OrderType type;

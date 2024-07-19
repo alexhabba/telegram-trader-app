@@ -7,8 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trade.bot.config.BotConfig;
 import com.trade.bot.entity.Order;
 import com.trade.bot.entity.TelegramUser;
-import com.trade.bot.enums.OrderSide;
-import com.trade.bot.enums.Role;
+import com.trade.bot.enums.Side;
 import com.trade.bot.repository.UserRepository;
 import com.trade.bot.service.BybitTradeFetcher;
 import com.trade.bot.service.OrderService;
@@ -18,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -42,11 +40,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.trade.bot.enums.OrderType.LIMIT;
-import static com.trade.bot.enums.Role.ADMIN_DUBNA;
-import static com.trade.bot.enums.Role.ADMIN_MOSKOW;
-import static com.trade.bot.enums.Role.ADMIN_RAMENSKOE;
-import static com.trade.bot.enums.Role.ADMIN_TEST;
-import static com.trade.bot.enums.Role.ADMIN_VOSKRESENSK;
 import static com.trade.bot.enums.Status.PROCESSING;
 import static java.util.Objects.nonNull;
 
@@ -138,11 +131,11 @@ public class TelegramBot extends TelegramLongPollingBot {
                     registerUser(update.getMessage());
                     break;
                 case L_BUY:
-                    orderService.save(Order.builder().side(OrderSide.Buy).type(LIMIT).orderLinkId(UUID.randomUUID()).status(PROCESSING).build());
+                    orderService.save(Order.builder().side(Side.Buy).type(LIMIT).orderLinkId(UUID.randomUUID()).status(PROCESSING).build());
                     sendButtonStartWork(chatId, CHOSE_SYMBOL, symbols);
                     break;
                 case L_SELL:
-                    orderService.save(Order.builder().side(OrderSide.Sell).type(LIMIT).orderLinkId(UUID.randomUUID()).status(PROCESSING).build());
+                    orderService.save(Order.builder().side(Side.Sell).type(LIMIT).orderLinkId(UUID.randomUUID()).status(PROCESSING).build());
                     sendButtonStartWork(chatId, CHOSE_SYMBOL, symbols);
                     break;
             }

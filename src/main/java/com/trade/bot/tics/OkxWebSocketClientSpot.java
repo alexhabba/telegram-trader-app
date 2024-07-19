@@ -5,10 +5,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.trade.bot.config.TickInitializer;
 import com.trade.bot.dto.SpotOkxTradeDto;
 import com.trade.bot.entity.Tick;
-import com.trade.bot.enums.OrderSide;
+import com.trade.bot.enums.Side;
 import com.trade.bot.enums.Symbol;
 import com.trade.bot.repository.TickRepository;
 import lombok.SneakyThrows;
@@ -65,7 +64,7 @@ public class OkxWebSocketClientSpot extends WebSocketClient {
             Tick tick = Tick.builder()
                     .quantity(q)
                     .price(p)
-                    .side(OrderSide.valueOf(operation.equals("sell") ? "Sell" : "Buy"))
+                    .side(Side.valueOf(operation.equals("sell") ? "Sell" : "Buy"))
                     .createDate(getDateTime(el.getTs()))
                     .symbol(Symbol.valueOf(symbol.replace("-USDT", "")))
                     .exchange("okx")
