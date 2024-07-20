@@ -2,15 +2,12 @@ package com.trade.bot.bot;
 
 import com.bybit.api.client.domain.websocket_message.public_channel.PublicOrderBookData;
 import com.bybit.api.client.domain.websocket_message.public_channel.WebsocketOrderbookMessage;
-import com.bybit.api.client.restApi.BybitApiCallback;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trade.bot.config.BotConfig;
-import com.trade.bot.entity.Order;
 import com.trade.bot.entity.TelegramUser;
-import com.trade.bot.enums.Side;
 import com.trade.bot.repository.UserRepository;
 import com.trade.bot.service.BybitTradeFetcher;
-import com.trade.bot.service.OrderService;
+import com.trade.bot.service.bybit.BybitOrderService;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -37,10 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
-import static com.trade.bot.enums.OrderType.LIMIT;
-import static com.trade.bot.enums.Status.PROCESSING;
 import static java.util.Objects.nonNull;
 
 @Slf4j
@@ -61,17 +55,17 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final UserRepository userRepository;
     private final BotConfig config;
-    private final OrderService orderService;
+    private final BybitOrderService bybitOrderService;
     private final ObjectMapper objectMapper;
     private final BybitTradeFetcher bybitTradeFetcher;
 
     public TelegramBot(BotConfig config, ObjectMapper objectMapper, BybitTradeFetcher bybitTradeFetcher,
-                       UserRepository userRepository, OrderService orderService, Set<String> symbols) {
+                       UserRepository userRepository, BybitOrderService bybitOrderService, Set<String> symbols) {
         this.config = config;
         this.objectMapper = objectMapper;
         this.bybitTradeFetcher = bybitTradeFetcher;
         this.userRepository = userRepository;
-        this.orderService = orderService;
+        this.bybitOrderService = bybitOrderService;
         this.symbols = symbols;
 
         List<BotCommand> listofCommands = new ArrayList<>();
@@ -109,34 +103,10 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             String messageText = update.getMessage().getText();
             sendStartMessage(chatId);
-            if (symbols.contains(messageText)) {
-                sendButtonStartWork(chatId, "введите цену лимитной заявки", Set.of(CANSEL));
-                prepareAndSendMessage(chatId, "или можете отменить ее, нажав кномку ниже");
-                orderService.updateSymbol(messageText);
-                return;
-            }
-
-            if (orderService.orderProcessingAndWithEmptyPriceExist(PROCESSING)) {
-                String[] arrTvhAndStop = messageText.split("\\s+");
-                BybitApiCallback<Object> callback = el -> {
-                    log.info(el.toString());
-                    prepareAndSendMessage(chatId, el.toString());
-                };
-                orderService.openOrder(arrTvhAndStop[0], arrTvhAndStop[1], callback);
-                sendButtonStartWork(chatId, "Успешно", OPERATION);
-            }
 
             switch (messageText) {
                 case START:
                     registerUser(update.getMessage());
-                    break;
-                case L_BUY:
-                    orderService.save(Order.builder().side(Side.Buy).type(LIMIT).orderLinkId(UUID.randomUUID()).status(PROCESSING).build());
-                    sendButtonStartWork(chatId, CHOSE_SYMBOL, symbols);
-                    break;
-                case L_SELL:
-                    orderService.save(Order.builder().side(Side.Sell).type(LIMIT).orderLinkId(UUID.randomUUID()).status(PROCESSING).build());
-                    sendButtonStartWork(chatId, CHOSE_SYMBOL, symbols);
                     break;
             }
         }

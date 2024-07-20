@@ -54,4 +54,7 @@ logging:
     com.trade.bot.handler.OkxTradeHandler: DEBUG
     org.hibernate.engine.jdbc: info
     org.hibernate: ERROR
+    com.bybit.api.client.service: ERROR
 
+
+accounts: ${ACCOUNTS:}

@@ -1,0 +1,47 @@
+{
+  "retCode": 0,
+  "retMsg": "OK",
+  "result": {
+    "nextPageCursor": "WLDUSDT%2C1721396426095%2C0",
+    "category": "linear",
+    "list": [
+      {
+        "symbol": "WLDUSDT",
+        "leverage": "50",
+        "autoAddMargin": 0,
+        "avgPrice": "2.582",
+        "liqPrice": "2.53942358",
+        "riskLimitValue": "40000",
+        "takeProfit": "",
+        "positionValue": "77.46",
+        "isReduceOnly": false,
+        "tpslMode": "Full",
+        "riskId": 1,
+        "trailingStop": "0",
+        "unrealisedPnl": "0.39",
+        "markPrice": "2.595",
+        "adlRankIndicator": 2,
+        "cumRealisedPnl": "-1492.00563836",
+        "positionMM": "0.6955908",
+        "createdTime": "1719904869559",
+        "positionIdx": 0,
+        "positionIM": "1.6251108",
+        "seq": 142554355015,
+        "updatedTime": "1721396426095",
+        "side": "Buy",
+        "bustPrice": "",
+        "positionBalance": "0",
+        "leverageSysUpdatedTime": "",
+        "curRealisedPnl": "-0.0278856",
+        "size": "30",
+        "positionStatus": "Normal",
+        "mmrSysUpdatedTime": "",
+        "stopLoss": "2.56",
+        "tradeMode": 0,
+        "sessionAvgPrice": ""
+      }
+    ]
+  },
+  "retExtInfo": {},
+  "time": 1721396434005
+}
