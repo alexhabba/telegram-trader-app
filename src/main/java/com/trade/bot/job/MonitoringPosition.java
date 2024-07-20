@@ -36,13 +36,15 @@ public class MonitoringPosition {
     private final BybitOrderService bybitOrderService;
     private final BybitBalanceService bybitBalanceService;
 
-    @Scheduled(fixedRate = 3000)
+//    @Scheduled(fixedRate = 5000)
     public void checkPositions() {
-        keySecretMap.forEach(((owner, stringStringMap) -> stringStringMap.forEach((key, secret) -> {
-            BigDecimal balance = bybitBalanceService.getBalance(key, secret);
-            log.info("{}  {}", owner, balance);
-        })));
+//        // get balance
+//        keySecretMap.forEach(((owner, stringStringMap) -> stringStringMap.forEach((key, secret) -> {
+//            BigDecimal balance = bybitBalanceService.getBalance(key, secret);
+//            log.info("{}  {}", owner, balance);
+//        })));
 
+        System.out.println();
         Map<Owner, ResponsePosition.Position> mapOwnerPositionMain = new HashMap<>();
         Map<Owner, ResponsePosition.Position> mapOwnerPosition = new HashMap<>();
         keySecretMap.forEach((k, v) -> {

@@ -41,6 +41,21 @@ public class ResponsePosition {
         private String tpslMode;
         private int riskId;
         private String trailingStop;
+
+        @Override
+        public String toString() {
+            return "Position{" +
+                    "symbol='" + symbol + '\'' +
+                    ", avgPrice=" + avgPrice +
+                    ", liqPrice=" + liqPrice +
+                    ", takeProfit=" + takeProfit +
+                    ", markPrice='" + markPrice + '\'' +
+                    ", side='" + side + '\'' +
+                    ", size=" + size +
+                    ", stopLoss=" + stopLoss +
+                    '}';
+        }
+
         private String unrealisedPnl;
         private String markPrice;
         private int adlRankIndicator;
