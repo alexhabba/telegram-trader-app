@@ -1,12 +1,17 @@
 package com.trade.bot.service;
 
+import com.trade.bot.dto.BarDto;
 import com.trade.bot.dto.TickDto;
 import com.trade.bot.entity.Tick;
+import com.trade.bot.enums.Side;
 import com.trade.bot.mapper.TickMapper;
 import com.trade.bot.repository.TickRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;

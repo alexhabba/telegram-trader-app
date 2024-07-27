@@ -1,5 +1,6 @@
 package com.trade.bot.controller;
 
+import com.trade.bot.dto.BarDto;
 import com.trade.bot.dto.TickDto;
 import com.trade.bot.service.TradeService;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +24,6 @@ public class TradeRestController {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
     private final TradeService tradeService;
-
-    @GetMapping("ticks")
-    public ResponseEntity<List<TickDto>> getTics(
-            @QueryParam(value = "size") double size,
-            @QueryParam(value = "exchange") String exchange
-    ) {
-        return ResponseEntity.ok(tradeService.getTicks(size, exchange, LocalDateTime.now().minusMinutes(3)));
-    }
 
     @GetMapping("ticks-create-date-between")
     public ResponseEntity<List<TickDto>> getTicsCreateDateBetween(

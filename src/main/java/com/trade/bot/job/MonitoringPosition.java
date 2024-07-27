@@ -24,6 +24,9 @@ import static com.trade.bot.enums.Owner.MAIN_BYBIT;
 import static java.math.RoundingMode.CEILING;
 import static java.util.Objects.isNull;
 
+/**
+ * Класс отвечает за то, чтобы на всех аккаунтах было одинаковое количество контрактов одинаковый стоп лосс и тейк профит
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,13 +39,14 @@ public class MonitoringPosition {
     private final BybitOrderService bybitOrderService;
     private final BybitBalanceService bybitBalanceService;
 
-//    @Scheduled(fixedRate = 5000)
+//    @Scheduled(fixedRate = 13000)
     public void checkPositions() {
-//        // get balance
-//        keySecretMap.forEach(((owner, stringStringMap) -> stringStringMap.forEach((key, secret) -> {
-//            BigDecimal balance = bybitBalanceService.getBalance(key, secret);
-//            log.info("{}  {}", owner, balance);
-//        })));
+
+        // get balance
+        keySecretMap.forEach(((owner, stringStringMap) -> stringStringMap.forEach((key, secret) -> {
+            BigDecimal balance = bybitBalanceService.getBalance(key, secret);
+            log.info("{}  {}", owner, balance);
+        })));
 
         System.out.println();
         Map<Owner, ResponsePosition.Position> mapOwnerPositionMain = new HashMap<>();
@@ -155,6 +159,12 @@ public class MonitoringPosition {
         onePercent = onePercent.multiply(BigDecimal.valueOf(2));
         BigDecimal sl = pos.getSide().equals(Side.Buy.name()) ? pos.getAvgPrice().subtract(onePercent) : pos.getAvgPrice().add(onePercent);
 
+        if (pos.getSide().equals(Side.Buy.name()) && sl.compareTo(pos.getLiqPrice()) < 0) {
+            sl = pos.getLiqPrice();
+        }
+        if (pos.getSide().equals(Side.Sell.name()) && sl.compareTo(pos.getLiqPrice()) > 0) {
+            sl = pos.getLiqPrice();
+        }
         BigDecimal tp = pos.getSide().equals(Side.Buy.name()) ?
                 pos.getAvgPrice().add(onePercent.multiply(BigDecimal.valueOf(3))) :
                 pos.getAvgPrice().subtract(onePercent.multiply(BigDecimal.valueOf(3)));
@@ -164,4 +174,5 @@ public class MonitoringPosition {
                 sl.setScale(3, RoundingMode.DOWN),
                 tp.setScale(3, RoundingMode.DOWN));
     }
+
 }

@@ -3,6 +3,7 @@ package com.trade.bot.dto.bybit;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Map;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+//@ToString(exclude = )
 public class ResponsePosition {
     private int retCode;
     private String retMsg;
@@ -41,21 +43,6 @@ public class ResponsePosition {
         private String tpslMode;
         private int riskId;
         private String trailingStop;
-
-        @Override
-        public String toString() {
-            return "Position{" +
-                    "symbol='" + symbol + '\'' +
-                    ", avgPrice=" + avgPrice +
-                    ", liqPrice=" + liqPrice +
-                    ", takeProfit=" + takeProfit +
-                    ", markPrice='" + markPrice + '\'' +
-                    ", side='" + side + '\'' +
-                    ", size=" + size +
-                    ", stopLoss=" + stopLoss +
-                    '}';
-        }
-
         private String unrealisedPnl;
         private String markPrice;
         private int adlRankIndicator;
@@ -77,5 +64,20 @@ public class ResponsePosition {
         private BigDecimal stopLoss;
         private int tradeMode;
         private String sessionAvgPrice;
+
+        @Override
+        public String toString() {
+            return "Position{" +
+                    "symbol='" + symbol + '\'' +
+                    ", avgPrice=" + avgPrice +
+                    ", leverage=" + leverage +
+                    ", liqPrice=" + liqPrice +
+                    ", takeProfit=" + takeProfit +
+                    ", markPrice='" + markPrice + '\'' +
+                    ", side='" + side + '\'' +
+                    ", size=" + size +
+                    ", stopLoss=" + stopLoss +
+                    '}';
+        }
     }
 }
