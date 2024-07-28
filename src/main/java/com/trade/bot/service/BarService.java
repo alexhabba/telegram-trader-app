@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BarService {
 
-    @Value("${hour:3}")
-    private final int hour;
+    @Value("${hour}")
+    private int hour;
     private final BarMapper barMapper;
     private final BarRepository barRepository;
 

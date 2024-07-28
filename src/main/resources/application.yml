@@ -59,4 +59,4 @@ logging:
 
 accounts: ${ACCOUNTS:{}}
 
-hour: ${HOUR}
+hour: ${HOUR:0}
