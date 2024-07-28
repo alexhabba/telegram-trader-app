@@ -9,6 +9,7 @@ import com.trade.bot.repository.LockJobRepository;
 import com.trade.bot.repository.TickRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,8 @@ public class BarCreator {
 
     private final static String JOB_NAME = "BarCreator";
 
+    @Value("${hour}")
+    private int hour;
     private final TickRepository tickRepository;
     private final BarRepository barRepository;
     private final LockJobRepository lockJobRepository;
@@ -68,7 +71,7 @@ public class BarCreator {
     }
 
     private void extracted(LocalDateTime start, LocalDateTime end) {
-        while (end.isBefore(LocalDateTime.now().minusHours(3))) {
+        while (end.isBefore(LocalDateTime.now().minusHours(hour))) {
             Bar bar = getBar(start, end);
             if (nonNull(bar)) {
                 barRepository.save(bar);
