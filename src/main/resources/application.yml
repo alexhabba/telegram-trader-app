@@ -57,4 +57,6 @@ logging:
     com.bybit.api.client.service: ERROR
 
 
-accounts: ${ACCOUNTS:}
+accounts: ${ACCOUNTS:{}}
+
+hour: ${HOUR}

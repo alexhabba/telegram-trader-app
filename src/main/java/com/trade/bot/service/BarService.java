@@ -5,6 +5,7 @@ import com.trade.bot.entity.Bar;
 import com.trade.bot.mapper.BarMapper;
 import com.trade.bot.repository.BarRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,17 +17,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BarService {
 
+    @Value("${hour:3}")
+    private final int hour;
     private final BarMapper barMapper;
     private final BarRepository barRepository;
 
     public List<BarDto> getBars() {
-        LocalDateTime end = LocalDateTime.now().minusHours(3);
+        LocalDateTime end = LocalDateTime.now().minusHours(hour);
         return barMapper.toDto(barRepository.findTickByCreateDateBetween(end.minusMinutes(5), end));
     }
 
 
     public List<BigDecimal> getBarsAverage() {
-        LocalDateTime end = LocalDateTime.now().minusHours(3);
+        LocalDateTime end = LocalDateTime.now().minusHours(hour);
         return barMapper.toDto(barRepository.findTickByCreateDateBetween(end.minusMinutes(50), end)).stream()
                 .map(BarDto::getClose)
                 .map(BigDecimal::new)
@@ -34,7 +37,7 @@ public class BarService {
     }
 
     public List<BarDto> getBarss() {
-        LocalDateTime end = LocalDateTime.now().minusHours(3);
+        LocalDateTime end = LocalDateTime.now().minusHours(hour);
         return barMapper.toDto(barRepository.findTickByCreateDateBetween(end.minusMinutes(50), end));
     }
 }
