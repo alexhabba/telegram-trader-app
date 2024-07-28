@@ -1,4 +1,4 @@
-package com.trade.bot.handler;
+package com.trade.bot.job;
 
 import com.bybit.api.client.websocket.callback.WebSocketClosedCallback;
 import com.bybit.api.client.websocket.callback.WebSocketClosingCallback;
@@ -22,9 +22,9 @@ import static com.trade.bot.utils.DateTimeUtils.getDateTime;
 import static java.util.Objects.isNull;
 
 @Slf4j
-@Service
+//@Service
 @RequiredArgsConstructor
-public class BinanceTradeHandler {
+public class BinanceTickJob {
 
     public static final String WS_API_BASE_URL = "wss://stream.binance.com:9443/ws";
     public static final String POSTFIX = "/wldusdt@aggTrade";
