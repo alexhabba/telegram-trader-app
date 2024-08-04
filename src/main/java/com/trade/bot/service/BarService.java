@@ -24,13 +24,13 @@ public class BarService {
 
     public List<BarDto> getBars() {
         LocalDateTime end = LocalDateTime.now().minusHours(hour);
-        return barMapper.toDto(barRepository.findTickByCreateDateBetween(end.minusMinutes(5), end));
+        return barMapper.toDto(barRepository.findBarByCreateDateBetween(end.minusMinutes(5), end));
     }
 
 
     public List<BigDecimal> getBarsAverage() {
         LocalDateTime end = LocalDateTime.now().minusHours(hour);
-        return barMapper.toDto(barRepository.findTickByCreateDateBetween(end.minusMinutes(50), end)).stream()
+        return barMapper.toDto(barRepository.findBarByCreateDateBetween(end.minusMinutes(50), end)).stream()
                 .map(BarDto::getClose)
                 .map(BigDecimal::new)
                 .collect(Collectors.toList());
@@ -38,6 +38,22 @@ public class BarService {
 
     public List<BarDto> getBarss() {
         LocalDateTime end = LocalDateTime.now().minusHours(hour);
-        return barMapper.toDto(barRepository.findTickByCreateDateBetween(end.minusMinutes(50), end));
+        return barMapper.toDto(barRepository.findBarByCreateDateBetween(end.minusMinutes(50), end));
+    }
+
+    public List<BarDto> getBarsCreateDateBetween(LocalDateTime start, LocalDateTime end) {
+        return barMapper.toDto(barRepository.findBarByCreateDateBetween(start, end));
+    }
+
+    public List<Bar> findLastBar(int count) {
+      return barRepository.findLastBar(count);
+    }
+
+    public List<Bar> findAll() {
+        return barRepository.findAll();
+    }
+
+    public void deleteAll() {
+        barRepository.deleteAll();
     }
 }

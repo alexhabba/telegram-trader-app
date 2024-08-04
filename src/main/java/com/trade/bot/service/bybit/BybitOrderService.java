@@ -40,7 +40,7 @@ public class BybitOrderService {
 
     private final ObjectMapper objectMapper;
 
-    public void openOrder(String key, String secret, Symbol symbol, String tvh, String stop, String qty,
+    public void openOrder(String key, String secret, Symbol symbol, String st, String tp, String qty,
                           Side side, OrderType orderType, UUID orderLinkId, BybitApiCallback<Object> callback) {
         try {
             var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN, true).newAsyncTradeRestClient();
@@ -50,9 +50,10 @@ public class BybitOrderService {
                     "side", side,
                     "orderType", orderType.getValue(),
                     "qty", qty,
-                    "price", tvh,
+//                    "price", tvh,
                     "orderLinkId", orderLinkId.toString(),
-                    "stopLoss", stop,
+                    "stopLoss", st,
+                    "takeProfit", tp,
                     "slOrderType", "Market",
                     "tpslMode", "Full"
             );

@@ -15,6 +15,6 @@ public interface BarRepository extends JpaRepository<Bar, LocalDateTime> {
             "LIMIT :count", nativeQuery = true)
     List<Bar> findLastBar(int count);
 
-    List<Bar> findTickByCreateDateBetween(LocalDateTime createDateStart, LocalDateTime createDateEnd);
+    List<Bar> findBarByCreateDateBetween(LocalDateTime createDateStart, LocalDateTime createDateEnd);
 
 }
