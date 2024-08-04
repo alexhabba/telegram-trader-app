@@ -22,7 +22,7 @@ import static com.trade.bot.utils.DateTimeUtils.getDateTime;
 import static java.util.Objects.isNull;
 
 @Slf4j
-//@Service
+@Service
 @RequiredArgsConstructor
 public class BinanceTickJob {
 
