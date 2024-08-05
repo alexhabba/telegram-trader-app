@@ -51,6 +51,8 @@ public class BigVolume implements StrategyExecutor {
     @SneakyThrows
     public void init() {
 //        dealService.deleteAll();
+//        openOrder("5", Side.Sell, "1.8", "1.5");
+        System.out.println();
     }
 
     // 59.67275348 test 5 август
@@ -75,8 +77,8 @@ public class BigVolume implements StrategyExecutor {
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
         double sl = onePercent * 2;
-        double tp = onePercent * 8;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? lastDeal.getVol() * 2 : 100;
+        double tp = onePercent * 10;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) + 1 : 10;
 
         if (volBuyLastBar > 150_000 && closeLastBar < openBuyLastBar) {
             Deal createDeal = Deal.builder()
@@ -122,6 +124,22 @@ public class BigVolume implements StrategyExecutor {
 
     @Override
     public void execute(Bar lastBar) {
+
+        if (LocalDateTime.now().minusHours(3).minusMinutes(5).withSecond(0).withNano(0).isBefore(lastBar.getCreateDate())) {
+            deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
+                    .forEach(System.out::println);
+            Double commonResult = deals.stream()
+                    .map(deal -> deal.getResult() * deal.getVol())
+                    .reduce(0d, Double::sum);
+
+            Double result = deals.stream()
+                    .map(Deal::getResult)
+                    .reduce(0d, Double::sum);
+
+            System.out.println("commonResult : " + commonResult);
+            System.out.println("result : " + result);
+        }
+
         double volBuyLastBar = Double.parseDouble(lastBar.getVolBuy());
         double volSellLastBar = Double.parseDouble(lastBar.getVolSell());
         double closeLastBar = Double.parseDouble(lastBar.getClose());
@@ -139,11 +157,15 @@ public class BigVolume implements StrategyExecutor {
             return;
         }
 
+//        if (nonNull(lastDeal) && lastDeal.getOpenDate().plusMinutes(30).isAfter(lastBar.getCreateDate())) {
+//            return;
+//        }
+
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
         double sl = onePercent * 2;
-        double tp = onePercent * 8;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? lastDeal.getVol() * 2 : 100;
+        double tp = onePercent * 10;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) + 1 : 10;
 
         if (volBuyLastBar > 150_000 && closeLastBar < openBuyLastBar) {
             // todo need to think how make return value deal
@@ -178,15 +200,7 @@ public class BigVolume implements StrategyExecutor {
             deals.add(createDeal);
         }
 
-        if (LocalDateTime.now().minusHours(5).minusMinutes(5).withSecond(0).withNano(0).isBefore(lastBar.getCreateDate())) {
-//            dealService.saveAll(deals);
-            deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
-                    .forEach(System.out::println);
-            Double commonResult = deals.stream()
-                    .map(deal -> deal.getResult() * deal.getVol())
-                    .reduce(0d, Double::sum);
-            System.out.println("commonResult : " + commonResult);
-        }
+
     }
 
     private void checkTpSl(Bar bar, Deal deal) {
