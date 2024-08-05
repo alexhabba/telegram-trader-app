@@ -80,7 +80,6 @@ public class BinanceTickJob {
                 .build();
 
         Tick save = tickRepository.save(tick);
-        System.out.println(save);
     }
 
     public WebSocketClosingCallback getWebSocketClosingCallback() {
