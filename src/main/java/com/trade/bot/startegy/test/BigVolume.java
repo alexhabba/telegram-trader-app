@@ -243,11 +243,11 @@ public class BigVolume implements StrategyExecutor {
     }
 
     void openOrder(String size, Side side, String sl, String tp) {
-        String key = new ArrayList<>(keySecretMap.get(KRIS_SUB_SECOND_BYBIT).keySet()).get(0);
-        String secret = keySecretMap.get(KRIS_SUB_FIRST_BYBIT).get(key);
+//        String key = new ArrayList<>(keySecretMap.get(KRIS_SUB_SECOND_BYBIT).keySet()).get(0);
+//        String secret = keySecretMap.get(KRIS_SUB_FIRST_BYBIT).get(key);
         bybitOrderService.openOrder(
-                key,
-                secret,
+                "9jaVPeAdvHrCmX0ns1",
+                "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0",
                 Symbol.WLD,
                 sl,
                 tp,
