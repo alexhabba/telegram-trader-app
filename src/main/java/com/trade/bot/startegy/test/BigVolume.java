@@ -5,8 +5,6 @@ import com.trade.bot.entity.Deal;
 import com.trade.bot.enums.OrderType;
 import com.trade.bot.enums.Owner;
 import com.trade.bot.enums.Side;
-import com.trade.bot.enums.Status;
-import com.trade.bot.enums.Stepper;
 import com.trade.bot.enums.Symbol;
 import com.trade.bot.service.BarService;
 import com.trade.bot.service.DealService;
@@ -23,14 +21,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.trade.bot.enums.Owner.KRIS_SUB_FIRST_BYBIT;
+import static com.trade.bot.enums.Owner.KRIS_SUB_SECOND_BYBIT;
 import static com.trade.bot.enums.Status.COMPLETED;
 import static com.trade.bot.enums.Status.PROCESSING;
 import static java.util.Objects.nonNull;
@@ -55,7 +52,7 @@ public class BigVolume implements StrategyExecutor {
         System.out.println();
     }
 
-    // 59.67275348 test 5 август
+    // 6.11618542 test 5 август
     @Scheduled(fixedDelay = 3000)
     public void execute() {
         List<Bar> lastBars = barService.findLastBar(1);
@@ -207,60 +204,46 @@ public class BigVolume implements StrategyExecutor {
         if (deal.getStatus() == COMPLETED) {
             return;
         }
-        if (deal.getSide() == Side.Buy) {
-            double low = Double.parseDouble(bar.getLow());
-            double high = Double.parseDouble(bar.getHigh());
+        double low = Double.parseDouble(bar.getLow());
+        double high = Double.parseDouble(bar.getHigh());
 
+        if (deal.getSide() == Side.Buy) {
             if (low < deal.getSl()) {
                 // закрытие по стоп лосс
-                deal.setCloseDate(bar.getCreateDate().plusMinutes(1));
-                deal.setStatus(COMPLETED);
-                deal.setClose(deal.getSl());
-                deal.setResult(deal.getSl() - deal.getOpen());
-
-                dealService.save(deal);
+                commonCloseAction(deal, bar, deal.getSl(), deal.getSl() - deal.getOpen());
             }
 
             if (high > deal.getTp()) {
                 // закрытие по тейк профит
-                deal.setCloseDate(bar.getCreateDate().plusMinutes(1));
-                deal.setStatus(COMPLETED);
-                deal.setClose(deal.getTp());
-                deal.setResult(deal.getTp() - deal.getOpen());
-
-                dealService.save(deal);
+                commonCloseAction(deal, bar, deal.getTp(), deal.getTp() - deal.getOpen());
             }
         }
 
         if (deal.getSide() == Side.Sell) {
-            double low = Double.parseDouble(bar.getLow());
-            double high = Double.parseDouble(bar.getHigh());
-
             if (high > deal.getSl()) {
                 // закрытие по стоп лосс
-                deal.setCloseDate(bar.getCreateDate().plusMinutes(1));
-                deal.setStatus(COMPLETED);
-                deal.setClose(deal.getSl());
-                deal.setResult(deal.getOpen() - deal.getSl());
-
-                dealService.save(deal);
+                commonCloseAction(deal, bar, deal.getSl(), deal.getOpen() - deal.getSl());
             }
 
             if (low < deal.getTp()) {
                 // закрытие по тейк профит
-                deal.setCloseDate(bar.getCreateDate().plusMinutes(1));
-                deal.setStatus(COMPLETED);
-                deal.setClose(deal.getTp());
-                deal.setResult(deal.getOpen() - deal.getTp());
-
-                dealService.save(deal);
+                commonCloseAction(deal, bar, deal.getTp(), deal.getOpen() - deal.getTp());
             }
         }
 
     }
 
+    private void commonCloseAction(Deal deal, Bar bar, double close, double result) {
+        deal.setCloseDate(bar.getCreateDate().plusMinutes(1));
+        deal.setStatus(COMPLETED);
+        deal.setClose(close);
+        deal.setResult(result);
+
+        dealService.save(deal);
+    }
+
     void openOrder(String size, Side side, String sl, String tp) {
-        String key = new ArrayList<>(keySecretMap.get(KRIS_SUB_FIRST_BYBIT).keySet()).get(0);
+        String key = new ArrayList<>(keySecretMap.get(KRIS_SUB_SECOND_BYBIT).keySet()).get(0);
         String secret = keySecretMap.get(KRIS_SUB_FIRST_BYBIT).get(key);
         bybitOrderService.openOrder(
                 key,
