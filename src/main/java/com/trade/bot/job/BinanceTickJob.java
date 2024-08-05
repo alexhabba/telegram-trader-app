@@ -79,8 +79,8 @@ public class BinanceTickJob {
                 .instrument("spot")
                 .build();
 
-        System.out.println(tick);
-        tickRepository.save(tick);
+        Tick save = tickRepository.save(tick);
+        System.out.println(save);
     }
 
     public WebSocketClosingCallback getWebSocketClosingCallback() {
