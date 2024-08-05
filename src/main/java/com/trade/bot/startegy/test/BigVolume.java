@@ -71,11 +71,15 @@ public class BigVolume implements StrategyExecutor {
             return;
         }
 
+        if (nonNull(lastDeal) && lastDeal.getOpenDate().plusMinutes(13).isAfter(lastBar.getCreateDate())) {
+            return;
+        }
+
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
         double sl = onePercent * 2;
         double tp = onePercent * 10;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) + 1 : 10;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) + 13 : 13;
 
         if (volBuyLastBar > 150_000 && closeLastBar < openBuyLastBar) {
             Deal createDeal = Deal.builder()
@@ -118,7 +122,6 @@ public class BigVolume implements StrategyExecutor {
 
     }
 
-
     @Override
     public void execute(Bar lastBar) {
 
@@ -154,15 +157,15 @@ public class BigVolume implements StrategyExecutor {
             return;
         }
 
-//        if (nonNull(lastDeal) && lastDeal.getOpenDate().plusMinutes(30).isAfter(lastBar.getCreateDate())) {
-//            return;
-//        }
+        if (nonNull(lastDeal) && lastDeal.getOpenDate().plusMinutes(13).isAfter(lastBar.getCreateDate())) {
+            return;
+        }
 
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
         double sl = onePercent * 2;
         double tp = onePercent * 10;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) + 1 : 10;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) + 13 : 13;
 
         if (volBuyLastBar > 150_000 && closeLastBar < openBuyLastBar) {
             // todo need to think how make return value deal
