@@ -79,6 +79,7 @@ public class BinanceTickJob {
                 .instrument("spot")
                 .build();
 
+        System.out.println(tick);
         tickRepository.save(tick);
     }
 
