@@ -32,6 +32,9 @@ import static com.trade.bot.enums.Status.COMPLETED;
 import static com.trade.bot.enums.Status.PROCESSING;
 import static java.util.Objects.nonNull;
 
+/**
+ *
+ */
 @Service
 @RequiredArgsConstructor
 public class BigVolume implements StrategyExecutor {
