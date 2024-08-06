@@ -1,5 +1,6 @@
 package com.dao.bot.repository;
 
+import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Deal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

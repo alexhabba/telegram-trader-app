@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findBySymbol(Symbol symbol);

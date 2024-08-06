@@ -1,3 +1,4 @@
 rootProject.name = 'tradeBot'
 include 'dao'
+include 'strategy'
 

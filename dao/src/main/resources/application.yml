@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOSTNAME:45.8.251.166}:${DB_PORT:5432}/${DB_NAME:postgres}?currentSchema=bot
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    pool-size: 30
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    database: postgresql
+
+management:
+  endpoints.web.exposure.include: 'prometheus, health'
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+
+server:
+  port: 8090
+
