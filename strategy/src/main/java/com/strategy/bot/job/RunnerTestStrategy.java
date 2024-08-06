@@ -4,8 +4,10 @@ import com.dao.bot.service.BarDaoService;
 import com.strategy.bot.startegy.StrategyExecutor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,15 +16,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RunnerTestStrategy {
 
+    @Value("${isTestStrategy}")
+    private boolean isTestStrategy;
+
+    private boolean isTestRun = true;
+
     private final List<StrategyExecutor> strategyExecutorList;
     private final BarDaoService barService;
 
     @EventListener({ContextRefreshedEvent.class})
     @SneakyThrows
     public void init() {
-        runTestStrategy();
+//        runTestStrategy();
     }
 
+    @Scheduled(fixedDelay = 3000)
     public void runTestStrategy() {
 //        List<Bar> all = barService.findAll();
 //        List<BarDto> barsCreateDateBetween = barService.getBarsCreateDateBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now());
@@ -47,7 +55,13 @@ public class RunnerTestStrategy {
 //                .mapToInt(BigDecimal::intValue)
 //                .max();
 
-        barService.findAll()
-                .forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar)));
+        if (isTestStrategy && isTestRun) {
+            isTestRun = false;
+            barService.findAll()
+                    .forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar)));
+        } else if (!isTestStrategy) {
+            barService.findLastBar(1)
+                    .forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar)));
+        }
     }
 }

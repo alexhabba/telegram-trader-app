@@ -38,3 +38,5 @@ logging:
     org.hibernate: ERROR
     com.bybit.api.client.service: ERROR
 
+isTestStrategy: false
+
