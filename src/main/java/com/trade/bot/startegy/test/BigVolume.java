@@ -53,7 +53,7 @@ public class BigVolume implements StrategyExecutor {
     }
 
     // 6.11618542 test 5 август
-    @Scheduled(fixedDelay = 3000)
+//    @Scheduled(fixedDelay = 3000)
     public void execute() {
         List<Bar> lastBars = barService.findLastBar(1);
         Bar lastBar = lastBars.get(0);
