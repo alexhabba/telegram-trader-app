@@ -32,6 +32,9 @@ import static com.trade.bot.enums.Status.COMPLETED;
 import static com.trade.bot.enums.Status.PROCESSING;
 import static java.util.Objects.nonNull;
 
+/**
+ *
+ */
 @Service
 @RequiredArgsConstructor
 public class BigVolume implements StrategyExecutor {
@@ -53,7 +56,7 @@ public class BigVolume implements StrategyExecutor {
     }
 
     // 6.11618542 test 5 август
-    @Scheduled(fixedDelay = 3000)
+//    @Scheduled(fixedDelay = 3000)
     public void execute() {
         List<Bar> lastBars = barService.findLastBar(1);
         Bar lastBar = lastBars.get(0);

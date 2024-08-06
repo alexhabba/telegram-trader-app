@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOSTNAME:45.8.251.166}:${DB_PORT:5432}/${DB_NAME:postgres}?currentSchema=bot
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    pool-size: 30
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    database: postgresql
+
+management:
+  endpoints.web.exposure.include: 'prometheus, health'
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+
+server:
+  port: 8090
+
+logging:
+  level:
+    #    root: WARN
+    org.springframework: info
+    org.apache: info
+    com.zaxxer: info
+    org.hibernate.SQL: INFO
+    o.h.internal.util: info
+    o.h.internal.util.EntityPrinter: info
+    com.trade.bot.handler.OkxTradeHandler: DEBUG
+    org.hibernate.engine.jdbc: info
+    org.hibernate: ERROR
+    com.bybit.api.client.service: ERROR
+
+isTestStrategy: false
+
