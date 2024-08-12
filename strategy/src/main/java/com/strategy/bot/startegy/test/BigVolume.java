@@ -14,6 +14,7 @@ import com.strategy.bot.service.BybitPositionService;
 import com.strategy.bot.startegy.StrategyExecutor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.dao.bot.enums.Status.COMPLETED;
@@ -36,6 +38,16 @@ import static java.util.Objects.nonNull;
 @RequiredArgsConstructor
 public class BigVolume implements StrategyExecutor {
 
+    private final static Map<String, Pair<String, String>> map = Map.of(
+            // KRIS_SUB_SECOND_BYBIT 45.4
+            "1", Pair.of("9jaVPeAdvHrCmX0ns1", "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0"),
+            // KRIS_SUB_THIRD_BYBIT 140
+            "2", Pair.of("H3GirAjzpWudDl5OdM", "b0HhjkwZev5TbkeaAiyNCoPTgF03HrBfqxSS"),
+            // KRIS_SUB_FIRST_BYBIT 62
+            "3", Pair.of("AlQPnc97vD3e2rmL8g", "7nhr96hrqY1ugIVEa7Hdz4e091O63OZNvVfu")
+    );
+
+
     // KRIS_SUB_THIRD_BYBIT
     // 140      1.688
 //    private final String key = "H3GirAjzpWudDl5OdM";
@@ -43,8 +55,8 @@ public class BigVolume implements StrategyExecutor {
 
     // KRIS_SUB_SECOND_BYBIT
     // 45.4  12 август
-    private final String key = "9jaVPeAdvHrCmX0ns1";
-    private final String secret = "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0";
+//    private final String key = "9jaVPeAdvHrCmX0ns1";
+//    private final String secret = "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0";
 
     // KRIS_SUB_FIRST_BYBIT
     // 62
@@ -53,7 +65,12 @@ public class BigVolume implements StrategyExecutor {
 
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
+
+    @Value("${strategy}")
+    private String strategy;
+
     private final static double max_vol = 50_000;
+    private double maxVolInStrategy = 0;
 
     private final DealDaoService dealService;
     private final BarDaoService barService;
@@ -87,10 +104,11 @@ public class BigVolume implements StrategyExecutor {
 //                UUID.randomUUID(),
 //                System.out::println);
 
-        BigDecimal balance = balanceService.getBalance(key, secret);
-        ResponsePosition position = positionService.getPosition(key, secret);
-        System.out.println(balance);
-        System.out.println(position);
+//        BigDecimal balance = balanceService.getBalance(key, secret);
+//        ResponsePosition position = positionService.getPosition(key, secret);
+//        System.out.println(balance);
+//        System.out.println(position);
+//        System.out.println("maxVolInStrategy : " + maxVolInStrategy);
     }
 
 
@@ -111,10 +129,11 @@ public class BigVolume implements StrategyExecutor {
 
             System.out.println("commonResult : " + commonResult);
             System.out.println("result : " + result);
-            BigDecimal balance = balanceService.getBalance(key, secret);
-            ResponsePosition position = positionService.getPosition(key, secret);
-            System.out.println(balance);
-            System.out.println(position);
+//            BigDecimal balance = balanceService.getBalance(key, secret);
+//            ResponsePosition position = positionService.getPosition(key, secret);
+//            System.out.println(balance);
+//            System.out.println(position);
+            System.out.println("maxVolInStrategy : " + maxVolInStrategy);
         }
 
         double volBuyLastBar = Double.parseDouble(lastBar.getVolBuy());
@@ -130,7 +149,7 @@ public class BigVolume implements StrategyExecutor {
                 lastDeal = deals.getLast();
             }
         } else {
-            lastDeal = dealService.getLastDeal();
+            lastDeal = dealService.getLastDealStrategy(strategy);
         }
 
         // Если есть не завершенная сделка то проверяем закрылась она или нет
@@ -150,8 +169,7 @@ public class BigVolume implements StrategyExecutor {
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.4) + 13 : 13;
 
         if (volBuyLastBar > max_vol && closeLastBar < openBuyLastBar) {
-            // todo need to think how make return value deal
-            Deal createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
+            Deal createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
 
             // открытие и сохранение сделки в БД
             if (isTestStrategy) {
@@ -162,7 +180,8 @@ public class BigVolume implements StrategyExecutor {
         }
 
         if (volSellLastBar > max_vol && closeLastBar > openBuyLastBar) {
-            Deal createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
+            Deal createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
+
 
             // открытие и сохранение сделки в БД
             if (isTestStrategy) {
@@ -183,7 +202,11 @@ public class BigVolume implements StrategyExecutor {
                 .sl(openPrice1)
                 .tp(openPrice2)
                 .vol(vol)
+                .strategy(strategy)
                 .build();
+        if (maxVolInStrategy < vol) {
+            maxVolInStrategy = vol;
+        }
         return createDeal;
     }
 
@@ -242,8 +265,9 @@ public class BigVolume implements StrategyExecutor {
     }
 
     void openOrder(String size, Side side, String sl, String tp) {
-//        String key = new ArrayList<>(keySecretMap.get(KRIS_SUB_SECOND_BYBIT).keySet()).get(0);
-//        String secret = keySecretMap.get(KRIS_SUB_SECOND_BYBIT).get(key);
+        Pair<String, String> pairKeySecret = map.get(strategy);
+        String key = pairKeySecret.getKey();
+        String secret = pairKeySecret.getValue();
         bybitOrderService.openOrder(
                 key,
                 secret,

@@ -16,6 +16,12 @@ public interface DealRepository extends JpaRepository<Deal, LocalDateTime> {
             "LIMIT :count", nativeQuery = true)
     List<Deal> findLastDeal(int count);
 
+    @Query(value = "SELECT *\n" +
+            "FROM deal d where d.strategy = :strategy \n" +
+            "ORDER BY open_date DESC\n" +
+            "LIMIT :count", nativeQuery = true)
+    List<Deal> findLastDealStrategy(int count, String strategy);
+
 //    List<Bar> findBarByCreateDateBetween(LocalDateTime createDateStart, LocalDateTime createDateEnd);
 
 }

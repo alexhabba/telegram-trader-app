@@ -18,6 +18,11 @@ public class DealDaoService {
         return deals.isEmpty() ? null : deals.get(0);
     }
 
+    public Deal getLastDealStrategy(String strategy) {
+        List<Deal> deals = dealRepository.findLastDealStrategy(1, strategy);
+        return deals.isEmpty() ? null : deals.get(0);
+    }
+
     public void save(Deal deal) {
         dealRepository.save(deal);
     }
