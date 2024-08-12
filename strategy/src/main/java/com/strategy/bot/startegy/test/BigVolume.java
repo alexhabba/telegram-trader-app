@@ -169,8 +169,12 @@ public class BigVolume implements StrategyExecutor {
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.4) + 13 : 13;
 
         if (volBuyLastBar > max_vol && closeLastBar < openBuyLastBar) {
-            Deal createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
-
+            Deal createDeal;
+            if (strategy.equals("1")) {
+                createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
+            } else {
+                createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
+            }
             // открытие и сохранение сделки в БД
             if (isTestStrategy) {
                 deals.add(createDeal);
@@ -180,8 +184,13 @@ public class BigVolume implements StrategyExecutor {
         }
 
         if (volSellLastBar > max_vol && closeLastBar > openBuyLastBar) {
-            Deal createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
+            Deal createDeal;
 
+            if (strategy.equals("1")) {
+                createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
+            } else {
+                createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
+            }
 
             // открытие и сохранение сделки в БД
             if (isTestStrategy) {
