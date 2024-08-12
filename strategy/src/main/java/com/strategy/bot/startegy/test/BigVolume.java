@@ -17,14 +17,12 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.UUID;
 
 import static com.dao.bot.enums.Status.COMPLETED;
@@ -38,8 +36,24 @@ import static java.util.Objects.nonNull;
 @RequiredArgsConstructor
 public class BigVolume implements StrategyExecutor {
 
+    // KRIS_SUB_THIRD_BYBIT
+    // 140      1.688
+//    private final String key = "H3GirAjzpWudDl5OdM";
+//    private final String secret = "b0HhjkwZev5TbkeaAiyNCoPTgF03HrBfqxSS";
+
+    // KRIS_SUB_SECOND_BYBIT
+    // 45
+    private final String key = "9jaVPeAdvHrCmX0ns1";
+    private final String secret = "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0";
+
+    // KRIS_SUB_FIRST_BYBIT
+    // 62
+//    private final String key = "AlQPnc97vD3e2rmL8g";
+//    private final String secret = "7nhr96hrqY1ugIVEa7Hdz4e091O63OZNvVfu";
+
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
+    private final static double max_vol = 50_000;
 
     private final DealDaoService dealService;
     private final BarDaoService barService;
@@ -51,26 +65,39 @@ public class BigVolume implements StrategyExecutor {
     @EventListener({ContextRefreshedEvent.class})
     @SneakyThrows
     public void init() {
+//        BigDecimal balance = balanceService.getBalance(key, secret);
+//        ResponsePosition position = positionService.getPosition(key, secret);
+//        System.out.println(balance);
+//        System.out.println(position);
 //        dealService.deleteAll();
 //        openOrder("5", Side.Sell, "1.8", "1.5");
 //        System.out.println();
+
+//        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.771), BigDecimal.valueOf(1.641));
+
 //        bybitOrderService.openOrder(
-//                "9jaVPeAdvHrCmX0ns1",
-//                "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0",
+//                key,
+//                secret,
 //                Symbol.WLD,
 //                "0",
 //                "0",
-//                "260",
+//                "200",
 //                Side.Sell,
 //                OrderType.MARKET,
 //                UUID.randomUUID(),
 //                System.out::println);
+
+        BigDecimal balance = balanceService.getBalance(key, secret);
+        ResponsePosition position = positionService.getPosition(key, secret);
+        System.out.println(balance);
+        System.out.println(position);
     }
 
 
     // 6.11618542 + 100 test 5 август
     @Override
     public void execute(Bar lastBar) {
+//        if (isTestStrategy) return;
         if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(5).withSecond(0).withNano(0).isBefore(lastBar.getCreateDate())) {
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
@@ -84,8 +111,8 @@ public class BigVolume implements StrategyExecutor {
 
             System.out.println("commonResult : " + commonResult);
             System.out.println("result : " + result);
-            BigDecimal balance = balanceService.getBalance("9jaVPeAdvHrCmX0ns1", "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0");
-            ResponsePosition position = positionService.getPosition("9jaVPeAdvHrCmX0ns1", "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0");
+            BigDecimal balance = balanceService.getBalance(key, secret);
+            ResponsePosition position = positionService.getPosition(key, secret);
             System.out.println(balance);
             System.out.println(position);
         }
@@ -118,40 +145,13 @@ public class BigVolume implements StrategyExecutor {
 
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 2;
-        double tp = onePercent * 10;
+        double sl = onePercent * 1;
+        double tp = onePercent * 3;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.4) + 13 : 13;
 
-        if (volBuyLastBar > 150_000 && closeLastBar < openBuyLastBar) {
+        if (volBuyLastBar > max_vol && closeLastBar < openBuyLastBar) {
             // todo need to think how make return value deal
-
-            Deal createDeal = Deal.builder()
-                    .openDate(lastBar.getCreateDate().plusMinutes(1))
-                    .open(openPrice)
-                    .status(PROCESSING)
-                    .side(Side.Sell)
-                    .sl(openPrice + sl)
-                    .tp(openPrice - tp)
-                    .vol(vol)
-                    .build();
-            // открытие и сохранение сделки в БД
-            if (isTestStrategy) {
-                deals.add(createDeal);
-            } else {
-                openOrder(createDeal);
-            }
-        }
-
-        if (volSellLastBar > 150_000 && closeLastBar > openBuyLastBar) {
-            Deal createDeal = Deal.builder()
-                    .openDate(lastBar.getCreateDate().plusMinutes(1))
-                    .open(openPrice)
-                    .status(PROCESSING)
-                    .side(Side.Buy)
-                    .sl(openPrice - sl)
-                    .tp(openPrice + tp)
-                    .vol(vol)
-                    .build();
+            Deal createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
 
             // открытие и сохранение сделки в БД
             if (isTestStrategy) {
@@ -161,6 +161,30 @@ public class BigVolume implements StrategyExecutor {
             }
         }
 
+        if (volSellLastBar > max_vol && closeLastBar > openBuyLastBar) {
+            Deal createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
+
+            // открытие и сохранение сделки в БД
+            if (isTestStrategy) {
+                deals.add(createDeal);
+            } else {
+                openOrder(createDeal);
+            }
+        }
+
+    }
+
+    private Deal createDeal(Bar lastBar, double openPrice, Side sell, double openPrice1, double openPrice2, double vol) {
+        Deal createDeal = Deal.builder()
+                .openDate(lastBar.getCreateDate().plusMinutes(1))
+                .open(openPrice)
+                .status(PROCESSING)
+                .side(sell)
+                .sl(openPrice1)
+                .tp(openPrice2)
+                .vol(vol)
+                .build();
+        return createDeal;
     }
 
     private void checkTpSl(Bar bar, Deal deal) {

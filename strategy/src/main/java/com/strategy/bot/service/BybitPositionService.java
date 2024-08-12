@@ -6,11 +6,14 @@ import com.bybit.api.client.domain.position.request.PositionDataRequest;
 import com.bybit.api.client.service.BybitApiClientFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strategy.bot.dto.ResponsePosition;
+import com.strategy.bot.utils.PositionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -32,8 +35,8 @@ public class BybitPositionService {
         return responsePosition;
     }
 
-//    @SneakyThrows
-//    public void setSlTp(String key, String secret, BigDecimal sl, BigDecimal tp) {
-//        PositionUtils.sentTpSl(key, secret, sl, tp);
-//    }
+    @SneakyThrows
+    public void setSlTp(String key, String secret, BigDecimal sl, BigDecimal tp) {
+        PositionUtils.sentTpSl(key, secret, sl, tp);
+    }
 }
