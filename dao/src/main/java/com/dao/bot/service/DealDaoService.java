@@ -23,8 +23,8 @@ public class DealDaoService {
         return deals.isEmpty() ? null : deals.get(0);
     }
 
-    public void save(Deal deal) {
-        dealRepository.save(deal);
+    public Deal save(Deal deal) {
+        return dealRepository.save(deal);
     }
 
     public List<Deal> getAllDeals() {

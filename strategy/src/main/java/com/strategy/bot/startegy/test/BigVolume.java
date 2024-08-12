@@ -14,6 +14,7 @@ import com.strategy.bot.service.BybitPositionService;
 import com.strategy.bot.startegy.StrategyExecutor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -34,6 +35,7 @@ import static java.util.Objects.nonNull;
 /**
  *
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BigVolume implements StrategyExecutor {
@@ -92,13 +94,16 @@ public class BigVolume implements StrategyExecutor {
 
 //        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.771), BigDecimal.valueOf(1.641));
 
+//        Pair<String, String> pairKeySecret = map.get("2");
+//        String key = pairKeySecret.getKey();
+//        String secret = pairKeySecret.getValue();
 //        bybitOrderService.openOrder(
 //                key,
 //                secret,
 //                Symbol.WLD,
 //                "0",
 //                "0",
-//                "200",
+//                "3000",
 //                Side.Sell,
 //                OrderType.MARKET,
 //                UUID.randomUUID(),
@@ -112,6 +117,7 @@ public class BigVolume implements StrategyExecutor {
     }
 
 
+    // todo необходимо доработать стратегию в БД не сохранилась запись
     // 6.11618542 + 100 test 5 август
     @Override
     public void execute(Bar lastBar) {
@@ -129,10 +135,13 @@ public class BigVolume implements StrategyExecutor {
 
             System.out.println("commonResult : " + commonResult);
             System.out.println("result : " + result);
-//            BigDecimal balance = balanceService.getBalance(key, secret);
-//            ResponsePosition position = positionService.getPosition(key, secret);
-//            System.out.println(balance);
-//            System.out.println(position);
+            Pair<String, String> pairKeySecret = map.get(strategy);
+            String key = pairKeySecret.getKey();
+            String secret = pairKeySecret.getValue();
+            BigDecimal balance = balanceService.getBalance(key, secret);
+            ResponsePosition position = positionService.getPosition(key, secret);
+            System.out.println(balance);
+            System.out.println(position);
             System.out.println("maxVolInStrategy : " + maxVolInStrategy);
         }
 
@@ -264,13 +273,25 @@ public class BigVolume implements StrategyExecutor {
     }
 
     private void openOrder(Deal createDeal) {
-        openOrder(
-                Double.toString(createDeal.getVol()),
-                createDeal.getSide(),
-                Double.toString(createDeal.getSl()),
-                Double.toString(createDeal.getTp())
-        );
-        dealService.save(createDeal);
+        if (deals.isEmpty()) {
+            openOrder(
+                    Double.toString(createDeal.getVol()),
+                    createDeal.getSide(),
+                    Double.toString(createDeal.getSl()),
+                    Double.toString(createDeal.getTp())
+            );
+        } else {
+            dealService.save(createDeal);
+            deals.clear();
+        }
+
+        try {
+            dealService.save(createDeal);
+            log.info("Successful save deal {}", createDeal);
+        } catch (Throwable e) {
+            log.error("Error save deal {}", createDeal, e);
+            deals.addLast(createDeal);
+        }
     }
 
     void openOrder(String size, Side side, String sl, String tp) {
