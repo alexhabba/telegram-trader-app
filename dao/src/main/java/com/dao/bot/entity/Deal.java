@@ -13,6 +13,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 public class Deal {
 
     @Id
+    private UUID id;
     private LocalDateTime openDate;
     private LocalDateTime closeDate;
     private double vol;

@@ -92,19 +92,20 @@ public class BigVolume implements StrategyExecutor {
 //        openOrder("5", Side.Sell, "1.8", "1.5");
 //        System.out.println();
 
-//        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.771), BigDecimal.valueOf(1.641));
 
-//        Pair<String, String> pairKeySecret = map.get("2");
-//        String key = pairKeySecret.getKey();
-//        String secret = pairKeySecret.getValue();
+        Pair<String, String> pairKeySecret = map.get(strategy);
+        String key = pairKeySecret.getKey();
+        String secret = pairKeySecret.getValue();
+//        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.725), BigDecimal.valueOf(1.5));
+
 //        bybitOrderService.openOrder(
 //                key,
 //                secret,
 //                Symbol.WLD,
 //                "0",
 //                "0",
-//                "3000",
-//                Side.Sell,
+//                "6000",
+//                Side.Buy,
 //                OrderType.MARKET,
 //                UUID.randomUUID(),
 //                System.out::println);
@@ -213,6 +214,7 @@ public class BigVolume implements StrategyExecutor {
 
     private Deal createDeal(Bar lastBar, double openPrice, Side sell, double openPrice1, double openPrice2, double vol) {
         Deal createDeal = Deal.builder()
+                .id(UUID.randomUUID())
                 .openDate(lastBar.getCreateDate().plusMinutes(1))
                 .open(openPrice)
                 .status(PROCESSING)

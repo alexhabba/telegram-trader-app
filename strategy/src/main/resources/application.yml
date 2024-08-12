@@ -39,5 +39,5 @@ logging:
     com.bybit.api.client.service: ERROR
 
 isTestStrategy: false
-strategy: 1
+strategy: 2
 
