@@ -42,7 +42,7 @@ public class BigVolume implements StrategyExecutor {
 //    private final String secret = "b0HhjkwZev5TbkeaAiyNCoPTgF03HrBfqxSS";
 
     // KRIS_SUB_SECOND_BYBIT
-    // 45
+    // 45.4  12 август
     private final String key = "9jaVPeAdvHrCmX0ns1";
     private final String secret = "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0";
 
@@ -245,8 +245,8 @@ public class BigVolume implements StrategyExecutor {
 //        String key = new ArrayList<>(keySecretMap.get(KRIS_SUB_SECOND_BYBIT).keySet()).get(0);
 //        String secret = keySecretMap.get(KRIS_SUB_SECOND_BYBIT).get(key);
         bybitOrderService.openOrder(
-                "9jaVPeAdvHrCmX0ns1",
-                "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0",
+                key,
+                secret,
                 Symbol.WLD,
                 sl,
                 tp,
