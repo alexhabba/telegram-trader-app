@@ -3,6 +3,7 @@ package com.strategy.bot.startegy.test;
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Deal;
 import com.dao.bot.enums.OrderType;
+import com.dao.bot.enums.Owner;
 import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import com.dao.bot.service.BarDaoService;
@@ -41,12 +42,14 @@ import static java.util.Objects.nonNull;
 public class BigVolume implements StrategyExecutor {
 
     private final static Map<String, Pair<String, String>> map = Map.of(
-            // KRIS_SUB_SECOND_BYBIT 45.4
+            // KRIS_SUB_SECOND_BYBIT 0
             "1", Pair.of("9jaVPeAdvHrCmX0ns1", "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0"),
-            // KRIS_SUB_THIRD_BYBIT 140
+            // KRIS_SUB_THIRD_BYBIT 106
             "2", Pair.of("H3GirAjzpWudDl5OdM", "b0HhjkwZev5TbkeaAiyNCoPTgF03HrBfqxSS"),
-            // KRIS_SUB_FIRST_BYBIT 62
-            "3", Pair.of("AlQPnc97vD3e2rmL8g", "7nhr96hrqY1ugIVEa7Hdz4e091O63OZNvVfu")
+            // KRIS_SUB_FIRST_BYBIT 43
+            "3", Pair.of("AlQPnc97vD3e2rmL8g", "7nhr96hrqY1ugIVEa7Hdz4e091O63OZNvVfu"),
+            // ISLAM_BYBIT 74.51
+            "4", Pair.of("06sETlkoP2qjgAMTG5", "UN3kh8zBizlhI2U04D56nCkADUxbHsRm6g21")
     );
 
 
@@ -64,6 +67,9 @@ public class BigVolume implements StrategyExecutor {
     // 62
 //    private final String key = "AlQPnc97vD3e2rmL8g";
 //    private final String secret = "7nhr96hrqY1ugIVEa7Hdz4e091O63OZNvVfu";
+
+    @Value("#{${accounts}}")
+    private Map<Owner, Map<String, String>> keySecretMap;
 
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
@@ -117,9 +123,6 @@ public class BigVolume implements StrategyExecutor {
 //        System.out.println("maxVolInStrategy : " + maxVolInStrategy);
     }
 
-
-    // todo необходимо доработать стратегию в БД не сохранилась запись
-    // 6.11618542 + 100 test 5 август
     @Override
     public void execute(Bar lastBar) {
 //        if (isTestStrategy) return;
@@ -176,11 +179,11 @@ public class BigVolume implements StrategyExecutor {
         double onePercent = openPrice / 100;
         double sl = onePercent * 1;
         double tp = onePercent * 3;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.4) + 13 : 13;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.4) + 13 : 13 * 2;
 
         if (volBuyLastBar > max_vol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
-            if (strategy.equals("2")) {
+            if (strategy.equals("2") || strategy.equals("4")) {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
             } else {
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
