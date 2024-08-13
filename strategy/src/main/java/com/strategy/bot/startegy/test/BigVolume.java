@@ -199,7 +199,7 @@ public class BigVolume implements StrategyExecutor {
         if (volSellLastBar > max_vol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
 
-            if (strategy.equals("2")) {
+            if (strategy.equals("2") || strategy.equals("4")) {
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
             } else {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
