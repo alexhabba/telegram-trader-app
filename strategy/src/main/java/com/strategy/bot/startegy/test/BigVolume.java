@@ -49,24 +49,10 @@ public class BigVolume implements StrategyExecutor {
             // KRIS_SUB_FIRST_BYBIT 43
             "3", Pair.of("AlQPnc97vD3e2rmL8g", "7nhr96hrqY1ugIVEa7Hdz4e091O63OZNvVfu"),
             // ISLAM_BYBIT 74.51
-            "4", Pair.of("06sETlkoP2qjgAMTG5", "UN3kh8zBizlhI2U04D56nCkADUxbHsRm6g21")
+            "4", Pair.of("06sETlkoP2qjgAMTG5", "UN3kh8zBizlhI2U04D56nCkADUxbHsRm6g21"),
+            // ISLAM_SUB_FIRST_BYBIT 76.18
+            "5", Pair.of("GHT40gkxrAlMmYJPfk", "kORD1LFlJsS00S7mbuwSkYY8ZvN4e1s7r5Zl")
     );
-
-
-    // KRIS_SUB_THIRD_BYBIT
-    // 140      1.688
-//    private final String key = "H3GirAjzpWudDl5OdM";
-//    private final String secret = "b0HhjkwZev5TbkeaAiyNCoPTgF03HrBfqxSS";
-
-    // KRIS_SUB_SECOND_BYBIT
-    // 45.4  12 август
-//    private final String key = "9jaVPeAdvHrCmX0ns1";
-//    private final String secret = "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0";
-
-    // KRIS_SUB_FIRST_BYBIT
-    // 62
-//    private final String key = "AlQPnc97vD3e2rmL8g";
-//    private final String secret = "7nhr96hrqY1ugIVEa7Hdz4e091O63OZNvVfu";
 
     @Value("#{${accounts}}")
     private Map<Owner, Map<String, String>> keySecretMap;
@@ -77,7 +63,10 @@ public class BigVolume implements StrategyExecutor {
     @Value("${strategy}")
     private String strategy;
 
-    private final static double max_vol = 50_000;
+    @Value("${start-vol}")
+    private int startVol;
+
+    private final static double maxVol = 100_000;
     private double maxVolInStrategy = 0;
 
     private final DealDaoService dealService;
@@ -126,7 +115,7 @@ public class BigVolume implements StrategyExecutor {
     @Override
     public void execute(Bar lastBar) {
 //        if (isTestStrategy) return;
-        if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(5).withSecond(0).withNano(0).isBefore(lastBar.getCreateDate())) {
+        if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
             Double commonResult = deals.stream()
@@ -137,8 +126,21 @@ public class BigVolume implements StrategyExecutor {
                     .map(Deal::getResult)
                     .reduce(0d, Double::sum);
 
+            long badCount = deals.stream()
+                    .map(Deal::getResult)
+                    .filter(r -> r < 0)
+                    .count();
+
+            long successCount = deals.stream()
+                    .map(Deal::getResult)
+                    .filter(r -> r > 0)
+                    .count();
+
+
             System.out.println("commonResult : " + commonResult);
             System.out.println("result : " + result);
+            System.out.println("убыточных сделок : " + badCount);
+            System.out.println("успешных сделок : " + successCount);
             Pair<String, String> pairKeySecret = map.get(strategy);
             String key = pairKeySecret.getKey();
             String secret = pairKeySecret.getValue();
@@ -177,11 +179,11 @@ public class BigVolume implements StrategyExecutor {
 
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 1;
-        double tp = onePercent * 3;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.4) + 13 : 13 * 2;
+        double sl = onePercent * 2;
+        double tp = onePercent * 6;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.4) + 13 : startVol * 13;
 
-        if (volBuyLastBar > max_vol && closeLastBar < openBuyLastBar) {
+        if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
             if (strategy.equals("2") || strategy.equals("4")) {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
@@ -196,7 +198,7 @@ public class BigVolume implements StrategyExecutor {
             }
         }
 
-        if (volSellLastBar > max_vol && closeLastBar > openBuyLastBar) {
+        if (volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
 
             if (strategy.equals("2") || strategy.equals("4")) {
