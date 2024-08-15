@@ -201,13 +201,13 @@ public class BigVolume implements StrategyExecutor {
 
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 2;
-        double tp = onePercent * 1;
+        double sl = onePercent * 3;
+        double tp = onePercent * 2;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 2) + 13 : startVol * 13;
 
-        if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
+        if (volBuyLastBar > maxVol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
-            if (strategy.equals("2") || strategy.equals("4")) {
+            if (strategy.equals("8") || strategy.equals("4")) {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
             } else {
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
@@ -220,10 +220,10 @@ public class BigVolume implements StrategyExecutor {
             }
         }
 
-        if (volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
+        if (volSellLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
 
-            if (strategy.equals("2") || strategy.equals("4")) {
+            if (strategy.equals("8") || strategy.equals("4")) {
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
             } else {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
