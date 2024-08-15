@@ -4,7 +4,7 @@ spring:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
-    pool-size: 30
+    pool-size: 100
   jpa:
     show-sql: false
     hibernate:
@@ -40,6 +40,6 @@ logging:
 
 isTestStrategy: false
 strategy: 7
-start-vol: 2
+start-vol: 1
 
 accounts: ${ACCOUNTS:{}}

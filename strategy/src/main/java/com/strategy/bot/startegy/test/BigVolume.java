@@ -117,26 +117,12 @@ public class BigVolume implements StrategyExecutor {
 //        System.out.println(position);
 //        System.out.println("maxVolInStrategy : " + maxVolInStrategy);
 
-//        showPositionAndBalance();
-    }
-
-    private void showPositionAndBalance() {
-        map.forEach((k, v) -> {
-            ResponsePosition position = positionService.getPosition(v.getKey(), v.getValue());
-            BigDecimal size = position.getResult().getPositions().get(0).getSize();
-            String side = position.getResult().getPositions().get(0).getSide();
-
-            BigDecimal balance = balanceService.getBalance(v.getKey(), v.getValue());
-            System.out.println();
-            System.out.println("=======================================================");
-            System.out.println("account : " + k + " balance : " + balance + " side : " + side + " size : " + size) ;
-            System.out.println("=======================================================");
-        });
+        showPositionAndBalance();
     }
 
     @Override
     public void execute(Bar lastBar) {
-//        if (isTestStrategy) return;
+        if (isTestStrategy) return;
         if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
@@ -201,8 +187,8 @@ public class BigVolume implements StrategyExecutor {
 
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 2;
-        double tp = onePercent * 1;
+        double sl = onePercent * 3;
+        double tp = onePercent * 3;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 2) + 13 : startVol * 13;
 
         if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
@@ -338,5 +324,19 @@ public class BigVolume implements StrategyExecutor {
                 OrderType.MARKET,
                 UUID.randomUUID(),
                 System.out::println);
+    }
+
+    private void showPositionAndBalance() {
+        map.forEach((k, v) -> {
+            ResponsePosition position = positionService.getPosition(v.getKey(), v.getValue());
+            BigDecimal size = position.getResult().getPositions().get(0).getSize();
+            String side = position.getResult().getPositions().get(0).getSide();
+
+            BigDecimal balance = balanceService.getBalance(v.getKey(), v.getValue());
+            System.out.println();
+            System.out.println("=======================================================");
+            System.out.println("account : " + k + " balance : " + balance + " side : " + side + " size : " + size) ;
+            System.out.println("=======================================================");
+        });
     }
 }
