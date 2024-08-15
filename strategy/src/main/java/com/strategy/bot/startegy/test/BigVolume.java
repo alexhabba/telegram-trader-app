@@ -51,7 +51,9 @@ public class BigVolume implements StrategyExecutor {
             // ISLAM_BYBIT 74.51
             "4", Pair.of("06sETlkoP2qjgAMTG5", "UN3kh8zBizlhI2U04D56nCkADUxbHsRm6g21"),
             // ISLAM_SUB_FIRST_BYBIT 76.18
-            "5", Pair.of("GHT40gkxrAlMmYJPfk", "kORD1LFlJsS00S7mbuwSkYY8ZvN4e1s7r5Zl")
+            "5", Pair.of("GHT40gkxrAlMmYJPfk", "kORD1LFlJsS00S7mbuwSkYY8ZvN4e1s7r5Zl"),
+            // SUB_FIRST_BYBIT 104.07
+            "6", Pair.of("UNa8RzDDztTkStiDUY", "mGwJooK5qVT4hdN3k53rGBuJDyMk8EyYoArv")
     );
 
     @Value("#{${accounts}}")
@@ -88,9 +90,9 @@ public class BigVolume implements StrategyExecutor {
 //        System.out.println();
 
 
-        Pair<String, String> pairKeySecret = map.get(strategy);
-        String key = pairKeySecret.getKey();
-        String secret = pairKeySecret.getValue();
+//        Pair<String, String> pairKeySecret = map.get(strategy);
+//        String key = pairKeySecret.getKey();
+//        String secret = pairKeySecret.getValue();
 //        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.725), BigDecimal.valueOf(1.5));
 
 //        bybitOrderService.openOrder(
@@ -110,6 +112,22 @@ public class BigVolume implements StrategyExecutor {
 //        System.out.println(balance);
 //        System.out.println(position);
 //        System.out.println("maxVolInStrategy : " + maxVolInStrategy);
+
+//        showPositionAndBalance();
+    }
+
+    private void showPositionAndBalance() {
+        map.forEach((k, v) -> {
+            ResponsePosition position = positionService.getPosition(v.getKey(), v.getValue());
+            BigDecimal size = position.getResult().getPositions().get(0).getSize();
+            String side = position.getResult().getPositions().get(0).getSide();
+
+            BigDecimal balance = balanceService.getBalance(v.getKey(), v.getValue());
+            System.out.println();
+            System.out.println("=======================================================");
+            System.out.println("account : " + k + " balance : " + balance + " side : " + side + " size : " + size) ;
+            System.out.println("=======================================================");
+        });
     }
 
     @Override
@@ -179,9 +197,9 @@ public class BigVolume implements StrategyExecutor {
 
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 2;
+        double sl = onePercent * 12;
         double tp = onePercent * 6;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.4) + 13 : startVol * 13;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 2) + 13 : startVol * 13;
 
         if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
@@ -243,24 +261,24 @@ public class BigVolume implements StrategyExecutor {
         double high = Double.parseDouble(bar.getHigh());
 
         if (deal.getSide() == Side.Buy) {
-            if (low < deal.getSl()) {
+            if (low <= deal.getSl()) {
                 // закрытие по стоп лосс
                 commonCloseAction(deal, bar, deal.getSl(), deal.getSl() - deal.getOpen());
             }
 
-            if (high > deal.getTp()) {
+            if (high >= deal.getTp()) {
                 // закрытие по тейк профит
                 commonCloseAction(deal, bar, deal.getTp(), deal.getTp() - deal.getOpen());
             }
         }
 
         if (deal.getSide() == Side.Sell) {
-            if (high > deal.getSl()) {
+            if (high >= deal.getSl()) {
                 // закрытие по стоп лосс
                 commonCloseAction(deal, bar, deal.getSl(), deal.getOpen() - deal.getSl());
             }
 
-            if (low < deal.getTp()) {
+            if (low <= deal.getTp()) {
                 // закрытие по тейк профит
                 commonCloseAction(deal, bar, deal.getTp(), deal.getOpen() - deal.getTp());
             }

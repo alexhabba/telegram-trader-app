@@ -30,9 +30,7 @@ public class BybitPositionService {
     public ResponsePosition getPosition(String key, String secret) {
         var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN, true).newPositionRestClient();
         Object response = client.getPositionInfo(PositionDataRequest.builder().category(CategoryType.LINEAR).symbol("WLDUSDT").build());
-        ResponsePosition responsePosition = objectMapper.readValue(objectMapper.writeValueAsString(response), ResponsePosition.class);
-        System.out.println(responsePosition.getResult().getPositions().get(0));
-        return responsePosition;
+        return objectMapper.readValue(objectMapper.writeValueAsString(response), ResponsePosition.class);
     }
 
     @SneakyThrows
