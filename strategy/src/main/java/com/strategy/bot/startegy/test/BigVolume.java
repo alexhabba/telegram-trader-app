@@ -201,8 +201,8 @@ public class BigVolume implements StrategyExecutor {
 
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 2;
-        double tp = onePercent * 1;
+        double sl = onePercent * 3;
+        double tp = onePercent * 3;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 2) + 13 : startVol * 13;
 
         if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {

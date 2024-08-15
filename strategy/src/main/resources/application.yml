@@ -40,6 +40,6 @@ logging:
 
 isTestStrategy: false
 strategy: 7
-start-vol: 2
+start-vol: 1
 
 accounts: ${ACCOUNTS:{}}
