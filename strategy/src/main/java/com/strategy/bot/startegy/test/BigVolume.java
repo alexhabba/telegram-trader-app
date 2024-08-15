@@ -52,8 +52,12 @@ public class BigVolume implements StrategyExecutor {
             "4", Pair.of("06sETlkoP2qjgAMTG5", "UN3kh8zBizlhI2U04D56nCkADUxbHsRm6g21"),
             // ISLAM_SUB_FIRST_BYBIT 76.18
             "5", Pair.of("GHT40gkxrAlMmYJPfk", "kORD1LFlJsS00S7mbuwSkYY8ZvN4e1s7r5Zl"),
-            // SUB_FIRST_BYBIT 104.07
-            "6", Pair.of("UNa8RzDDztTkStiDUY", "mGwJooK5qVT4hdN3k53rGBuJDyMk8EyYoArv")
+            // SUB_FIRST_BYBIT 100
+            "6", Pair.of("UNa8RzDDztTkStiDUY", "mGwJooK5qVT4hdN3k53rGBuJDyMk8EyYoArv"),
+            // ISLAM_SUB_SECOND_BYBIT 60
+            "7", Pair.of("bPVe4ZjME00iqeDAbk", "5wo5H9E2xWpxLq4t0TO6gHoSp5VhdQD7BJ88"),
+            // ISLAM_SUB_THIRD_BYBIT 60
+            "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT")
     );
 
     @Value("#{${accounts}}")
@@ -68,7 +72,7 @@ public class BigVolume implements StrategyExecutor {
     @Value("${start-vol}")
     private int startVol;
 
-    private final static double maxVol = 100_000;
+    private final static double maxVol = 30_000;
     private double maxVolInStrategy = 0;
 
     private final DealDaoService dealService;
@@ -197,8 +201,8 @@ public class BigVolume implements StrategyExecutor {
 
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 12;
-        double tp = onePercent * 6;
+        double sl = onePercent * 2;
+        double tp = onePercent * 1;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 2) + 13 : startVol * 13;
 
         if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
