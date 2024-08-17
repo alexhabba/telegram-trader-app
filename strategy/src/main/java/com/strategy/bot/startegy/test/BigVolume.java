@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -328,17 +329,20 @@ public class BigVolume implements StrategyExecutor {
     }
 
     private void showPositionAndBalance() {
+        ArrayList<BigDecimal> commonBalance = new ArrayList<>();
         map.forEach((k, v) -> {
             ResponsePosition position = positionService.getPosition(v.getKey(), v.getValue());
             BigDecimal size = position.getResult().getPositions().get(0).getSize();
             String side = position.getResult().getPositions().get(0).getSide();
 
             BigDecimal balance = balanceService.getBalance(v.getKey(), v.getValue());
+            commonBalance.add(balance);
             System.out.println();
             System.out.println("=======================================================");
             System.out.println("account : " + k + " balance : " + balance + " side : " + side + " size : " + size) ;
             System.out.println("=======================================================");
         });
+        System.out.println("commonBalance : " + commonBalance.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
     private boolean isNotPosition() {
