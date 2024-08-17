@@ -122,12 +122,12 @@ public class BigVolume implements StrategyExecutor {
 
     @Override
     public void execute(Bar lastBar) {
-        if (isTestStrategy) return;
+//        if (isTestStrategy) return;
         if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
             Double commonResult = deals.stream()
-                    .map(deal -> deal.getResult() * deal.getVol())
+                    .map(deal -> deal.getResult() * deal.getVol() - deal.getVol() * 0.003)
                     .reduce(0d, Double::sum);
 
             Double result = deals.stream()
@@ -188,12 +188,12 @@ public class BigVolume implements StrategyExecutor {
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
         double sl = onePercent * 3;
-        double tp = onePercent * 3;
+        double tp = onePercent * 2;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 2) + 13 : startVol * 13;
 
-        if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
+        if (volBuyLastBar > maxVol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
-            if (strategy.equals("2") || strategy.equals("4")) {
+            if (strategy.equals("8") || strategy.equals("4")) {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
             } else {
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
@@ -206,10 +206,10 @@ public class BigVolume implements StrategyExecutor {
             }
         }
 
-        if (volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
+        if (volSellLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
 
-            if (strategy.equals("2") || strategy.equals("4")) {
+            if (strategy.equals("8") || strategy.equals("4")) {
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
             } else {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
@@ -277,6 +277,7 @@ public class BigVolume implements StrategyExecutor {
     }
 
     private void commonCloseAction(Deal deal, Bar bar, double close, double result) {
+        if (!isTestStrategy && !isNotPosition())  return;
         deal.setCloseDate(bar.getCreateDate().plusMinutes(1));
         deal.setStatus(COMPLETED);
         deal.setClose(close);
@@ -338,5 +339,16 @@ public class BigVolume implements StrategyExecutor {
             System.out.println("account : " + k + " balance : " + balance + " side : " + side + " size : " + size) ;
             System.out.println("=======================================================");
         });
+    }
+
+    private boolean isNotPosition() {
+        Pair<String, String> pairKeySecret = map.get(strategy);
+        String key = pairKeySecret.getKey();
+        String secret = pairKeySecret.getValue();
+
+        ResponsePosition position = positionService.getPosition(key, secret);
+        BigDecimal size = position.getResult().getPositions().get(0)
+                .getSize();
+        return size.equals(BigDecimal.ZERO);
     }
 }
