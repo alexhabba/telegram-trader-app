@@ -62,7 +62,7 @@ public class LimitOrder implements StrategyExecutor {
             "7", Pair.of("bPVe4ZjME00iqeDAbk", "5wo5H9E2xWpxLq4t0TO6gHoSp5VhdQD7BJ88"),
             // ISLAM_SUB_THIRD_BYBIT 60
             "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
-            // SUB_THIRD_BYBIT
+            // SUB_THIRD_BYBIT 93.45
             "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8")
     );
 
@@ -132,7 +132,7 @@ public class LimitOrder implements StrategyExecutor {
 //        }
 //        if (isTestStrategy) return;
         if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
-            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
+//            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
             Double commonResult = deals.stream()
@@ -413,4 +413,5 @@ public class LimitOrder implements StrategyExecutor {
                 .getSize();
         return size.equals(BigDecimal.ZERO);
     }
+
 }

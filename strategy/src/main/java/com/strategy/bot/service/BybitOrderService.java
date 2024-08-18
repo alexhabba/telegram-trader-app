@@ -111,7 +111,9 @@ public class BybitOrderService {
     public void closeOpenLimitOrder(String key, String secret) {
         try {
             BybitLimitOrderResponse openLimitOrder = getOpenLimitOrder(key, secret);
-            assert openLimitOrder != null;
+            if (openLimitOrder.getResult().getList().isEmpty()) {
+                return;
+            }
             String orderId = openLimitOrder.getResult().getList().get(0).getOrderId();
             var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN).newTradeRestClient();
 
