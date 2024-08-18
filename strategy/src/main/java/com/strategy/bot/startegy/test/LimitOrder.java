@@ -381,7 +381,7 @@ public class LimitOrder implements StrategyExecutor {
                 sl,
                 size,
                 side,
-                OrderType.MARKET,
+                OrderType.LIMIT,
                 UUID.randomUUID(),
                 System.out::println);
     }
