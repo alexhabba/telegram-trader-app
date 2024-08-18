@@ -99,16 +99,15 @@ public class BigVolume implements StrategyExecutor {
 //        String key = pairKeySecret.getKey();
 //        String secret = pairKeySecret.getValue();
 //        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.725), BigDecimal.valueOf(1.5));
-
-//        bybitOrderService.openOrder(
+//
+//        bybitOrderService.openLimitOrder(
 //                key,
 //                secret,
 //                Symbol.WLD,
-//                "0",
-//                "0",
-//                "6000",
-//                Side.Buy,
-//                OrderType.MARKET,
+//                "1.530",
+//                "5",
+//                Side.Sell,
+//                OrderType.LIMIT,
 //                UUID.randomUUID(),
 //                System.out::println);
 
@@ -118,12 +117,12 @@ public class BigVolume implements StrategyExecutor {
 //        System.out.println(position);
 //        System.out.println("maxVolInStrategy : " + maxVolInStrategy);
 
-        showPositionAndBalance();
+//        showPositionAndBalance();
     }
 
     @Override
     public void execute(Bar lastBar) {
-//        if (isTestStrategy) return;
+        if (isTestStrategy) return;
         if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
