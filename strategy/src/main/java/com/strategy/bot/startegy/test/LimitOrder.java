@@ -201,7 +201,7 @@ public class LimitOrder implements StrategyExecutor {
                     isCancelPosition(lastBar, lastDeal);
                 }
 
-            } else if (!isNotPosition()) {
+            } else if (isNotPosition()) {
                 // todo тут нужно доработать закрытие позиции по лимиту
                 lastDeal.setStatus(PROCESSING);
                 dealService.save(lastDeal);
@@ -209,6 +209,7 @@ public class LimitOrder implements StrategyExecutor {
             } else if (isCancelPosition(lastBar, lastDeal)) {
                 bybitOrderService.closeOpenLimitOrder(key, secret);
                 lastDeal.setStatus(CANCEL);
+                lastDeal.setCloseDate(LocalDateTime.now());
                 dealService.save(lastDeal);
             }
             return;
@@ -336,7 +337,7 @@ public class LimitOrder implements StrategyExecutor {
     }
 
     private void commonCloseAction(Deal deal, Bar bar, double close, double result) {
-        if (!isTestStrategy && !isNotPosition()) return;
+        if (!isTestStrategy && isNotPosition()) return;
         deal.setCloseDate(bar.getCreateDate().plusMinutes(1));
         deal.setStatus(COMPLETED);
         deal.setClose(close);
@@ -386,7 +387,9 @@ public class LimitOrder implements StrategyExecutor {
                 System.out::println);
     }
 
+    @SneakyThrows
     private void showPositionAndBalance() {
+        Thread.sleep(5000);
         ArrayList<BigDecimal> commonBalance = new ArrayList<>();
         map.forEach((k, v) -> {
             ResponsePosition position = positionService.getPosition(v.getKey(), v.getValue());
