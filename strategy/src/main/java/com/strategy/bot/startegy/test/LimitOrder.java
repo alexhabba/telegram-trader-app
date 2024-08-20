@@ -63,11 +63,14 @@ public class LimitOrder implements StrategyExecutor {
             // ISLAM_SUB_THIRD_BYBIT 60
             "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
             // SUB_THIRD_BYBIT 93.45
-            "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8")
+            "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
+            // KRIS_BYBIT 100   запуск 20 август
+            "10", Pair.of("roUwvpCiyM06jesNHS", "2xWaG3hqAddAVIJqyBozRGb3lZRjVlXmmyD3")
     );
 
     @Value("#{${accounts}}")
     private Map<Owner, Map<String, String>> keySecretMap;
+    private BigDecimal resultBalance = BigDecimal.valueOf(300);
 
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
@@ -78,7 +81,7 @@ public class LimitOrder implements StrategyExecutor {
     @Value("${start-vol}")
     private int startVol;
 
-    private final static double maxVol = 50_000;
+    private final static double maxVol = 70_000;
     private double maxVolInStrategy = 0;
 
     private final DealDaoService dealService;
@@ -127,12 +130,12 @@ public class LimitOrder implements StrategyExecutor {
 
     @Override
     public void execute(Bar lastBar) {
-//        if (lastBar.getCreateDate().isBefore(LocalDateTime.now().minusDays(18))) {
+//        if (lastBar.getCreateDate().isBefore(LocalDateTime.now().minusDays(15))) {
 //            return;
 //        }
 //        if (isTestStrategy) return;
         if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
-//            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
+            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
             Double commonResult = deals.stream()
@@ -166,6 +169,8 @@ public class LimitOrder implements StrategyExecutor {
             System.out.println(balance);
             System.out.println(position);
             System.out.println("maxVolInStrategy : " + maxVolInStrategy);
+
+            System.out.println("баланс стал таким : " + resultBalance);
         }
 
         double volBuyLastBar = Double.parseDouble(lastBar.getVolBuy());
@@ -195,7 +200,8 @@ public class LimitOrder implements StrategyExecutor {
             String key = pairKeySecret.getKey();
             String secret = pairKeySecret.getValue();
             if (isTestStrategy) {
-                if (isOpenPosition(lastBar, lastDeal) ) {
+                if (isOpenPosition(lastBar, lastDeal)) {
+                    // todo если была открыта любая позиция открытая не ботом то переведет в статус PROCESSING
                     lastDeal.setStatus(PROCESSING);
                 } else {
                     isCancelPosition(lastBar, lastDeal);
@@ -225,6 +231,7 @@ public class LimitOrder implements StrategyExecutor {
         double sl = onePercent * 1.3;
         double tp = onePercent * 4;
 //        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 2) + 13 : startVol * 13;
+        getVol();
         double vol = startVol;
 
         if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
@@ -266,6 +273,8 @@ public class LimitOrder implements StrategyExecutor {
     }
 
     private Deal createDeal(Bar lastBar, double openPrice, Side sell, double sl, double tp, double vol) {
+        log.info("Рабочий обьем : {}", vol);
+        log.info("Working volume : {}", vol);
         Deal createDeal = Deal.builder()
                 .id(UUID.randomUUID())
                 .openDate(lastBar.getCreateDate().plusMinutes(1))
@@ -343,6 +352,7 @@ public class LimitOrder implements StrategyExecutor {
         deal.setClose(close);
         deal.setResult(result);
 
+        resultBalance = resultBalance.add(BigDecimal.valueOf(result).multiply(BigDecimal.valueOf(deal.getVol())));
         if (!isTestStrategy) {
             dealService.save(deal);
         }
@@ -384,7 +394,7 @@ public class LimitOrder implements StrategyExecutor {
                 side,
                 OrderType.LIMIT,
                 UUID.randomUUID(),
-                System.out::println);
+                d -> log.info("open order {} ", d));
     }
 
     @SneakyThrows
@@ -417,4 +427,21 @@ public class LimitOrder implements StrategyExecutor {
         return size.equals(BigDecimal.ZERO);
     }
 
+    private void getVol() {
+//        if (resultBalance.doubleValue() > 1000) {
+//            startVol = 5000;
+//        } else if (resultBalance.doubleValue() > 800) {
+//            startVol = 3000;
+//        } else if (resultBalance.doubleValue() > 500) {
+//            startVol = 2000;
+//        } else if (resultBalance.doubleValue() > 200) {
+//            startVol = 1000;
+//        } else if (resultBalance.doubleValue() >= 100) {
+//            startVol = 500;
+//        } else if (resultBalance.doubleValue() >= 50) {
+//            startVol = 250;
+//        } else if (resultBalance.doubleValue() >= 25) {
+//            startVol = 100;
+//        }
+    }
 }
