@@ -282,6 +282,8 @@ public class BigVolume implements StrategyExecutor {
     }
 
     private void commonCloseAction(Deal deal, Bar bar, double close, double result) {
+        if (!isTestStrategy && !isNotPosition())  return;
+
         deal.setCloseDate(bar.getCreateDate().plusMinutes(1));
         deal.setStatus(COMPLETED);
         deal.setClose(close);
@@ -329,5 +331,16 @@ public class BigVolume implements StrategyExecutor {
                 OrderType.MARKET,
                 UUID.randomUUID(),
                 System.out::println);
+    }
+
+    private boolean isNotPosition() {
+        Pair<String, String> pairKeySecret = map.get(strategy);
+        String key = pairKeySecret.getKey();
+        String secret = pairKeySecret.getValue();
+
+        ResponsePosition position = positionService.getPosition(key, secret);
+        BigDecimal size = position.getResult().getPositions().get(0)
+                .getSize();
+        return size.equals(BigDecimal.ZERO);
     }
 }
