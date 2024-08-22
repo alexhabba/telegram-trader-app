@@ -49,7 +49,19 @@ public class BigVolume implements StrategyExecutor {
             // KRIS_SUB_FIRST_BYBIT 43
             "3", Pair.of("AlQPnc97vD3e2rmL8g", "7nhr96hrqY1ugIVEa7Hdz4e091O63OZNvVfu"),
             // ISLAM_BYBIT 74.51
-            "4", Pair.of("06sETlkoP2qjgAMTG5", "UN3kh8zBizlhI2U04D56nCkADUxbHsRm6g21")
+            "4", Pair.of("06sETlkoP2qjgAMTG5", "UN3kh8zBizlhI2U04D56nCkADUxbHsRm6g21"),
+            // ISLAM_SUB_FIRST_BYBIT 76.18
+            "5", Pair.of("GHT40gkxrAlMmYJPfk", "kORD1LFlJsS00S7mbuwSkYY8ZvN4e1s7r5Zl"),
+            // SUB_FIRST_BYBIT 100
+            "6", Pair.of("UNa8RzDDztTkStiDUY", "mGwJooK5qVT4hdN3k53rGBuJDyMk8EyYoArv"),
+            // ISLAM_SUB_SECOND_BYBIT 60
+            "7", Pair.of("bPVe4ZjME00iqeDAbk", "5wo5H9E2xWpxLq4t0TO6gHoSp5VhdQD7BJ88"),
+            // ISLAM_SUB_THIRD_BYBIT 60
+            "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
+            // SUB_THIRD_BYBIT 93.45
+            "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
+            // KRIS_BYBIT 100   запуск 20 август
+            "10", Pair.of("roUwvpCiyM06jesNHS", "2xWaG3hqAddAVIJqyBozRGb3lZRjVlXmmyD3")
     );
 
 
@@ -76,6 +88,9 @@ public class BigVolume implements StrategyExecutor {
 
     @Value("${strategy}")
     private String strategy;
+
+    @Value("${start-vol}")
+    private int startVol;
 
     private final static double max_vol = 50_000;
     private double maxVolInStrategy = 0;
@@ -179,7 +194,7 @@ public class BigVolume implements StrategyExecutor {
         double onePercent = openPrice / 100;
         double sl = onePercent * 1;
         double tp = onePercent * 3;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.4) + 13 : 13 * 2;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.4) + 13 : startVol;
 
         if (volBuyLastBar > max_vol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
