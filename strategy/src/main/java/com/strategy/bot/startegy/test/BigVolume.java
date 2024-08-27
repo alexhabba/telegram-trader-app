@@ -63,8 +63,8 @@ public class BigVolume implements StrategyExecutor {
             "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
             // SUB_THIRD_BYBIT 93.45
             "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
-            // KRIS_BYBIT 100   запуск 20 август
-            "10", Pair.of("roUwvpCiyM06jesNHS", "2xWaG3hqAddAVIJqyBozRGb3lZRjVlXmmyD3")
+            // SUB_SECOND_BYBIT 300   запуск 27 август
+            "10", Pair.of("cppPnBjAhpmm20XZNC", "qxAp7SxrJTupWVroPNWhYezNJKVIn5uvzsk9")
     );
 
 
@@ -238,7 +238,7 @@ public class BigVolume implements StrategyExecutor {
 //            System.out.println();
         if (volBuyLastBar > max_vol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
-            if (strategy.equals("6") || strategy.equals("4")) {
+            if (strategy.equals("10") || strategy.equals("4")) {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
             } else {
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
@@ -254,7 +254,7 @@ public class BigVolume implements StrategyExecutor {
         if (volSellLastBar > max_vol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
 
-            if (strategy.equals("6") || strategy.equals("4")) {
+            if (strategy.equals("10") || strategy.equals("4")) {
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
             } else {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
