@@ -24,11 +24,14 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.dao.bot.enums.Status.CANCEL;
 import static com.dao.bot.enums.Status.COMPLETED;
 import static com.dao.bot.enums.Status.PROCESSING;
 import static java.util.Objects.nonNull;
@@ -92,6 +95,7 @@ public class BigVolume implements StrategyExecutor {
     @Value("${start-vol}")
     private int startVol;
 
+    private BigDecimal resultBalance = BigDecimal.valueOf(300);
     private final static double max_vol = 50_000;
     private double maxVolInStrategy = 0;
 
@@ -117,43 +121,65 @@ public class BigVolume implements StrategyExecutor {
         Pair<String, String> pairKeySecret = map.get(strategy);
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
-//        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.725), BigDecimal.valueOf(1.5));
+//        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.654), BigDecimal.valueOf(1.713));
 
-//        bybitOrderService.openOrder(
-//                key,
-//                secret,
-//                Symbol.WLD,
-//                "0",
-//                "0",
-//                "6000",
-//                Side.Buy,
-//                OrderType.MARKET,
-//                UUID.randomUUID(),
-//                System.out::println);
-
+//        for (int i = 0; i < 50; i++) {
+//            bybitOrderService.openOrder(
+//                    key,
+//                    secret,
+//                    Symbol.WLD,
+//                    "0",
+//                    "0",
+//                    "5",
+//                    Side.Buy,
+//                    OrderType.MARKET,
+//                    UUID.randomUUID(),
+//                    System.out::println);
+//            Thread.sleep(1300);
+//        }
 //        BigDecimal balance = balanceService.getBalance(key, secret);
 //        ResponsePosition position = positionService.getPosition(key, secret);
 //        System.out.println(balance);
 //        System.out.println(position);
 //        System.out.println("maxVolInStrategy : " + maxVolInStrategy);
+
+//        showPositionAndBalance();
     }
 
     @Override
     public void execute(Bar lastBar) {
 //        if (isTestStrategy) return;
-        if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(5).withSecond(0).withNano(0).isBefore(lastBar.getCreateDate())) {
+        if (lastBar.getCreateDate().isBefore(LocalDateTime.now().minusDays(10))) {
+            return;
+        }
+//        if (isTestStrategy) return;
+        if (isTestStrategy && LocalDateTime.now().minusHours(10).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
+            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING);
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
             Double commonResult = deals.stream()
-                    .map(deal -> deal.getResult() * deal.getVol())
+                    .map(deal -> deal.getResult() * deal.getVol() - deal.getVol() * 0.0015)
                     .reduce(0d, Double::sum);
 
             Double result = deals.stream()
                     .map(Deal::getResult)
                     .reduce(0d, Double::sum);
 
+            long badCount = deals.stream()
+                    .map(Deal::getResult)
+                    .filter(r -> r < 0)
+                    .count();
+
+            long successCount = deals.stream()
+                    .map(Deal::getResult)
+                    .filter(r -> r > 0)
+                    .count();
+
+
             System.out.println("commonResult : " + commonResult);
             System.out.println("result : " + result);
+            System.out.println("убыточных сделок : " + badCount);
+            System.out.println("успешных сделок : " + successCount);
             Pair<String, String> pairKeySecret = map.get(strategy);
             String key = pairKeySecret.getKey();
             String secret = pairKeySecret.getValue();
@@ -162,6 +188,8 @@ public class BigVolume implements StrategyExecutor {
             System.out.println(balance);
             System.out.println(position);
             System.out.println("maxVolInStrategy : " + maxVolInStrategy);
+
+            System.out.println("баланс стал таким : " + resultBalance);
         }
 
         double volBuyLastBar = Double.parseDouble(lastBar.getVolBuy());
@@ -192,13 +220,25 @@ public class BigVolume implements StrategyExecutor {
 
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 1;
-        double tp = onePercent * 3;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.4) + 13 : startVol;
+        double sl = onePercent * 1.3;
+        double tp = onePercent * 5;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) : startVol;
+//        double vol = 100;
 
+//        String dateTimeString = "23-08-2024 03:35:00";
+//
+//        // Создание соответствующего формата
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+//
+//        // Преобразование строки в LocalDateTime
+//        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
+//
+//
+//        if (localDateTime.equals(lastBar.getCreateDate()))
+//            System.out.println();
         if (volBuyLastBar > max_vol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
-            if (strategy.equals("2") || strategy.equals("4")) {
+            if (strategy.equals("6") || strategy.equals("4")) {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
             } else {
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
@@ -214,7 +254,7 @@ public class BigVolume implements StrategyExecutor {
         if (volSellLastBar > max_vol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
 
-            if (strategy.equals("2") || strategy.equals("4")) {
+            if (strategy.equals("6") || strategy.equals("4")) {
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
             } else {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
@@ -289,6 +329,7 @@ public class BigVolume implements StrategyExecutor {
         deal.setClose(close);
         deal.setResult(result);
 
+        resultBalance = resultBalance.add(BigDecimal.valueOf(result).multiply(BigDecimal.valueOf(deal.getVol())));
         if (!isTestStrategy) {
             dealService.save(deal);
         }
@@ -342,5 +383,24 @@ public class BigVolume implements StrategyExecutor {
         BigDecimal size = position.getResult().getPositions().get(0)
                 .getSize();
         return size.equals(BigDecimal.ZERO);
+    }
+
+    @SneakyThrows
+    private void showPositionAndBalance() {
+        Thread.sleep(5000);
+        ArrayList<BigDecimal> commonBalance = new ArrayList<>();
+        map.forEach((k, v) -> {
+            ResponsePosition position = positionService.getPosition(v.getKey(), v.getValue());
+            BigDecimal size = position.getResult().getPositions().get(0).getSize();
+            String side = position.getResult().getPositions().get(0).getSide();
+
+            BigDecimal balance = balanceService.getBalance(v.getKey(), v.getValue());
+            commonBalance.add(balance);
+            System.out.println();
+            System.out.println("=======================================================");
+            System.out.println("account : " + k + " balance : " + balance + " side : " + side + " size : " + size);
+            System.out.println("=======================================================");
+        });
+        System.out.println("commonBalance : " + commonBalance.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 }
