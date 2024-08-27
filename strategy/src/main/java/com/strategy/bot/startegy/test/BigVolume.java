@@ -149,9 +149,9 @@ public class BigVolume implements StrategyExecutor {
     @Override
     public void execute(Bar lastBar) {
 //        if (isTestStrategy) return;
-        if (lastBar.getCreateDate().isBefore(LocalDateTime.now().minusDays(10))) {
-            return;
-        }
+//        if (lastBar.getCreateDate().isBefore(LocalDateTime.now().minusDays(10))) {
+//            return;
+//        }
 //        if (isTestStrategy) return;
         if (isTestStrategy && LocalDateTime.now().minusHours(10).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
             deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING);
