@@ -1,5 +1,6 @@
 package com.strategy.bot.job;
 
+import com.dao.bot.entity.Bar;
 import com.dao.bot.service.BarDaoService;
 import com.strategy.bot.startegy.StrategyExecutor;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Month;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +61,12 @@ public class RunnerTestStrategy {
 
         if (isTestStrategy && isTestRun) {
             isTestRun = false;
-            barService.findAll()
+            List<Bar> collect = barService.findAll()
+                    .stream()
+//                    .filter(bar -> bar.getCreateDate().getMonth() != Month.JULY)
+                    .sorted(Comparator.comparing(Bar::getCreateDate))
+                    .collect(Collectors.toList());
+            collect
                     .forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar)));
         } else if (!isTestStrategy) {
             barService.findLastBar(1)

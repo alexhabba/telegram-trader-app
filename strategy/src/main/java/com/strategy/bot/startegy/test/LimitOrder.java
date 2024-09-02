@@ -230,9 +230,9 @@ public class LimitOrder implements StrategyExecutor {
         double onePercent = openPrice / 100;
         double sl = onePercent * 1.3;
         double tp = onePercent * 4;
-//        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 2) + 13 : startVol * 13;
-        getVol();
-        double vol = startVol;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 2) : startVol;
+//        getVol();
+//        double vol = startVol;
 
         if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
@@ -273,8 +273,8 @@ public class LimitOrder implements StrategyExecutor {
     }
 
     private Deal createDeal(Bar lastBar, double openPrice, Side sell, double sl, double tp, double vol) {
-        log.info("Рабочий обьем : {}", vol);
-        log.info("Working volume : {}", vol);
+//        log.info("Рабочий обьем : {}", vol);
+//        log.info("Working volume : {}", vol);
         Deal createDeal = Deal.builder()
                 .id(UUID.randomUUID())
                 .openDate(lastBar.getCreateDate().plusMinutes(1))
