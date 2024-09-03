@@ -10,10 +10,10 @@ spring:
     database: postgresql
   datasource:
 #    url: jdbc:postgresql://${RDS_HOSTNAME:localhost}:${RDS_PORT:5432}/${RDS_DB_NAME:postgres}?currentSchema=bot
-    url: jdbc:postgresql://${RDS_HOSTNAME:45.8.251.166}:${RDS_PORT:5432}/${RDS_DB_NAME:postgres}?currentSchema=bot
+    url: jdbc:postgresql://${HOSTNAME:82.148.29.169}:${PORT:5432}/${DB_NAME:postgres}?currentSchema=bot
 #    url: jdbc:postgresql://${RDS_HOSTNAME:host.docker.internal:${RDS_PORT:5432}/${RDS_DB_NAME:bot}?currentSchema=bot
-    username: ${RDS_USERNAME:postgres}
-    password: ${RDS_PASSWORD:postgres}
+    username: ${USERNAME:postgres}
+    password: ${PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
     pool-size: 30
   main:

@@ -27,7 +27,7 @@ import static java.util.Objects.isNull;
 public class BinanceTickJob {
 
     public static final String WS_API_BASE_URL = "wss://stream.binance.com:9443/ws";
-    public static final String POSTFIX = "/wldusdt@aggTrade";
+    public static final String POSTFIX = "/tonusdt@aggTrade";
 
     private final ObjectMapper objectMapper;
     private final TickRepository tickRepository;

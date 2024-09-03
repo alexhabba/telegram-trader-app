@@ -1,7 +1,6 @@
 package com.trade.bot.job;
 
 import com.trade.bot.entity.Bar;
-import com.trade.bot.entity.LockJob;
 import com.trade.bot.entity.Tick;
 import com.trade.bot.enums.Side;
 import com.trade.bot.repository.BarRepository;
@@ -44,7 +43,7 @@ public class BarCreator {
 //            lockJobRepository.save(new LockJob(JOB_NAME, true));
 //        }
 
-        List<Bar> bars = barRepository.findLastBar(1);
+        List<Bar> bars = barRepository.findLastBar(1, "TON");
 
         if (!bars.isEmpty()) {
             Bar lastBar = bars.get(0);
@@ -121,6 +120,7 @@ public class BarCreator {
                 .low(listLowHigh.get(0).toString())
                 .high(listLowHigh.get(listLowHigh.size() - 1).toString())
                 .createDate(start)
+                .symbol("TON")
                 .build();
     }
 }
