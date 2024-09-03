@@ -213,11 +213,13 @@ public class LimitOrder implements StrategyExecutor {
                 lastDeal.setStatus(PROCESSING);
                 dealService.save(lastDeal);
                 PositionUtils.sentTpSl(key, secret, BigDecimal.valueOf(lastDeal.getSl()), BigDecimal.valueOf(lastDeal.getTp()));
+                log.info("Открытие лимитной заявки, перевод в статус PROCESSING");
             } else if (isCancelPosition(lastBar, lastDeal)) {
                 bybitOrderService.closeOpenLimitOrder(key, secret);
                 lastDeal.setStatus(CANCEL);
                 lastDeal.setCloseDate(LocalDateTime.now());
                 dealService.save(lastDeal);
+                log.info("Отмена лимитной заявки, перевод в статус CANCEL");
             }
             return;
         }
@@ -396,6 +398,7 @@ public class LimitOrder implements StrategyExecutor {
                 OrderType.LIMIT,
                 UUID.randomUUID(),
                 d -> log.info("open order {} ", d));
+        log.info("Open limit order size : {}, side : {}, tvh : {}", size, side, tvh);
     }
 
     @SneakyThrows
