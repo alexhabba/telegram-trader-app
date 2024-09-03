@@ -135,7 +135,7 @@ public class LimitOrder implements StrategyExecutor {
 //        }
 //        if (isTestStrategy) return;
         if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
-            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
+//            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
             Double commonResult = deals.stream()
@@ -207,7 +207,8 @@ public class LimitOrder implements StrategyExecutor {
                     isCancelPosition(lastBar, lastDeal);
                 }
 
-            } else if (isNotPosition()) {
+                // если позиция есть то открылась лимитка
+            } else if (!isNotPosition()) {
                 // todo тут нужно доработать закрытие позиции по лимиту
                 lastDeal.setStatus(PROCESSING);
                 dealService.save(lastDeal);
