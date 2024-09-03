@@ -70,7 +70,7 @@ public class LimitOrder implements StrategyExecutor {
 
     @Value("#{${accounts}}")
     private Map<Owner, Map<String, String>> keySecretMap;
-    private BigDecimal resultBalance = BigDecimal.valueOf(300);
+    private BigDecimal resultBalance = BigDecimal.valueOf(100);
 
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
@@ -125,7 +125,7 @@ public class LimitOrder implements StrategyExecutor {
 //        System.out.println(position);
 //        System.out.println("maxVolInStrategy : " + maxVolInStrategy);
 
-        showPositionAndBalance();
+//        showPositionAndBalance();
     }
 
     @Override
@@ -233,9 +233,11 @@ public class LimitOrder implements StrategyExecutor {
         double onePercent = openPrice / 100;
         double sl = onePercent * 1.3;
         double tp = onePercent * 4;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 2) : startVol;
-//        getVol();
-//        double vol = startVol;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) : startVol;
+
+        if (isTestStrategy && vol == startVol) {
+            vol = getVol(null, null);
+        }
 
         if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
@@ -334,6 +336,7 @@ public class LimitOrder implements StrategyExecutor {
 
         if (createDate.isAfter(openDate)) {
             deal.setStatus(CANCEL);
+            deals.remove(deal);
             return true;
         }
         return false;
@@ -364,7 +367,7 @@ public class LimitOrder implements StrategyExecutor {
     private void openOrder(Deal createDeal) {
         if (deals.isEmpty()) {
             openOrder(
-                    Double.toString(createDeal.getVol()),
+                    createDeal.getVol(),
                     createDeal.getSide(),
                     Double.toString(createDeal.getOpen()),
                     Double.toString(createDeal.getSl())
@@ -383,17 +386,22 @@ public class LimitOrder implements StrategyExecutor {
         }
     }
 
-    void openOrder(String size, Side side, String tvh, String sl) {
+    void openOrder(double size, Side side, String tvh, String sl) {
         Pair<String, String> pairKeySecret = map.get(strategy);
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
+
+        if (size == startVol) {
+            size = getVol(key, secret);
+        }
+
         bybitOrderService.openLimitOrder(
                 key,
                 secret,
                 Symbol.WLD,
                 tvh,
                 sl,
-                size,
+                Double.toString(size),
                 side,
                 OrderType.LIMIT,
                 UUID.randomUUID(),
@@ -431,21 +439,26 @@ public class LimitOrder implements StrategyExecutor {
         return size.equals(BigDecimal.ZERO);
     }
 
-    private void getVol() {
-//        if (resultBalance.doubleValue() > 1000) {
-//            startVol = 5000;
-//        } else if (resultBalance.doubleValue() > 800) {
-//            startVol = 3000;
-//        } else if (resultBalance.doubleValue() > 500) {
-//            startVol = 2000;
-//        } else if (resultBalance.doubleValue() > 200) {
-//            startVol = 1000;
-//        } else if (resultBalance.doubleValue() >= 100) {
-//            startVol = 500;
-//        } else if (resultBalance.doubleValue() >= 50) {
-//            startVol = 250;
-//        } else if (resultBalance.doubleValue() >= 25) {
-//            startVol = 100;
-//        }
+    private double getVol(String key, String secret) {
+
+        if (!isTestStrategy) {
+            resultBalance = balanceService.getBalance(key, secret);
+        }
+        if (resultBalance.doubleValue() >= 1440) {
+            startVol = 377;
+        } else if (resultBalance.doubleValue() >= 890) {
+            startVol = 233;
+        } else if (resultBalance.doubleValue() >= 550) {
+            startVol = 144;
+        } else if (resultBalance.doubleValue() >= 340) {
+            startVol = 89;
+        } else if (resultBalance.doubleValue() >= 210) {
+            startVol = 55;
+        } else if (resultBalance.doubleValue() >= 130) {
+            startVol = 34;
+        } else if (resultBalance.doubleValue() >= 100) {
+            startVol = 21;
+        }
+        return startVol;
     }
 }
