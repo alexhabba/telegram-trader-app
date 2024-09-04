@@ -235,9 +235,9 @@ public class LimitOrder implements StrategyExecutor {
         double tp = onePercent * 4;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) : startVol;
 
-        if (isTestStrategy && vol == startVol) {
-            vol = getVol(null, null);
-        }
+//        if (isTestStrategy && vol == startVol) {
+//            vol = getVol(null, null);
+//        }
 
         if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
@@ -391,9 +391,9 @@ public class LimitOrder implements StrategyExecutor {
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
 
-        if (size == startVol) {
-            size = getVol(key, secret);
-        }
+//        if (size == startVol) {
+//            size = getVol(key, secret);
+//        }
 
         bybitOrderService.openLimitOrder(
                 key,
@@ -443,6 +443,7 @@ public class LimitOrder implements StrategyExecutor {
 
         if (!isTestStrategy) {
             resultBalance = balanceService.getBalance(key, secret);
+            log.info("resultBalance = {}", resultBalance);
         }
         if (resultBalance.doubleValue() >= 1440) {
             startVol = 377;
@@ -459,6 +460,7 @@ public class LimitOrder implements StrategyExecutor {
         } else if (resultBalance.doubleValue() >= 100) {
             startVol = 21;
         }
+        log.info("startVol = {}", startVol);
         return startVol;
     }
 }
