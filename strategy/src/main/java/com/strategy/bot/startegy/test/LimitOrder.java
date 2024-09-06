@@ -212,6 +212,7 @@ public class LimitOrder implements StrategyExecutor {
                 // todo тут нужно доработать закрытие позиции по лимиту
                 lastDeal.setStatus(PROCESSING);
                 dealService.save(lastDeal);
+                // todo округлить до 3 цифр или в мапу добавить
                 PositionUtils.sentTpSl(key, secret, BigDecimal.valueOf(lastDeal.getSl()), BigDecimal.valueOf(lastDeal.getTp()));
                 log.info("Открытие лимитной заявки, перевод в статус PROCESSING");
             } else if (isCancelPosition(lastBar, lastDeal)) {
@@ -352,7 +353,7 @@ public class LimitOrder implements StrategyExecutor {
     }
 
     private void commonCloseAction(Deal deal, Bar bar, double close, double result) {
-        if (!isTestStrategy && isNotPosition()) return;
+        if (!isTestStrategy && !isNotPosition()) return;
         deal.setCloseDate(bar.getCreateDate().plusMinutes(1));
         deal.setStatus(COMPLETED);
         deal.setClose(close);
