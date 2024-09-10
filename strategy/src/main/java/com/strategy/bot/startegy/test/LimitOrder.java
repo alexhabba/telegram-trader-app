@@ -70,7 +70,7 @@ public class LimitOrder implements StrategyExecutor {
 
     @Value("#{${accounts}}")
     private Map<Owner, Map<String, String>> keySecretMap;
-    private BigDecimal resultBalance = BigDecimal.valueOf(100);
+    private BigDecimal resultBalance = BigDecimal.valueOf(400);
 
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
@@ -236,9 +236,9 @@ public class LimitOrder implements StrategyExecutor {
         double tp = onePercent * 4;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) : startVol;
 
-//        if (isTestStrategy && vol == startVol) {
-//            vol = getVol(null, null);
-//        }
+        if (isTestStrategy && vol == startVol) {
+            vol = getVol(null, null);
+        }
 
         if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
@@ -392,9 +392,9 @@ public class LimitOrder implements StrategyExecutor {
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
 
-//        if (size == startVol) {
-//            size = getVol(key, secret);
-//        }
+        if (size == startVol) {
+            size = getVol(key, secret);
+        }
 
         bybitOrderService.openLimitOrder(
                 key,
