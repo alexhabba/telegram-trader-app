@@ -35,7 +35,7 @@ public class BarCreator {
     private final BarRepository barRepository;
     private final LockJobRepository lockJobRepository;
 
-    @Scheduled(fixedDelay = 1300)
+    @Scheduled(cron = "02 * * * * *")
     public void createBarAndSave() {
 //        Optional<LockJob> lockJobOptional = lockJobRepository.findByNameAndIsLock(JOB_NAME, true);
 //        if (lockJobOptional.isPresent()) {
