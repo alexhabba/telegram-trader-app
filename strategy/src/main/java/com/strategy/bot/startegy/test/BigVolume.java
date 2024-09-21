@@ -123,6 +123,7 @@ public class BigVolume implements StrategyExecutor {
     @Override
     public void execute(Bar lastBar) {
         if (!isTestStrategy) return;
+        if (isTestStrategy) return;
         if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);

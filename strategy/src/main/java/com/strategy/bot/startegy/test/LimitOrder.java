@@ -234,7 +234,7 @@ public class LimitOrder implements StrategyExecutor {
         double onePercent = openPrice / 100;
         double sl = onePercent * 1.3;
         double tp = onePercent * 4;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) : startVol;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.5) : startVol;
 
         if (isTestStrategy && vol == startVol) {
             vol = getVol(null, null);
@@ -446,22 +446,26 @@ public class LimitOrder implements StrategyExecutor {
             resultBalance = balanceService.getBalance(key, secret);
             log.info("resultBalance = {}", resultBalance);
         }
-        if (resultBalance.doubleValue() >= 1440) {
+        if (resultBalance.doubleValue() >= 3770) {
+            startVol = 610;
+        } else if (resultBalance.doubleValue() >= 2330) {
             startVol = 377;
-        } else if (resultBalance.doubleValue() >= 890) {
+        } else if (resultBalance.doubleValue() >= 1440) {
             startVol = 233;
-        } else if (resultBalance.doubleValue() >= 550) {
+        } else if (resultBalance.doubleValue() >= 890) {
             startVol = 144;
-        } else if (resultBalance.doubleValue() >= 340) {
+        } else if (resultBalance.doubleValue() >= 550) {
             startVol = 89;
-        } else if (resultBalance.doubleValue() >= 210) {
+        } else if (resultBalance.doubleValue() >= 340) {
             startVol = 55;
-        } else if (resultBalance.doubleValue() >= 130) {
+        } else if (resultBalance.doubleValue() >= 210) {
             startVol = 34;
-        } else if (resultBalance.doubleValue() >= 100) {
+        } else if (resultBalance.doubleValue() >= 130) {
             startVol = 21;
+        } else if (resultBalance.doubleValue() >= 80) {
+            startVol = 13;
         }
-        log.info("startVol = {}", startVol);
+//        log.info("startVol = {}", startVol);
         return startVol;
     }
 }
