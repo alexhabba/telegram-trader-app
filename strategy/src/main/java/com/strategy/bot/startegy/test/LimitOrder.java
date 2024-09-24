@@ -59,7 +59,7 @@ public class LimitOrder implements StrategyExecutor {
             // SUB_FIRST_BYBIT 100
             "6", Pair.of("UNa8RzDDztTkStiDUY", "mGwJooK5qVT4hdN3k53rGBuJDyMk8EyYoArv"),
             // ISLAM_SUB_SECOND_BYBIT 60
-            "7", Pair.of("bPVe4ZjME00iqeDAbk", "5wo5H9E2xWpxLq4t0TO6gHoSp5VhdQD7BJ88"),
+            "7", Pair.of("UNa8RzDDztTkStiDUY", "mGwJooK5qVT4hdN3k53rGBuJDyMk8EyYoArv"),
             // ISLAM_SUB_THIRD_BYBIT 60
             "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
             // SUB_THIRD_BYBIT 93.45
@@ -70,7 +70,7 @@ public class LimitOrder implements StrategyExecutor {
 
     @Value("#{${accounts}}")
     private Map<Owner, Map<String, String>> keySecretMap;
-    private BigDecimal resultBalance = BigDecimal.valueOf(1500);
+    private BigDecimal resultBalance = BigDecimal.valueOf(100);
 
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
