@@ -17,7 +17,7 @@ public interface DealRepository extends JpaRepository<Deal, LocalDateTime> {
     List<Deal> findLastDeal(int count);
 
     @Query(value = "SELECT *\n" +
-            "FROM deal d where d.strategy = :strategy \n" +
+            "FROM deal d where d.strategy = :strategy and d.status not in ('CANCEL') " +
             "ORDER BY open_date DESC\n" +
             "LIMIT :count", nativeQuery = true)
     List<Deal> findLastDealStrategy(int count, String strategy);
