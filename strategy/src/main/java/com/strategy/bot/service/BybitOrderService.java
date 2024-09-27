@@ -97,7 +97,7 @@ public class BybitOrderService {
     public BybitLimitOrderResponse getOpenLimitOrder(String key, String secret) {
         try {
             var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN).newTradeRestClient();
-            var openLinearOrdersResult = client.getOpenOrders(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol("WLDUSDT").build());
+            var openLinearOrdersResult = client.getOpenOrders(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol("TONUSDT").build());
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(objectMapper.writeValueAsString(openLinearOrdersResult), BybitLimitOrderResponse.class);
         } catch (BybitApiException e) {
@@ -118,7 +118,7 @@ public class BybitOrderService {
             var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN).newTradeRestClient();
 
 
-            var result = client.cancelOrder(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol("WLDUSDT").orderId(orderId).build());
+            var result = client.cancelOrder(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol("TONUSDT").orderId(orderId).build());
             System.out.println(result);
         } catch (BybitApiException e) {
             // Обработка ошибок

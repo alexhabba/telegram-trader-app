@@ -318,7 +318,7 @@ public class BigVolume implements StrategyExecutor {
         bybitOrderService.openOrder(
                 key,
                 secret,
-                Symbol.WLD,
+                Symbol.TON,
                 sl,
                 tp,
                 size,

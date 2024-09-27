@@ -70,7 +70,7 @@ public class LimitOrder implements StrategyExecutor {
 
     @Value("#{${accounts}}")
     private Map<Owner, Map<String, String>> keySecretMap;
-    private BigDecimal resultBalance = BigDecimal.valueOf(100);
+    private BigDecimal resultBalance = BigDecimal.valueOf(300);
 
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
@@ -111,7 +111,7 @@ public class LimitOrder implements StrategyExecutor {
 //        bybitOrderService.openLimitOrder(
 //                key,
 //                secret,
-//                Symbol.WLD,
+//                Symbol.TON,
 //                "1.530",
 //                "5",
 //                Side.Sell,
@@ -399,7 +399,7 @@ public class LimitOrder implements StrategyExecutor {
         bybitOrderService.openLimitOrder(
                 key,
                 secret,
-                Symbol.WLD,
+                Symbol.TON,
                 tvh,
                 sl,
                 Double.toString(size),
