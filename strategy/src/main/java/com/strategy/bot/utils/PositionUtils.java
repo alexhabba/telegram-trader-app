@@ -16,7 +16,7 @@ public class PositionUtils {
     public static void sentTpSl(String key, String secret, BigDecimal sl, BigDecimal tp) {
         var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN, true).newAsyncPositionRestClient();
         var setTradingStopRequest = PositionDataRequest.builder()
-                .symbol("WLDUSDT")
+                .symbol("TONUSDT")
                 .positionIdx(PositionIdx.ONE_WAY_MODE)
                 .category(CategoryType.LINEAR)
                 .takeProfit(tp.toString())
