@@ -25,6 +25,6 @@ public class BybitBalanceService {
         Object walletBalance = client.getWalletBalance(request);
         String string = objectMapper.writeValueAsString(walletBalance);
         WalletBalanceDto wallet = objectMapper.readValue(string, WalletBalanceDto.class);
-        return wallet.getResult().getList().get(0).getTotalMarginBalance();
+        return wallet.getResult().getList().get(0).getTotalEquity();
     }
 }
