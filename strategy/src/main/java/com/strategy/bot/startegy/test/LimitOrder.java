@@ -57,15 +57,21 @@ public class LimitOrder implements StrategyExecutor {
             // ISLAM_SUB_FIRST_BYBIT 76.18
             "5", Pair.of("GHT40gkxrAlMmYJPfk", "kORD1LFlJsS00S7mbuwSkYY8ZvN4e1s7r5Zl"),
             // SUB_FIRST_BYBIT 100
-            "6", Pair.of("UNa8RzDDztTkStiDUY", "mGwJooK5qVT4hdN3k53rGBuJDyMk8EyYoArv"),
+//            "6", Pair.of("UNa8RzDDztTkStiDUY", "mGwJooK5qVT4hdN3k53rGBuJDyMk8EyYoArv"),
+            // islam copy
+            "6", Pair.of("Dru3SSXDYG9zyLGjKG", "R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx"),
             // ISLAM_SUB_SECOND_BYBIT 60
             "7", Pair.of("bPVe4ZjME00iqeDAbk", "5wo5H9E2xWpxLq4t0TO6gHoSp5VhdQD7BJ88"),
             // ISLAM_SUB_THIRD_BYBIT 60
-            "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
+//            "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
+            // islam copy
+            "8", Pair.of("Dru3SSXDYG9zyLGjKG", "R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx"),
             // SUB_THIRD_BYBIT 93.45
             "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
             // KRIS_BYBIT 100   запуск 20 август
             "10", Pair.of("roUwvpCiyM06jesNHS", "2xWaG3hqAddAVIJqyBozRGb3lZRjVlXmmyD3")
+//            Dru3SSXDYG9zyLGjKG
+//            R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx
     );
 
     @Value("#{${accounts}}")
@@ -81,7 +87,7 @@ public class LimitOrder implements StrategyExecutor {
     @Value("${start-vol}")
     private int startVol;
 
-    private final static double maxVol = 70_000;
+    private final static double maxVol = 20_000;
     private double maxVolInStrategy = 0;
 
     private final DealDaoService dealService;
@@ -103,16 +109,17 @@ public class LimitOrder implements StrategyExecutor {
 //        System.out.println();
 
 
-//        Pair<String, String> pairKeySecret = map.get(strategy);
-//        String key = pairKeySecret.getKey();
-//        String secret = pairKeySecret.getValue();
+        Pair<String, String> pairKeySecret = map.get(strategy);
+        String key = pairKeySecret.getKey();
+        String secret = pairKeySecret.getValue();
 //        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.725), BigDecimal.valueOf(1.5));
 //
 //        bybitOrderService.openLimitOrder(
 //                key,
 //                secret,
 //                Symbol.WLD,
-//                "1.530",
+//                "1.9",
+//                "2",
 //                "5",
 //                Side.Sell,
 //                OrderType.LIMIT,
@@ -229,11 +236,11 @@ public class LimitOrder implements StrategyExecutor {
             return;
         }
 
-        double shift = 0.02;
+        double shift = 0.003;
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 1.3;
-        double tp = onePercent * 4;
+        double sl = onePercent * 1.6;
+        double tp = onePercent * 2.5;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.5) : startVol;
 
         if (isTestStrategy && vol == startVol) {
@@ -448,22 +455,24 @@ public class LimitOrder implements StrategyExecutor {
         }
         if (resultBalance.doubleValue() >= 3770) {
             startVol = 610;
+            startVol = 987;
         } else if (resultBalance.doubleValue() >= 2330) {
-            startVol = 377;
+            startVol = 610;
         } else if (resultBalance.doubleValue() >= 1440) {
-            startVol = 233;
+            startVol = 377;
         } else if (resultBalance.doubleValue() >= 890) {
-            startVol = 144;
+            startVol = 233;
         } else if (resultBalance.doubleValue() >= 550) {
-            startVol = 89;
+            startVol = 144;
         } else if (resultBalance.doubleValue() >= 340) {
-            startVol = 55;
+            startVol = 89;
         } else if (resultBalance.doubleValue() >= 210) {
-            startVol = 34;
+            startVol = 55;
         } else if (resultBalance.doubleValue() >= 130) {
-            startVol = 21;
+            startVol = 34;
         } else if (resultBalance.doubleValue() >= 80) {
             startVol = 13;
+            startVol = 21;
         }
 //        log.info("startVol = {}", startVol);
         return startVol;
