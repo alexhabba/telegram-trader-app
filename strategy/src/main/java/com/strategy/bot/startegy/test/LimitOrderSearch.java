@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.aspectj.apache.bcel.classfile.LocalVariable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -72,7 +73,6 @@ public class LimitOrderSearch {
 
     @Value("#{${accounts}}")
     private Map<Owner, Map<String, String>> keySecretMap;
-    private BigDecimal resultBalance = BigDecimal.valueOf(1500);
 
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
@@ -85,7 +85,9 @@ public class LimitOrderSearch {
     private int startVol;
 
     private double maxVol = 30_000;
-    private double maxVolInStrategy = 0;
+    private final ThreadLocal<WrapperDouble> maxVolInStrategy = new ThreadLocal<>();
+    private final ThreadLocal<WrapperBalance> resultBalance = new ThreadLocal<>();
+
 
     private final DealDaoService dealService;
     private final BarDaoService barService;
@@ -95,15 +97,17 @@ public class LimitOrderSearch {
     private final ThreadLocal<LinkedList<Deal>> deals = new ThreadLocal<>();
 
     public void execute(Bar lastBar, double shift, double slTemp, double tpTemp, String strategy, LinkedList<Deal> list,
-                        double maxVol) {
-//        if (isNull(deals.get())) {
+                        double maxVol, int min, int count, WrapperDouble maxVolInStrategyWrapper, WrapperBalance resultBalanceWrapper) {
+
+        maxVolInStrategy.set(maxVolInStrategyWrapper);
         deals.set(list);
+        resultBalance.set(resultBalanceWrapper);
 //        }
 //        if (lastBar.getCreateDate().isBefore(LocalDateTime.now().minusDays(15))) {
 //            return;
 //        }
 //        if (isTestStrategy) return;
-        if (isTestStrategy && LocalDateTime.now().minusHours(8).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
+        if (isTestStrategy && LocalDateTime.now().minusHours(30).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
 //            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
 //            deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
 //                    .forEach(System.out::println);
@@ -125,9 +129,11 @@ public class LimitOrderSearch {
                     .filter(r -> r > 0)
                     .count();
 
-            if (result > 1) {
-                System.out.printf("maxVol = %f, shift = %f, slTemp = %f, tpTemp = %f, strategy = %s\nbadCount = %d, successCount : %d\ncommonResult :  %f\n",
-                        maxVol, shift, slTemp, tpTemp, strategy, badCount, successCount, result);
+            int c = count;
+            double maxVoll = maxVolInStrategy.get().getValue();
+            if (result > 1.5 && maxVoll < 10000) {
+                System.out.printf("maxVolInStrategy = %f, min = %d, maxVol = %f, shift = %f, slTemp = %f, tpTemp = %f, strategy = %s\nbadCount = %d, successCount : %d\ncommonResult :  %f\n",
+                        maxVoll, min, maxVol, shift, slTemp, tpTemp, strategy, badCount, successCount, result);
             }
 
 //            shift = 0,475000, slTemp = 1,500000, tpTemp = 2,000000, strategy = 5
@@ -139,6 +145,10 @@ public class LimitOrderSearch {
 //            shift = 0,301000, slTemp = 0,600000, tpTemp = 5,000000, strategy = 5
 //            badCount = 33, successCount : 10
 //            commonResult :  1,826240
+
+//            maxVolInStrategy = 1005,000000, min = 49, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+//            badCount = 87, successCount : 178
+//            commonResult :  1,569980
 
 
 //            shift = 0,240000, slTemp = 2,700000, tpTemp = 5,300000, strategy = 5
@@ -199,7 +209,7 @@ public class LimitOrderSearch {
                     // todo если была открыта любая позиция открытая не ботом то переведет в статус PROCESSING
                     lastDeal.setStatus(PROCESSING);
                 } else {
-                    isCancelPosition(lastBar, lastDeal);
+                    isCancelPosition(lastBar, lastDeal, min);
                 }
 
                 // если позиция есть то открылась лимитка
@@ -210,7 +220,7 @@ public class LimitOrderSearch {
                 // todo округлить до 3 цифр или в мапу добавить
                 PositionUtils.sentTpSl(key, secret, BigDecimal.valueOf(lastDeal.getSl()), BigDecimal.valueOf(lastDeal.getTp()));
                 log.info("Открытие лимитной заявки, перевод в статус PROCESSING");
-            } else if (isCancelPosition(lastBar, lastDeal)) {
+            } else if (isCancelPosition(lastBar, lastDeal, min)) {
                 bybitOrderService.closeOpenLimitOrder(key, secret);
                 lastDeal.setStatus(CANCEL);
                 lastDeal.setCloseDate(LocalDateTime.now());
@@ -287,8 +297,9 @@ public class LimitOrderSearch {
                 .vol(vol)
                 .strategy(strategy)
                 .build();
-        if (maxVolInStrategy < vol) {
-            maxVolInStrategy = vol;
+        WrapperDouble wrapperDouble = maxVolInStrategy.get();
+        if (wrapperDouble.getValue() < vol) {
+            wrapperDouble.setValue(vol);
         }
         return createDeal;
     }
@@ -326,8 +337,10 @@ public class LimitOrderSearch {
 
     }
 
-    private boolean isCancelPosition(Bar bar, Deal deal) {
-        LocalDateTime openDate = deal.getOpenDate().plusHours(1).plusMinutes(13);
+    private boolean isCancelPosition(Bar bar, Deal deal, int min) {
+        LocalDateTime openDate = deal.getOpenDate()
+//                .plusHours(1)
+                .plusMinutes(min);
         LocalDateTime createDate = bar.getCreateDate();
 
         if (createDate.isAfter(openDate)) {
@@ -354,7 +367,10 @@ public class LimitOrderSearch {
         deal.setClose(close);
         deal.setResult(result);
 
-        resultBalance = resultBalance.add(BigDecimal.valueOf(result).multiply(BigDecimal.valueOf(deal.getVol())));
+        BigDecimal add = resultBalance.get().getBalance().add(BigDecimal.valueOf(result).multiply(BigDecimal.valueOf(deal.getVol())));
+        WrapperBalance wrapperBalance = resultBalance.get();
+        wrapperBalance.setBalance(add);
+        resultBalance.set(wrapperBalance);
         if (!isTestStrategy) {
             dealService.save(deal);
         }
@@ -437,28 +453,29 @@ public class LimitOrderSearch {
 
     private double getVol(String key, String secret) {
 
-        if (!isTestStrategy) {
-            resultBalance = balanceService.getBalance(key, secret);
-            log.info("resultBalance = {}", resultBalance);
-        }
-        if (resultBalance.doubleValue() >= 3770) {
+//        if (!isTestStrategy) {
+//            resultBalance = balanceService.getBalance(key, secret);
+//            log.info("resultBalance = {}", resultBalance);
+//        }
+        if (resultBalance.get().getBalance().doubleValue() >= 3770) {
             startVol = 610;
-        } else if (resultBalance.doubleValue() >= 2330) {
+        } else if (resultBalance.get().getBalance().doubleValue() >= 2330) {
             startVol = 377;
-        } else if (resultBalance.doubleValue() >= 1440) {
+        } else if (resultBalance.get().getBalance().doubleValue() >= 1440) {
             startVol = 233;
-        } else if (resultBalance.doubleValue() >= 890) {
+        } else if (resultBalance.get().getBalance().doubleValue() >= 890) {
             startVol = 144;
-        } else if (resultBalance.doubleValue() >= 550) {
+        } else if (resultBalance.get().getBalance().doubleValue() >= 550) {
+            startVol = 144;
+        } else if (resultBalance.get().getBalance().doubleValue() >= 340) {
             startVol = 89;
-        } else if (resultBalance.doubleValue() >= 340) {
+        } else if (resultBalance.get().getBalance().doubleValue() >= 210) {
             startVol = 55;
-        } else if (resultBalance.doubleValue() >= 210) {
+        } else if (resultBalance.get().getBalance().doubleValue() >= 130) {
             startVol = 34;
-        } else if (resultBalance.doubleValue() >= 130) {
-            startVol = 21;
-        } else if (resultBalance.doubleValue() >= 80) {
+        } else if (resultBalance.get().getBalance().doubleValue() >= 80) {
             startVol = 13;
+            startVol = 21;
         }
 //        log.info("startVol = {}", startVol);
         return startVol;

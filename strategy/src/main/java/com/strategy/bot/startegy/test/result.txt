@@ -1,0 +1,610 @@
+/Library/Java/JavaVirtualMachines/jdk-11.jdk/Contents/Home/bin/java -agentlib:jdwp=transport=dt_socket,address=127.0.0.1:63441,suspend=y,server=n -XX:TieredStopAtLevel=1 -noverify -Dspring.output.ansi.enabled=always -Dcom.sun.management.jmxremote -Dspring.jmx.enabled=true -Dspring.liveBeansView.mbeanDomain -Dspring.application.admin.enabled=true -Dmanagement.endpoints.jmx.exposure.include=* -javaagent:/Users/alex/Library/Caches/JetBrains/IntelliJIdea2024.2/captureAgent/debugger-agent.jar=file:/private/var/folders/mg/0sm9xbjs3036s120yw3fzd_40000gn/T/capture.props -Dkotlinx.coroutines.debug.enable.creation.stack.trace=false -Ddebugger.agent.enable.coroutines=true -Dfile.encoding=UTF-8 -classpath /Users/alex/Desktop/TradingBot/strategy/build/classes/java/main:/Users/alex/Desktop/TradingBot/strategy/build/resources/main:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-web/2.7.8/7596f0263544e8230a5bf5357a02fb391f036f77/spring-boot-starter-web-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-data-jpa/2.7.8/ace969cae39b4479ffedd58e04c5a6eca60c94a5/spring-boot-starter-data-jpa-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-actuator/2.7.8/9b293f7965b5fe825d2888258903fe392fdd4577/spring-boot-starter-actuator-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.14.1/f24e8cb1437e05149b7a3049ebd6700f42e664b1/jackson-datatype-jsr310-2.14.1.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/io.github.wuhewuhe/bybit-java-api/1.2.6/9b7d1ea4fbc77f93a08ce5e31baf3511a95406dd/bybit-java-api-1.2.6.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.15.2/9353b021f10c307c00328f52090de2bdb4b6ff9c/jackson-databind-2.15.2.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.15.2/a6fe1836469a69b3ff66037c324d75fc66ef137c/jackson-core-2.15.2.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.24/13a394eed5c4f9efb2a6d956e2086f1d81e857d9/lombok-1.18.24.jar:/Users/alex/Desktop/TradingBot/dao/build/classes/java/main:/Users/alex/Desktop/TradingBot/dao/build/resources/main:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-json/2.7.8/fb09a04154ce2aea974755bc011a588eee2332aa/spring-boot-starter-json-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter/2.7.8/df091ed288bd1dcf89fa0554a29fe96f27802efc/spring-boot-starter-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-tomcat/2.7.8/8e7a62215cc56473c891480f722dda43dd6059d9/spring-boot-starter-tomcat-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-webmvc/5.3.25/62a8258bcc4f7a58dd69af5140481b64653c90/spring-webmvc-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-web/5.3.25/c69815e7931cd3ce7f19cc8028fd1c36626120d6/spring-web-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-aop/2.7.8/72fc6a1e13d5e46b20c0d9e45574bfb0d6e7af6d/spring-boot-starter-aop-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-jdbc/2.7.8/5821d4af88c26bc5e23b7131ff8e68c67275d8b6/spring-boot-starter-jdbc-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/jakarta.transaction/jakarta.transaction-api/1.3.3/c4179d48720a1e87202115fbed6089bdc4195405/jakarta.transaction-api-1.3.3.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/jakarta.persistence/jakarta.persistence-api/2.2.3/8f6ea5daedc614f07a3654a455660145286f024e/jakarta.persistence-api-2.2.3.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.hibernate/hibernate-core/5.6.14.Final/71e407089b71ed7c6e99385fd851c308fed7be44/hibernate-core-5.6.14.Final.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-jpa/2.7.7/1c01c650d0132f44971d9e28509eb15475526a48/spring-data-jpa-2.7.7.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-aspects/5.3.25/7afc5817a53aaccb2d71858cc5dceba716dba1db/spring-aspects-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-actuator-autoconfigure/2.7.8/c7c9c5e629b2377d38a7ba985a786cc9f32f0088/spring-boot-actuator-autoconfigure-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/io.micrometer/micrometer-core/1.9.7/b88156edfc831c317e471215a3bc915a093c8a37/micrometer-core-1.9.7.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.13.4/858c6cc78e1f08a885b1613e1d817c829df70a6e/jackson-annotations-2.13.4.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/converter-jackson/2.5.0/2fb02f5ce597f3ba04c3530908a8a9c7458b40a1/converter-jackson-2.5.0.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.15/49d94806b6e3dc933dacbd8acb0fdbab8ebd1e5d/commons-codec-1.15.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-text/1.10.0/3363381aef8cef2dbc1023b3e3a9433b08b64e01/commons-text-1.10.0.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.12.0/c6842c86792ff03b9f1d1fe2aab8dc23aa6c6f0e/commons-lang3-3.12.0.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/retrofit/2.7.2/b98baad220c2091db369e5943265f9d083cad1cc/retrofit-2.7.2.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/logging-interceptor/4.9.3/d7786efea637a62603352985d9a229c206003268/logging-interceptor-4.9.3.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/okhttp/4.9.3/b0b14b3d12980912723fb8b66afb48dcda742fcb/okhttp-4.9.3.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.2.11/4741689214e9d1e8408b206506cbe76d1c6a7d60/logback-classic-1.2.11.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.java-websocket/Java-WebSocket/1.5.1/382b302303c830a7edb20c9ed61c4ac2cdf7a7a4/Java-WebSocket-1.5.1.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.36/6c62681a2f655b49963a5983b8b0950a6120ae14/slf4j-api-1.7.36.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.json/json/20231013/e22e0c040fe16f04ffdb85d851d77b07fc05ea52/json-20231013.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.13.4/557dbba5d8dfc7b7f944c58fe084109afcb5670b/jackson-datatype-jdk8-2.13.4.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-parameter-names/2.13.4/858ccf6624b5fac6044813e845063edb6a62cf37/jackson-module-parameter-names-2.13.4.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-logging/2.7.8/439c2c6fb705c4e7338b2c7a975a84b4f0cb3724/spring-boot-starter-logging-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-autoconfigure/2.7.8/cb835d82d00116e907d341d11096c3476ab49721/spring-boot-autoconfigure-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot/2.7.8/8db5af0f1171bb402c27a85fe97d741bddaa6fee/spring-boot-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/jakarta.annotation/jakarta.annotation-api/1.3.5/59eb84ee0d616332ff44aba065f3888cf002cd2d/jakarta.annotation-api-1.3.5.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-core/5.3.25/85382e86321227506bf7f97ed80e2ab88bce25f0/spring-core-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.yaml/snakeyaml/1.30/8fde7fe2586328ac3c68db92045e1c8759125000/snakeyaml-1.30.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.apache.tomcat.embed/tomcat-embed-websocket/9.0.71/987b6460af04b08bc9914788d2762080afb09541/tomcat-embed-websocket-9.0.71.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.apache.tomcat.embed/tomcat-embed-core/9.0.71/adaed61b4eaa5b52448336c0881fcd828fd51a2f/tomcat-embed-core-9.0.71.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.apache.tomcat.embed/tomcat-embed-el/9.0.71/8fe43848c27ec921c8c5d6dcbd8b959076d7bf99/tomcat-embed-el-9.0.71.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-context/5.3.25/268a70ce4f44333ce0f13304c5f8c53b3df5f5f4/spring-context-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-aop/5.3.25/722e30759b29331726f9deed76f80b22345ee627/spring-aop-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-beans/5.3.25/b3aeae036b4ea1abfa1f9604d452e19664efe5f6/spring-beans-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-expression/5.3.25/d681cdb86611f03d8ef29654edde219fe5afef1d/spring-expression-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.aspectj/aspectjweaver/1.9.7/158f5c255cd3e4408e795b79f7c3fbae9b53b7ca/aspectjweaver-1.9.7.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.zaxxer/HikariCP/4.0.3/107cbdf0db6780a065f895ae9d8fbf3bb0e1c21f/HikariCP-4.0.3.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-jdbc/5.3.25/809f5841b13d42e5d4d14eb13346958cc9e9e187/spring-jdbc-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.hibernate.common/hibernate-commons-annotations/5.1.2.Final/e59ffdbc6ad09eeb33507b39ffcf287679a498c8/hibernate-commons-annotations-5.1.2.Final.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.jboss.logging/jboss-logging/3.4.3.Final/c4bd7e12a745c0e7f6cf98c45cdcdf482fd827ea/jboss-logging-3.4.3.Final.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy/1.12.22/984e536b4f3fb668b21f15b90c1e8704292d4bdd/byte-buddy-1.12.22.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/antlr/antlr/2.7.7/83cd2cd674a217ade95a4bb83a8a14f351f48bd0/antlr-2.7.7.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.jboss/jandex/2.4.2.Final/1e1c385990b258ff1a24c801e84aebbacf70eb39/jandex-2.4.2.Final.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.fasterxml/classmate/1.5.1/3fe0bed568c62df5e89f4f174c101eab25345b6c/classmate-1.5.1.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.glassfish.jaxb/jaxb-runtime/2.3.7/ebcde6a44159eb9e3db721dfe6b45f26e6272341/jaxb-runtime-2.3.7.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-commons/2.7.7/5c320aa46d71707aabdc7287b6f83122ce33f55c/spring-data-commons-2.7.7.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-orm/5.3.25/b0fb2911a5d528037149240c8b4f2c820d90405b/spring-orm-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-tx/5.3.25/b459d0b755c9614a55ebd39ce353748c4b210be2/spring-tx-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-actuator/2.7.8/f44a7457deca118f3afd08a36f1ae46cbc85d4f7/spring-boot-actuator-2.7.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.hdrhistogram/HdrHistogram/2.1.12/6eb7552156e0d517ae80cc2247be1427c8d90452/HdrHistogram-2.1.12.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.6.21/eeb4d60d75e9ea9c11200d52974e522793b14fba/kotlin-stdlib-jdk8-1.6.21.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.6.21/11ef67f1900634fd951bad28c53ec957fabbe5b8/kotlin-stdlib-1.6.21.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.squareup.okio/okio-jvm/3.4.0/4e8bd78a52ab935ce383d0092646922154295e54/okio-jvm-3.4.0.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.2.11/a01230df5ca5c34540cdaa3ad5efb012f1f1f792/logback-core-1.2.11.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-to-slf4j/2.17.2/17dd0fae2747d9a28c67bc9534108823d2376b46/log4j-to-slf4j-2.17.2.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.slf4j/jul-to-slf4j/1.7.36/ed46d81cef9c412a88caef405b58f93a678ff2ca/jul-to-slf4j-1.7.36.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.springframework/spring-jcl/5.3.25/2e65a986dc7f98b40faed8df1d50db77c0b96c61/spring-jcl-5.3.25.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/jakarta.xml.bind/jakarta.xml.bind-api/2.3.3/48e3b9cfc10752fba3521d6511f4165bea951801/jakarta.xml.bind-api-2.3.3.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.glassfish.jaxb/txw2/2.3.7/55cddcac1945150e09b09b0f89d86799652eee82/txw2-2.3.7.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.sun.istack/istack-commons-runtime/3.0.12/cbbe1a62b0cc6c85972e99d52aaee350153dc530/istack-commons-runtime-3.0.12.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.6.21/568c1b78a8e17a4f35b31f0a74e2916095ed74c2/kotlin-stdlib-jdk7-1.6.21.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.6.21/5e5b55c26dbc80372a920aef60eb774b714559b8/kotlin-stdlib-common-1.6.21.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-api/2.17.2/f42d6afa111b4dec5d2aea0fe2197240749a4ea6/log4j-api-2.17.2.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.postgresql/postgresql/42.3.8/d81533a6ff4376590f9ce7ba74b8f3723066f25c/postgresql-42.3.8.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.checkerframework/checker-qual/3.5.0/2f50520c8abea66fbd8d26e481d3aef5c673b510/checker-qual-3.5.0.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/org.latencyutils/LatencyUtils/2.0.3/769c0b82cb2421c8256300e907298a9410a2a3d3/LatencyUtils-2.0.3.jar:/Users/alex/.gradle/caches/modules-2/files-2.1/com.sun.activation/jakarta.activation/1.2.2/74548703f9851017ce2f556066659438019e7eb5/jakarta.activation-1.2.2.jar:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar com.strategy.bot.StrategyBotApplication
+Connected to the target VM, address: '127.0.0.1:63441', transport: 'socket'
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v2.7.8)
+
+12:42:43.885 [main] INFO  c.s.bot.StrategyBotApplication - Starting StrategyBotApplication using Java 11.0.20 on MBP-alex.lan with PID 22089 (/Users/alex/Desktop/TradingBot/strategy/build/classes/java/main started by alex in /Users/alex/Desktop/TradingBot)
+12:42:43.886 [main] DEBUG c.s.bot.StrategyBotApplication - Running with Spring Boot v2.7.8, Spring v5.3.25
+12:42:43.886 [main] INFO  c.s.bot.StrategyBotApplication - No active profile set, falling back to 1 default profile: "default"
+12:42:44.175 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+12:42:44.204 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 25 ms. Found 7 JPA repository interfaces.
+12:42:44.571 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8090 (http)
+12:42:44.575 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8090"]
+12:42:44.575 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+12:42:44.575 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.71]
+12:42:44.634 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+12:42:44.634 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 726 ms
+12:42:44.656 [main] DEBUG i.m.c.u.i.l.InternalLoggerFactory - Using SLF4J as the default logging framework
+12:42:44.775 [main] DEBUG org.jboss.logging - Logging Provider: org.jboss.logging.Log4j2LoggerProvider
+12:42:44.914 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+12:42:45.089 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+12:42:45.375 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+12:42:45.654 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+12:42:45.736 [main] DEBUG _.s.w.s.HandlerMapping.Mappings -
+	o.s.b.a.w.s.e.BasicErrorController:
+	{ [/error]}: error(HttpServletRequest)
+	{ [/error], produces [text/html]}: errorHtml(HttpServletRequest,HttpServletResponse)
+12:42:45.743 [main] DEBUG _.s.w.s.HandlerMapping.Mappings - 'beanNameHandlerMapping' {}
+12:42:45.753 [main] DEBUG _.s.w.s.HandlerMapping.Mappings - 'resourceHandlerMapping' {/webjars/**=ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]], /**=ResourceHttpRequestHandler [classpath [META-INF/resources/], classpath [resources/], classpath [static/], classpath [public/], ServletContext [/]]}
+12:42:45.898 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+12:42:45.920 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8090"]
+12:42:45.931 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8090 (http) with context path ''
+
+12:42:51.280 [main] INFO  c.s.bot.StrategyBotApplication - Started StrategyBotApplication in 2.846 seconds (JVM running for 7.958)
+12:42:52.301 [RMI TCP Connection(4)-192.168.1.241] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+12:42:52.301 [RMI TCP Connection(4)-192.168.1.241] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+12:42:52.302 [RMI TCP Connection(4)-192.168.1.241] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+все варианты протестированы их было 6207516maxVolInStrategy = 3687,000000, min = 13, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 88, successCount : 62
+commonResult :  1,621585
+maxVolInStrategy = 1639,000000, min = 16, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 88, successCount : 63
+commonResult :  1,694511
+maxVolInStrategy = 3687,000000, min = 22, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,512595
+maxVolInStrategy = 1639,000000, min = 31, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 62
+commonResult :  1,588384
+maxVolInStrategy = 1639,000000, min = 34, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,529556
+maxVolInStrategy = 1639,000000, min = 40, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,529528
+maxVolInStrategy = 1639,000000, min = 37, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,529955
+maxVolInStrategy = 1639,000000, min = 43, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 91, successCount : 61
+commonResult :  1,502620
+maxVolInStrategy = 2458,000000, min = 55, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 62
+commonResult :  1,582861
+maxVolInStrategy = 2458,000000, min = 58, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 92, successCount : 62
+commonResult :  1,531887
+maxVolInStrategy = 2458,000000, min = 61, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,524068
+maxVolInStrategy = 2458,000000, min = 64, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,524068
+maxVolInStrategy = 2458,000000, min = 67, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,524068
+maxVolInStrategy = 2458,000000, min = 70, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,524068
+maxVolInStrategy = 2458,000000, min = 73, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,524068
+maxVolInStrategy = 2458,000000, min = 76, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,524082
+maxVolInStrategy = 1639,000000, min = 82, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 91, successCount : 61
+commonResult :  1,500170
+maxVolInStrategy = 1639,000000, min = 85, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 61
+commonResult :  1,551228
+maxVolInStrategy = 2458,000000, min = 79, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,667197
+maxVolInStrategy = 2458,000000, min = 88, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 62
+commonResult :  1,582917
+maxVolInStrategy = 1639,000000, min = 97, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 91, successCount : 61
+commonResult :  1,503341
+maxVolInStrategy = 1639,000000, min = 94, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 91, successCount : 61
+commonResult :  1,503341
+maxVolInStrategy = 1639,000000, min = 91, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 62
+commonResult :  1,612933
+maxVolInStrategy = 1639,000000, min = 100, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 91, successCount : 61
+commonResult :  1,503341
+maxVolInStrategy = 1507,000000, min = 106, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,530305
+maxVolInStrategy = 1507,000000, min = 103, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 61
+commonResult :  1,530333
+maxVolInStrategy = 1507,000000, min = 109, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 88, successCount : 62
+commonResult :  1,639939
+maxVolInStrategy = 1507,000000, min = 112, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 88, successCount : 62
+commonResult :  1,639939
+maxVolInStrategy = 1507,000000, min = 121, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 88, successCount : 62
+commonResult :  1,639939
+maxVolInStrategy = 1507,000000, min = 115, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 88, successCount : 62
+commonResult :  1,639939
+maxVolInStrategy = 1507,000000, min = 118, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 88, successCount : 62
+commonResult :  1,639939
+maxVolInStrategy = 1639,000000, min = 133, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,685348
+maxVolInStrategy = 1639,000000, min = 127, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,685348
+maxVolInStrategy = 1639,000000, min = 130, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,685348
+maxVolInStrategy = 1507,000000, min = 124, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 88, successCount : 62
+commonResult :  1,639939
+maxVolInStrategy = 1639,000000, min = 139, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,685348
+maxVolInStrategy = 1639,000000, min = 136, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,685348
+maxVolInStrategy = 1639,000000, min = 142, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,685348
+maxVolInStrategy = 1639,000000, min = 151, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 62
+commonResult :  1,626492
+maxVolInStrategy = 1639,000000, min = 157, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 62
+commonResult :  1,626492
+maxVolInStrategy = 1639,000000, min = 148, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 62
+commonResult :  1,626492
+maxVolInStrategy = 1639,000000, min = 145, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,685348
+maxVolInStrategy = 1639,000000, min = 154, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 62
+commonResult :  1,626492
+maxVolInStrategy = 1639,000000, min = 163, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 62
+commonResult :  1,626492
+maxVolInStrategy = 1639,000000, min = 160, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 62
+commonResult :  1,626492
+maxVolInStrategy = 1639,000000, min = 166, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 62
+commonResult :  1,626492
+maxVolInStrategy = 1639,000000, min = 172, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 62
+commonResult :  1,626492
+maxVolInStrategy = 1639,000000, min = 169, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 62
+commonResult :  1,626492
+maxVolInStrategy = 1639,000000, min = 175, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,685257
+maxVolInStrategy = 1639,000000, min = 181, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,685257
+maxVolInStrategy = 1639,000000, min = 184, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,685257
+maxVolInStrategy = 1639,000000, min = 187, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 88, successCount : 62
+commonResult :  1,647121
+maxVolInStrategy = 1639,000000, min = 178, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 89, successCount : 63
+commonResult :  1,685257
+maxVolInStrategy = 1639,000000, min = 190, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 88, successCount : 62
+commonResult :  1,647121
+maxVolInStrategy = 1639,000000, min = 193, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 62
+commonResult :  1,599444
+maxVolInStrategy = 1639,000000, min = 199, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 62
+commonResult :  1,599444
+maxVolInStrategy = 1639,000000, min = 196, maxVol = 25000,000000, shift = 0,000000, slTemp = 1,400000, tpTemp = 3,500000, strategy = 8
+badCount = 90, successCount : 62
+commonResult :  1,599444
+maxVolInStrategy = 1639,000000, min = 13, maxVol = 15000,000000, shift = 0,000000, slTemp = 1,800000, tpTemp = 1,900000, strategy = 8
+badCount = 90, successCount : 131
+commonResult :  1,521816
+maxVolInStrategy = 1005,000000, min = 19, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 88, successCount : 177
+commonResult :  1,510810
+maxVolInStrategy = 1005,000000, min = 25, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 86, successCount : 180
+commonResult :  1,648305
+maxVolInStrategy = 1005,000000, min = 22, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 85, successCount : 180
+commonResult :  1,681955
+maxVolInStrategy = 1005,000000, min = 28, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 87, successCount : 178
+commonResult :  1,566090
+maxVolInStrategy = 1005,000000, min = 31, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 86, successCount : 179
+commonResult :  1,630685
+maxVolInStrategy = 1005,000000, min = 46, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 86, successCount : 179
+commonResult :  1,628280
+maxVolInStrategy = 1005,000000, min = 49, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 87, successCount : 178
+commonResult :  1,569980
+maxVolInStrategy = 1005,000000, min = 91, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 86, successCount : 176
+commonResult :  1,546835
+maxVolInStrategy = 1005,000000, min = 94, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 86, successCount : 176
+commonResult :  1,546920
+maxVolInStrategy = 1005,000000, min = 97, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 86, successCount : 176
+commonResult :  1,546920
+maxVolInStrategy = 1005,000000, min = 100, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 86, successCount : 176
+commonResult :  1,546920
+maxVolInStrategy = 1005,000000, min = 160, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 86, successCount : 178
+commonResult :  1,594700
+maxVolInStrategy = 1005,000000, min = 163, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 86, successCount : 178
+commonResult :  1,594700
+maxVolInStrategy = 1005,000000, min = 157, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 86, successCount : 178
+commonResult :  1,594700
+maxVolInStrategy = 1005,000000, min = 169, maxVol = 10000,000000, shift = 0,000000, slTemp = 2,000000, tpTemp = 1,500000, strategy = 8
+badCount = 86, successCount : 178
+commonResult :  1,594760
+
+
+maxVolInStrategy = 2458,000000, min = 25, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,000000, tpTemp = 1,900000, strategy = 8
+badCount = 150, successCount : 124
+commonResult :  1,527200
+maxVolInStrategy = 2458,000000, min = 28, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,000000, tpTemp = 1,900000, strategy = 8
+badCount = 156, successCount : 126
+commonResult :  1,518846
+maxVolInStrategy = 1639,000000, min = 52, maxVol = 40000,000000, shift = 0,003000, slTemp = 1,200000, tpTemp = 3,100000, strategy = 8
+badCount = 92, successCount : 66
+commonResult :  1,676791
+maxVolInStrategy = 2458,000000, min = 61, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,200000, tpTemp = 3,500000, strategy = 8
+badCount = 93, successCount : 56
+commonResult :  1,514695
+maxVolInStrategy = 5530,000000, min = 16, maxVol = 10000,000000, shift = 0,003000, slTemp = 1,200000, tpTemp = 3,700000, strategy = 8
+badCount = 96, successCount : 59
+commonResult :  1,732024
+maxVolInStrategy = 5530,000000, min = 16, maxVol = 25000,000000, shift = 0,003000, slTemp = 1,200000, tpTemp = 3,700000, strategy = 8
+badCount = 92, successCount : 57
+commonResult :  1,705208
+maxVolInStrategy = 3687,000000, min = 37, maxVol = 25000,000000, shift = 0,003000, slTemp = 1,200000, tpTemp = 3,700000, strategy = 8
+badCount = 87, successCount : 55
+commonResult :  1,696229
+maxVolInStrategy = 5530,000000, min = 46, maxVol = 25000,000000, shift = 0,003000, slTemp = 1,200000, tpTemp = 3,700000, strategy = 8
+badCount = 88, successCount : 53
+commonResult :  1,517791
+maxVolInStrategy = 3687,000000, min = 43, maxVol = 25000,000000, shift = 0,003000, slTemp = 1,200000, tpTemp = 3,700000, strategy = 8
+badCount = 83, successCount : 55
+commonResult :  1,797982
+maxVolInStrategy = 5530,000000, min = 37, maxVol = 25000,000000, shift = 0,003000, slTemp = 1,200000, tpTemp = 3,900000, strategy = 8
+badCount = 80, successCount : 49
+commonResult :  1,603101
+maxVolInStrategy = 1639,000000, min = 52, maxVol = 25000,000000, shift = 0,003000, slTemp = 1,200000, tpTemp = 5,700000, strategy = 8
+badCount = 62, successCount : 28
+commonResult :  1,512816
+maxVolInStrategy = 3687,000000, min = 82, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 73, successCount : 47
+commonResult :  1,598651
+maxVolInStrategy = 3687,000000, min = 91, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 72, successCount : 45
+commonResult :  1,504618
+maxVolInStrategy = 3687,000000, min = 100, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 69, successCount : 46
+commonResult :  1,665476
+maxVolInStrategy = 3687,000000, min = 112, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 69, successCount : 46
+commonResult :  1,659394
+maxVolInStrategy = 3687,000000, min = 121, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 67, successCount : 45
+commonResult :  1,637027
+maxVolInStrategy = 3687,000000, min = 124, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 70, successCount : 45
+commonResult :  1,543759
+maxVolInStrategy = 3687,000000, min = 130, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 70, successCount : 45
+commonResult :  1,546887
+maxVolInStrategy = 3687,000000, min = 139, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 72, successCount : 45
+commonResult :  1,501985
+maxVolInStrategy = 2458,000000, min = 148, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 69, successCount : 46
+commonResult :  1,667167
+maxVolInStrategy = 2458,000000, min = 160, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 69, successCount : 47
+commonResult :  1,730417
+maxVolInStrategy = 2458,000000, min = 145, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 74, successCount : 47
+commonResult :  1,604637
+maxVolInStrategy = 2458,000000, min = 151, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 67, successCount : 46
+commonResult :  1,725995
+maxVolInStrategy = 2458,000000, min = 157, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 73, successCount : 47
+commonResult :  1,630089
+maxVolInStrategy = 2458,000000, min = 172, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 76, successCount : 47
+commonResult :  1,550890
+maxVolInStrategy = 2458,000000, min = 175, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 73, successCount : 46
+commonResult :  1,552140
+maxVolInStrategy = 2458,000000, min = 184, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 73, successCount : 46
+commonResult :  1,552126
+maxVolInStrategy = 2458,000000, min = 181, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 73, successCount : 46
+commonResult :  1,552126
+maxVolInStrategy = 2458,000000, min = 178, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 70, successCount : 46
+commonResult :  1,628330
+maxVolInStrategy = 2458,000000, min = 193, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 73, successCount : 46
+commonResult :  1,552140
+maxVolInStrategy = 2458,000000, min = 190, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 73, successCount : 46
+commonResult :  1,552140
+maxVolInStrategy = 2458,000000, min = 187, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 73, successCount : 46
+commonResult :  1,552182
+maxVolInStrategy = 2458,000000, min = 199, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 76, successCount : 47
+commonResult :  1,555722
+maxVolInStrategy = 2458,000000, min = 196, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 73, successCount : 47
+commonResult :  1,625212
+maxVolInStrategy = 1093,000000, min = 13, maxVol = 25000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 70, successCount : 46
+commonResult :  1,603407
+maxVolInStrategy = 1093,000000, min = 16, maxVol = 25000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 4,100000, strategy = 7
+badCount = 68, successCount : 48
+commonResult :  1,873978
+maxVolInStrategy = 729,000000, min = 73, maxVol = 10000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 5,500000, strategy = 7
+badCount = 39, successCount : 29
+commonResult :  1,854059
+maxVolInStrategy = 1093,000000, min = 94, maxVol = 20000,000000, shift = 0,003000, slTemp = 1,600000, tpTemp = 2,300000, strategy = 7
+badCount = 75, successCount : 89
+commonResult :  1,539116
+maxVolInStrategy = 486,000000, min = 88, maxVol = 25000,000000, shift = 0,003000, slTemp = 1,600000, tpTemp = 2,700000, strategy = 8
+badCount = 69, successCount : 72
+commonResult :  1,504177
+maxVolInStrategy = 2458,000000, min = 163, maxVol = 15000,000000, shift = 0,003000, slTemp = 1,600000, tpTemp = 3,500000, strategy = 7
+badCount = 64, successCount : 54
+commonResult :  1,581516
+maxVolInStrategy = 2458,000000, min = 19, maxVol = 25000,000000, shift = 0,003000, slTemp = 1,600000, tpTemp = 4,100000, strategy = 7
+badCount = 62, successCount : 44
+commonResult :  1,532698
+maxVolInStrategy = 8295,000000, min = 49, maxVol = 10000,000000, shift = 0,003000, slTemp = 1,600000, tpTemp = 5,700000, strategy = 7
+badCount = 41, successCount : 26
+commonResult :  1,528026
+maxVolInStrategy = 1639,000000, min = 55, maxVol = 10000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 1,700000, strategy = 8
+badCount = 80, successCount : 135
+commonResult :  1,574434
+maxVolInStrategy = 1639,000000, min = 76, maxVol = 10000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 1,700000, strategy = 8
+badCount = 81, successCount : 139
+commonResult :  1,635342
+maxVolInStrategy = 1005,000000, min = 88, maxVol = 10000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 1,700000, strategy = 8
+badCount = 85, successCount : 141
+commonResult :  1,518334
+maxVolInStrategy = 1093,000000, min = 100, maxVol = 10000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 1,700000, strategy = 8
+badCount = 75, successCount : 137
+commonResult :  1,786002
+maxVolInStrategy = 1639,000000, min = 13, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 4,700000, strategy = 7
+badCount = 44, successCount : 36
+commonResult :  1,614822
+maxVolInStrategy = 2260,000000, min = 25, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 4,700000, strategy = 7
+badCount = 41, successCount : 37
+commonResult :  1,791824
+maxVolInStrategy = 1639,000000, min = 40, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 4,700000, strategy = 7
+badCount = 45, successCount : 35
+commonResult :  1,524963
+maxVolInStrategy = 670,000000, min = 61, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 4,700000, strategy = 7
+badCount = 41, successCount : 36
+commonResult :  1,806764
+maxVolInStrategy = 1507,000000, min = 64, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 4,700000, strategy = 7
+badCount = 43, successCount : 34
+commonResult :  1,595451
+maxVolInStrategy = 1507,000000, min = 67, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 4,700000, strategy = 7
+badCount = 43, successCount : 34
+commonResult :  1,595451
+maxVolInStrategy = 2260,000000, min = 76, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 4,700000, strategy = 7
+badCount = 36, successCount : 37
+commonResult :  2,004972
+maxVolInStrategy = 2260,000000, min = 79, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 4,700000, strategy = 7
+badCount = 40, successCount : 36
+commonResult :  1,790487
+maxVolInStrategy = 2260,000000, min = 82, maxVol = 30000,000000, shift = 0,003000, slTemp = 1,800000, tpTemp = 4,700000, strategy = 7
+badCount = 38, successCount : 37
+commonResult :  1,941394
+maxVolInStrategy = 1005,000000, min = 28, maxVol = 15000,000000, shift = 0,003000, slTemp = 2,000000, tpTemp = 3,100000, strategy = 8
+badCount = 52, successCount : 66
+commonResult :  1,768923
+maxVolInStrategy = 1005,000000, min = 88, maxVol = 45000,000000, shift = 0,003000, slTemp = 2,000000, tpTemp = 4,100000, strategy = 7
+badCount = 36, successCount : 38
+commonResult :  1,517447
+maxVolInStrategy = 5530,000000, min = 28, maxVol = 30000,000000, shift = 0,006000, slTemp = 0,800000, tpTemp = 2,100000, strategy = 8
+badCount = 151, successCount : 102
+commonResult :  1,758055
+maxVolInStrategy = 2260,000000, min = 31, maxVol = 30000,000000, shift = 0,006000, slTemp = 0,800000, tpTemp = 2,100000, strategy = 8
+badCount = 154, successCount : 99
+commonResult :  1,569173
+maxVolInStrategy = 5530,000000, min = 133, maxVol = 30000,000000, shift = 0,006000, slTemp = 0,800000, tpTemp = 2,100000, strategy = 8
+badCount = 134, successCount : 92
+commonResult :  1,503975
+maxVolInStrategy = 3687,000000, min = 19, maxVol = 30000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 2,100000, strategy = 8
+badCount = 142, successCount : 109
+commonResult :  1,569046
+maxVolInStrategy = 5530,000000, min = 28, maxVol = 30000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 2,100000, strategy = 8
+badCount = 140, successCount : 106
+commonResult :  1,558865
+maxVolInStrategy = 3687,000000, min = 34, maxVol = 30000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 2,100000, strategy = 8
+badCount = 132, successCount : 107
+commonResult :  1,723943
+maxVolInStrategy = 3687,000000, min = 40, maxVol = 30000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 2,100000, strategy = 8
+badCount = 134, successCount : 105
+commonResult :  1,625999
+maxVolInStrategy = 8295,000000, min = 13, maxVol = 15000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 3,100000, strategy = 8
+badCount = 120, successCount : 68
+commonResult :  1,537091
+maxVolInStrategy = 5530,000000, min = 100, maxVol = 40000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 3,300000, strategy = 8
+badCount = 90, successCount : 54
+commonResult :  1,606466
+maxVolInStrategy = 5530,000000, min = 109, maxVol = 40000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 3,300000, strategy = 8
+badCount = 92, successCount : 53
+commonResult :  1,516194
+maxVolInStrategy = 3687,000000, min = 133, maxVol = 40000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 3,300000, strategy = 8
+badCount = 86, successCount : 52
+commonResult :  1,534269
+maxVolInStrategy = 3687,000000, min = 139, maxVol = 40000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 3,300000, strategy = 8
+badCount = 83, successCount : 53
+commonResult :  1,643426
+maxVolInStrategy = 5530,000000, min = 139, maxVol = 40000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 3,500000, strategy = 8
+badCount = 87, successCount : 49
+commonResult :  1,501595
+maxVolInStrategy = 5085,000000, min = 178, maxVol = 40000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 3,500000, strategy = 8
+badCount = 84, successCount : 48
+commonResult :  1,541860
+maxVolInStrategy = 3687,000000, min = 16, maxVol = 30000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 3,700000, strategy = 8
+badCount = 99, successCount : 54
+commonResult :  1,734500
+maxVolInStrategy = 8295,000000, min = 19, maxVol = 30000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 3,700000, strategy = 8
+badCount = 89, successCount : 50
+commonResult :  1,648200
+maxVolInStrategy = 2260,000000, min = 61, maxVol = 40000,000000, shift = 0,006000, slTemp = 1,000000, tpTemp = 3,700000, strategy = 8
+badCount = 97, successCount : 49
+commonResult :  1,516375
+maxVolInStrategy = 1639,000000, min = 76, maxVol = 25000,000000, shift = 0,006000, slTemp = 1,200000, tpTemp = 4,700000, strategy = 7
+badCount = 66, successCount : 35
+commonResult :  1,501683
+maxVolInStrategy = 1093,000000, min = 37, maxVol = 30000,000000, shift = 0,006000, slTemp = 1,400000, tpTemp = 4,900000, strategy = 7
+badCount = 47, successCount : 32
+commonResult :  1,646155
+maxVolInStrategy = 3390,000000, min = 16, maxVol = 25000,000000, shift = 0,006000, slTemp = 1,600000, tpTemp = 3,700000, strategy = 8
+badCount = 54, successCount : 46
+commonResult :  1,518102
+maxVolInStrategy = 729,000000, min = 34, maxVol = 30000,000000, shift = 0,006000, slTemp = 1,600000, tpTemp = 4,900000, strategy = 7
+badCount = 38, successCount : 30
+commonResult :  1,555535
+maxVolInStrategy = 1005,000000, min = 37, maxVol = 30000,000000, shift = 0,006000, slTemp = 1,600000, tpTemp = 4,900000, strategy = 7
+badCount = 35, successCount : 31
+commonResult :  1,727179
+maxVolInStrategy = 1507,000000, min = 19, maxVol = 30000,000000, shift = 0,006000, slTemp = 1,800000, tpTemp = 3,700000, strategy = 8
+badCount = 46, successCount : 49
+commonResult :  1,760896
+maxVolInStrategy = 670,000000, min = 31, maxVol = 10000,000000, shift = 0,006000, slTemp = 2,000000, tpTemp = 2,300000, strategy = 8
+badCount = 60, successCount : 87
+commonResult :  1,551358
+maxVolInStrategy = 729,000000, min = 34, maxVol = 15000,000000, shift = 0,006000, slTemp = 2,000000, tpTemp = 2,300000, strategy = 8
+badCount = 59, successCount : 89
+commonResult :  1,548478
+maxVolInStrategy = 486,000000, min = 31, maxVol = 20000,000000, shift = 0,006000, slTemp = 2,000000, tpTemp = 3,300000, strategy = 8
+badCount = 46, successCount : 54
+commonResult :  1,517239
+maxVolInStrategy = 486,000000, min = 37, maxVol = 20000,000000, shift = 0,006000, slTemp = 2,000000, tpTemp = 3,300000, strategy = 8
+badCount = 47, successCount : 56
+commonResult :  1,586820
+maxVolInStrategy = 486,000000, min = 19, maxVol = 30000,000000, shift = 0,006000, slTemp = 2,000000, tpTemp = 3,700000, strategy = 8
+badCount = 42, successCount : 48
+commonResult :  1,687339
+maxVolInStrategy = 1639,000000, min = 133, maxVol = 35000,000000, shift = 0,009000, slTemp = 0,800000, tpTemp = 3,500000, strategy = 8
+badCount = 88, successCount : 45
+commonResult :  1,603475
+maxVolInStrategy = 2458,000000, min = 22, maxVol = 25000,000000, shift = 0,009000, slTemp = 0,800000, tpTemp = 4,900000, strategy = 8
+badCount = 88, successCount : 32
+commonResult :  1,521990
+maxVolInStrategy = 5085,000000, min = 58, maxVol = 25000,000000, shift = 0,009000, slTemp = 1,000000, tpTemp = 5,100000, strategy = 7
+badCount = 58, successCount : 33
+commonResult :  2,021778
+maxVolInStrategy = 1639,000000, min = 37, maxVol = 15000,000000, shift = 0,009000, slTemp = 1,200000, tpTemp = 3,100000, strategy = 8
+badCount = 88, successCount : 61
+commonResult :  1,550164
+maxVolInStrategy = 5530,000000, min = 31, maxVol = 30000,000000, shift = 0,009000, slTemp = 1,200000, tpTemp = 4,900000, strategy = 7
+badCount = 61, successCount : 34
+commonResult :  1,624981
+maxVolInStrategy = 3687,000000, min = 40, maxVol = 30000,000000, shift = 0,009000, slTemp = 1,200000, tpTemp = 4,900000, strategy = 7
+badCount = 63, successCount : 36
+commonResult :  1,741055
+maxVolInStrategy = 729,000000, min = 67, maxVol = 65000,000000, shift = 0,009000, slTemp = 1,400000, tpTemp = 5,900000, strategy = 7
+badCount = 31, successCount : 23
+commonResult :  1,634610
+maxVolInStrategy = 729,000000, min = 70, maxVol = 65000,000000, shift = 0,009000, slTemp = 1,400000, tpTemp = 5,900000, strategy = 7
+badCount = 31, successCount : 23
+commonResult :  1,634185
+maxVolInStrategy = 486,000000, min = 94, maxVol = 80000,000000, shift = 0,009000, slTemp = 1,800000, tpTemp = 3,500000, strategy = 7
+badCount = 37, successCount : 43
+commonResult :  1,503923
+maxVolInStrategy = 1093,000000, min = 115, maxVol = 10000,000000, shift = 0,009000, slTemp = 2,000000, tpTemp = 2,500000, strategy = 7
+badCount = 46, successCount : 74
+commonResult :  1,627575
+maxVolInStrategy = 1005,000000, min = 103, maxVol = 15000,000000, shift = 0,009000, slTemp = 2,000000, tpTemp = 2,500000, strategy = 7
+badCount = 49, successCount : 73
+commonResult :  1,551220
+maxVolInStrategy = 1005,000000, min = 178, maxVol = 10000,000000, shift = 0,009000, slTemp = 2,000000, tpTemp = 5,500000, strategy = 7
+badCount = 34, successCount : 29
+commonResult :  1,588100
+maxVolInStrategy = 486,000000, min = 70, maxVol = 75000,000000, shift = 0,009000, slTemp = 2,000000, tpTemp = 5,500000, strategy = 7
+badCount = 24, successCount : 25
+commonResult :  1,590145
+maxVolInStrategy = 486,000000, min = 67, maxVol = 75000,000000, shift = 0,009000, slTemp = 2,000000, tpTemp = 5,500000, strategy = 7
+badCount = 24, successCount : 25
+commonResult :  1,590430
+maxVolInStrategy = 8295,000000, min = 61, maxVol = 15000,000000, shift = 0,012000, slTemp = 1,000000, tpTemp = 5,300000, strategy = 7
+badCount = 55, successCount : 27
+commonResult :  1,542792
+maxVolInStrategy = 1639,000000, min = 94, maxVol = 30000,000000, shift = 0,012000, slTemp = 1,200000, tpTemp = 5,100000, strategy = 7
+badCount = 51, successCount : 28
+commonResult :  1,535244
+maxVolInStrategy = 1639,000000, min = 109, maxVol = 30000,000000, shift = 0,012000, slTemp = 1,200000, tpTemp = 5,100000, strategy = 7
+badCount = 42, successCount : 26
+commonResult :  1,532952
+maxVolInStrategy = 8295,000000, min = 112, maxVol = 30000,000000, shift = 0,012000, slTemp = 1,400000, tpTemp = 5,100000, strategy = 7
+badCount = 45, successCount : 29
+commonResult :  1,567992
+maxVolInStrategy = 486,000000, min = 94, maxVol = 70000,000000, shift = 0,012000, slTemp = 1,800000, tpTemp = 5,100000, strategy = 7
+badCount = 24, successCount : 25
+commonResult :  1,551882
+maxVolInStrategy = 486,000000, min = 97, maxVol = 70000,000000, shift = 0,012000, slTemp = 1,800000, tpTemp = 5,100000, strategy = 7
+badCount = 24, successCount : 25
+commonResult :  1,551411
+maxVolInStrategy = 729,000000, min = 13, maxVol = 20000,000000, shift = 0,012000, slTemp = 1,800000, tpTemp = 5,300000, strategy = 7
+badCount = 31, successCount : 28
+commonResult :  1,677003
+maxVolInStrategy = 670,000000, min = 31, maxVol = 30000,000000, shift = 0,012000, slTemp = 2,000000, tpTemp = 5,100000, strategy = 7
+badCount = 30, successCount : 29
+commonResult :  1,631406
+maxVolInStrategy = 670,000000, min = 31, maxVol = 30000,000000, shift = 0,012000, slTemp = 2,000000, tpTemp = 5,300000, strategy = 7
+badCount = 32, successCount : 28
+commonResult :  1,536658
+maxVolInStrategy = 1639,000000, min = 124, maxVol = 25000,000000, shift = 0,015000, slTemp = 1,000000, tpTemp = 5,500000, strategy = 7
+badCount = 52, successCount : 25
+commonResult :  1,586985
+
+
+
+
+maxVolInStrategy = 1639,000000, min = 34, maxVol = 25000,000000, shift = 0,015000, slTemp = 1,800000, tpTemp = 5,100000, strategy = 7
+badCount = 38, successCount : 29
+commonResult :  1,526493
+maxVolInStrategy = 670,000000, min = 136, maxVol = 30000,000000, shift = 0,015000, slTemp = 1,800000, tpTemp = 5,500000, strategy = 7
+badCount = 30, successCount : 25
+commonResult :  1,546912
+maxVolInStrategy = 1093,000000, min = 106, maxVol = 10000,000000, shift = 0,018000, slTemp = 1,800000, tpTemp = 5,300000, strategy = 8
+badCount = 27, successCount : 25
+commonResult :  1,552660
+18:51:30.876 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=45s366ms).
+Disconnected from the target VM, address: '127.0.0.1:63441', transport: 'socket'
+19:22:15.952 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+19:22:15.963 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+19:22:15.976 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+
+Process finished with exit code 130 (interrupted by signal 2:SIGINT)
