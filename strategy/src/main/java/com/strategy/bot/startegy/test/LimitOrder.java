@@ -74,6 +74,10 @@ public class LimitOrder implements StrategyExecutor {
 //            R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx
     );
 
+//    maxVolInStrategy = 5085,000000, min = 58, maxVol = 25000,000000, shift = 0,009000, slTemp = 1,000000, tpTemp = 5,100000, strategy = 7
+//    badCount = 58, successCount : 33
+//    commonResult :  2,021778
+
     @Value("#{${accounts}}")
     private Map<Owner, Map<String, String>> keySecretMap;
     private BigDecimal resultBalance = BigDecimal.valueOf(400);
@@ -87,7 +91,7 @@ public class LimitOrder implements StrategyExecutor {
     @Value("${start-vol}")
     private int startVol;
 
-    private final static double maxVol = 10_000;
+    private final static double maxVol = 25_000;
     private double maxVolInStrategy = 0;
 
     private final DealDaoService dealService;
@@ -239,11 +243,11 @@ public class LimitOrder implements StrategyExecutor {
             return;
         }
 
-        double shift = 0.003;
+        double shift = 0.009;
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 1.4;
-        double tp = onePercent * 5.5;
+        double sl = onePercent * 1;
+        double tp = onePercent * 5.1;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.5) : startVol;
 
         if (isTestStrategy && vol == startVol) {
@@ -344,7 +348,7 @@ public class LimitOrder implements StrategyExecutor {
     private boolean isCancelPosition(Bar bar, Deal deal) {
         LocalDateTime openDate = deal.getOpenDate()
 //                .plusHours(1)
-                .plusMinutes(73);
+                .plusMinutes(58);
         LocalDateTime createDate = bar.getCreateDate();
 
         if (createDate.isAfter(openDate)) {
@@ -471,16 +475,16 @@ public class LimitOrder implements StrategyExecutor {
             startVol = 377;
         } else if (resultBalance.doubleValue() >= 550) {
             startVol = 233;
+            startVol = 144;
         } else if (resultBalance.doubleValue() >= 340) {
             startVol = 89;
-            startVol = 144;
-        } else if (resultBalance.doubleValue() >= 210) {
             startVol = 55;
-        } else if (resultBalance.doubleValue() >= 130) {
+        } else if (resultBalance.doubleValue() >= 210) {
             startVol = 34;
+        } else if (resultBalance.doubleValue() >= 130) {
+            startVol = 21;
         } else if (resultBalance.doubleValue() >= 80) {
             startVol = 13;
-            startVol = 21;
         }
 //        log.info("startVol = {}", startVol);
         return startVol;

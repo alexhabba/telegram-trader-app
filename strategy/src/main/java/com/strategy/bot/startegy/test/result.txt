@@ -522,9 +522,11 @@ commonResult :  1,603475
 maxVolInStrategy = 2458,000000, min = 22, maxVol = 25000,000000, shift = 0,009000, slTemp = 0,800000, tpTemp = 4,900000, strategy = 8
 badCount = 88, successCount : 32
 commonResult :  1,521990
+
 maxVolInStrategy = 5085,000000, min = 58, maxVol = 25000,000000, shift = 0,009000, slTemp = 1,000000, tpTemp = 5,100000, strategy = 7
 badCount = 58, successCount : 33
 commonResult :  2,021778
+
 maxVolInStrategy = 1639,000000, min = 37, maxVol = 15000,000000, shift = 0,009000, slTemp = 1,200000, tpTemp = 3,100000, strategy = 8
 badCount = 88, successCount : 61
 commonResult :  1,550164
