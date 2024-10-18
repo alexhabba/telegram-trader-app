@@ -80,7 +80,7 @@ public class LimitOrder implements StrategyExecutor {
 
     @Value("#{${accounts}}")
     private Map<Owner, Map<String, String>> keySecretMap;
-    private BigDecimal resultBalance = BigDecimal.valueOf(400);
+    private BigDecimal resultBalance = BigDecimal.valueOf(100);
 
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
@@ -113,10 +113,14 @@ public class LimitOrder implements StrategyExecutor {
 //        System.out.println();
 
 
-        Pair<String, String> pairKeySecret = map.get(strategy);
-        String key = pairKeySecret.getKey();
-        String secret = pairKeySecret.getValue();
-//        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.725), BigDecimal.valueOf(1.5));
+//        Pair<String, String> pairKeySecret = map.get(strategy);
+//        String key = pairKeySecret.getKey();
+//        String secret = pairKeySecret.getValue();
+//        ResponsePosition position = positionService.getPosition(key, secret);
+//        System.out.println(position);
+//        bybitOrderService.closeOpenLimitOrder(key, secret);
+
+//        positionService.setSlTp(key, secret, BigDecimal.valueOf(2.08), BigDecimal.valueOf(2.209));
 //
 //        bybitOrderService.openLimitOrder(
 //                key,
@@ -382,6 +386,15 @@ public class LimitOrder implements StrategyExecutor {
     }
 
     private void openOrder(Deal createDeal) {
+        changeDoubleValue(createDeal);
+        Pair<String, String> pairKeySecret = map.get(strategy);
+        String key = pairKeySecret.getKey();
+        String secret = pairKeySecret.getValue();
+        double size =  createDeal.getVol();
+        if (size == startVol) {
+            size = getVol(key, secret);
+            createDeal.setVol(size);
+        }
         if (deals.isEmpty()) {
             openOrder(
                     createDeal.getVol(),
@@ -403,14 +416,20 @@ public class LimitOrder implements StrategyExecutor {
         }
     }
 
+    private void changeDoubleValue(Deal createDeal) {
+        createDeal.setOpen(changeDoubleValue(createDeal.getOpen()));
+        createDeal.setSl(changeDoubleValue(createDeal.getSl()));
+        createDeal.setTp(changeDoubleValue(createDeal.getTp()));
+    }
+
+    private static double changeDoubleValue(double value) {
+        return Math.round(value * 1000) / 1000.0;
+    }
+
     void openOrder(double size, Side side, String tvh, String sl) {
         Pair<String, String> pairKeySecret = map.get(strategy);
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
-
-        if (size == startVol) {
-            size = getVol(key, secret);
-        }
 
         bybitOrderService.openLimitOrder(
                 key,
