@@ -69,7 +69,7 @@ public class LimitOrder implements StrategyExecutor {
             // SUB_THIRD_BYBIT 93.45
             "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
             // KRIS_BYBIT 100   запуск 20 август
-            "10", Pair.of("roUwvpCiyM06jesNHS", "2xWaG3hqAddAVIJqyBozRGb3lZRjVlXmmyD3")
+            "10", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy")
 //            Dru3SSXDYG9zyLGjKG
 //            R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx
     );
