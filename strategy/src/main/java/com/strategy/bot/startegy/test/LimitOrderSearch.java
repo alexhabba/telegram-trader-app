@@ -2,10 +2,12 @@ package com.strategy.bot.startegy.test;
 
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Deal;
+import com.dao.bot.entity.Statistic;
 import com.dao.bot.enums.OrderType;
 import com.dao.bot.enums.Owner;
 import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
+import com.dao.bot.repository.StatisticRepository;
 import com.dao.bot.service.BarDaoService;
 import com.dao.bot.service.DealDaoService;
 import com.strategy.bot.dto.ResponsePosition;
@@ -80,6 +82,7 @@ public class LimitOrderSearch {
     @Value("${strategy}")
     private String strategy;
 
+    private final StatisticRepository statisticRepository;
     private final AtomicInteger atomicInteger = new AtomicInteger();
     @Value("${start-vol}")
     private int startVol;
@@ -131,16 +134,33 @@ public class LimitOrderSearch {
 
             int c = count;
             double maxVoll = maxVolInStrategy.get().getValue();
-            if (result > 1.5 && maxVoll < 10000) {
-                System.out.printf("maxVolInStrategy = %f, min = %d, maxVol = %f, shift = %f, slTemp = %f, tpTemp = %f, strategy = %s\nbadCount = %d, successCount : %d\ncommonResult :  %f\n",
-                        maxVoll, min, maxVol, shift, slTemp, tpTemp, strategy, badCount, successCount, result);
+            if (result > 0.5 && maxVoll < 1000) {
+                Statistic statistic = Statistic.builder()
+                        .id(UUID.randomUUID())
+                        .maxVolInStrategy(maxVolInStrategy.get().getValue())
+                        .min(min)
+                        .vol(maxVol)
+                        .shift(shift)
+                        .sl(slTemp)
+                        .tp(tpTemp)
+                        .strategy(strategy)
+                        .badCount(badCount)
+                        .successCount(successCount)
+                        .result(result)
+                        .build();
+
+                statisticRepository.save(statistic);
+
+
+
+                        System.out.printf("maxVolInStrategy = %f, min = %d, maxVol = %f, shift = %f, slTemp = %f, tpTemp = %f, strategy = %s, badCount = %d, successCount : %d, commonResult :  %f\n",
+                                maxVoll, min, maxVol, shift, slTemp, tpTemp, strategy, badCount, successCount, result);
             }
 
-//            shift = 0,475000, slTemp = 1,500000, tpTemp = 2,000000, strategy = 5
-//            commonResult :  1,233260
+//            maxVolInStrategy = 729,000000, min = 82, maxVol = 15000,000000, shift = 0,001000, slTemp = 1,000000, tpTemp = 4,100000, strategy = 7
+//            badCount = 37, successCount : 20
+//            commonResult :  1,061774
 
-//            shift = 0,296000, slTemp = 1,200000, tpTemp = 3,000000, strategy = 5
-//            commonResult :  1,356565
 
 //            shift = 0,301000, slTemp = 0,600000, tpTemp = 5,000000, strategy = 5
 //            badCount = 33, successCount : 10

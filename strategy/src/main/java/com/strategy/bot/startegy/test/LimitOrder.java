@@ -23,6 +23,10 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.LockModeType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,28 +50,28 @@ import static java.util.Objects.nonNull;
 public class LimitOrder implements StrategyExecutor {
 
     private final static Map<String, Pair<String, String>> map = Map.of(
-            // KRIS_SUB_SECOND_BYBIT 0
-            "1", Pair.of("9jaVPeAdvHrCmX0ns1", "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0"),
-            // KRIS_SUB_THIRD_BYBIT 106
-            "2", Pair.of("H3GirAjzpWudDl5OdM", "b0HhjkwZev5TbkeaAiyNCoPTgF03HrBfqxSS"),
-            // KRIS_SUB_FIRST_BYBIT 43
-            "3", Pair.of("AlQPnc97vD3e2rmL8g", "7nhr96hrqY1ugIVEa7Hdz4e091O63OZNvVfu"),
-            // ISLAM_BYBIT 74.51
-            "4", Pair.of("06sETlkoP2qjgAMTG5", "UN3kh8zBizlhI2U04D56nCkADUxbHsRm6g21"),
-            // ISLAM_SUB_FIRST_BYBIT 76.18
-            "5", Pair.of("GHT40gkxrAlMmYJPfk", "kORD1LFlJsS00S7mbuwSkYY8ZvN4e1s7r5Zl"),
-            // SUB_FIRST_BYBIT 100
-//            "6", Pair.of("UNa8RzDDztTkStiDUY", "mGwJooK5qVT4hdN3k53rGBuJDyMk8EyYoArv"),
-            // islam copy
-            "6", Pair.of("Dru3SSXDYG9zyLGjKG", "R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx"),
-            // ISLAM_SUB_SECOND_BYBIT 60
-            "7", Pair.of("bPVe4ZjME00iqeDAbk", "5wo5H9E2xWpxLq4t0TO6gHoSp5VhdQD7BJ88"),
-            // ISLAM_SUB_THIRD_BYBIT 60
-//            "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
-            // islam copy
-            "8", Pair.of("Dru3SSXDYG9zyLGjKG", "R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx"),
-            // SUB_THIRD_BYBIT 93.45
-            "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
+//            // KRIS_SUB_SECOND_BYBIT 0
+//            "1", Pair.of("9jaVPeAdvHrCmX0ns1", "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0"),
+//            // KRIS_SUB_THIRD_BYBIT 106
+//            "2", Pair.of("H3GirAjzpWudDl5OdM", "b0HhjkwZev5TbkeaAiyNCoPTgF03HrBfqxSS"),
+//            // KRIS_SUB_FIRST_BYBIT 43
+//            "3", Pair.of("AlQPnc97vD3e2rmL8g", "7nhr96hrqY1ugIVEa7Hdz4e091O63OZNvVfu"),
+//            // ISLAM_BYBIT 74.51
+//            "4", Pair.of("06sETlkoP2qjgAMTG5", "UN3kh8zBizlhI2U04D56nCkADUxbHsRm6g21"),
+//            // ISLAM_SUB_FIRST_BYBIT 76.18
+//            "5", Pair.of("GHT40gkxrAlMmYJPfk", "kORD1LFlJsS00S7mbuwSkYY8ZvN4e1s7r5Zl"),
+//            // SUB_FIRST_BYBIT 100
+////            "6", Pair.of("UNa8RzDDztTkStiDUY", "mGwJooK5qVT4hdN3k53rGBuJDyMk8EyYoArv"),
+//            // islam copy
+//            "6", Pair.of("Dru3SSXDYG9zyLGjKG", "R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx"),
+//            // ISLAM_SUB_SECOND_BYBIT 60
+//            "7", Pair.of("bPVe4ZjME00iqeDAbk", "5wo5H9E2xWpxLq4t0TO6gHoSp5VhdQD7BJ88"),
+//            // ISLAM_SUB_THIRD_BYBIT 60
+////            "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
+//            // islam copy
+//            "8", Pair.of("Dru3SSXDYG9zyLGjKG", "R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx"),
+//            // SUB_THIRD_BYBIT 93.45
+//            "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
             // KRIS_BYBIT 100   запуск 20 август
             "10", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy")
 //            Dru3SSXDYG9zyLGjKG
@@ -82,6 +86,7 @@ public class LimitOrder implements StrategyExecutor {
     private Map<Owner, Map<String, String>> keySecretMap;
     private BigDecimal resultBalance = BigDecimal.valueOf(100);
 
+//    private BigDecimal
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
 
@@ -113,22 +118,22 @@ public class LimitOrder implements StrategyExecutor {
 //        System.out.println();
 
 
-//        Pair<String, String> pairKeySecret = map.get(strategy);
-//        String key = pairKeySecret.getKey();
-//        String secret = pairKeySecret.getValue();
+        Pair<String, String> pairKeySecret = map.get(strategy);
+        String key = pairKeySecret.getKey();
+        String secret = pairKeySecret.getValue();
 //        ResponsePosition position = positionService.getPosition(key, secret);
 //        System.out.println(position);
 //        bybitOrderService.closeOpenLimitOrder(key, secret);
 
-//        positionService.setSlTp(key, secret, BigDecimal.valueOf(2.08), BigDecimal.valueOf(2.209));
+//        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.889), BigDecimal.valueOf(2.1));
 //
 //        bybitOrderService.openLimitOrder(
 //                key,
 //                secret,
 //                Symbol.WLD,
-//                "1.9",
+//                "1.954",
 //                "2",
-//                "5",
+//                "1500",
 //                Side.Sell,
 //                OrderType.LIMIT,
 //                UUID.randomUUID(),
@@ -140,16 +145,17 @@ public class LimitOrder implements StrategyExecutor {
 //        System.out.println(position);
 //        System.out.println("maxVolInStrategy : " + maxVolInStrategy);
 
-//        showPositionAndBalance();
+        showPositionAndBalance();
     }
 
+    private final EntityManagerFactory entityManagerFactory;
     @Override
     public void execute(Bar lastBar) {
 //        if (lastBar.getCreateDate().isBefore(LocalDateTime.now().minusDays(15))) {
 //            return;
 //        }
 //        if (isTestStrategy) return;
-        if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
+        if (isTestStrategy && LocalDateTime.now().minusHours(40).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
 //            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);

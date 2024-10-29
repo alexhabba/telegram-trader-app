@@ -45,7 +45,7 @@ public class RunnerTestStrategy {
 //        runTestStrategy();
     }
 
-    @Scheduled(fixedDelay = 3000)
+    @Scheduled(cron = "04 * * * * *")
     public void runTestStrategy() {
 //        List<Bar> all = barService.findAll();
 //        List<BarDto> barsCreateDateBetween = barService.getBarsCreateDateBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now());
