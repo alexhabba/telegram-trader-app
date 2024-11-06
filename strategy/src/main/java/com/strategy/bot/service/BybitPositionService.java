@@ -9,8 +9,6 @@ import com.strategy.bot.dto.ResponsePosition;
 import com.strategy.bot.utils.PositionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,11 +18,6 @@ import java.math.BigDecimal;
 public class BybitPositionService {
 
     private final ObjectMapper objectMapper;
-
-    @EventListener({ContextRefreshedEvent.class})
-    public void init() {
-        System.out.println("");
-    }
 
     @SneakyThrows
     public ResponsePosition getPosition(String key, String secret) {

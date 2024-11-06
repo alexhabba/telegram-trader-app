@@ -110,7 +110,7 @@ public class LimitOrderSearch {
 //            return;
 //        }
 //        if (isTestStrategy) return;
-        if (isTestStrategy && LocalDateTime.now().minusHours(30).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
+        if (isTestStrategy && LocalDateTime.now().minusHours(13).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
 //            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
 //            deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
 //                    .forEach(System.out::println);

@@ -74,8 +74,13 @@ public class LimitOrder implements StrategyExecutor {
 //            "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
             // KRIS_BYBIT 100   запуск 20 август
             "10", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy")
+            // MY MAIN ACC
+//            "10", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
+            // DEMO
+//            "10", Pair.of("6KHHWQ26pEBvLGTvNq", "ADD12KPrgwmMBewxeWaWj1dGbLvyooJtLZYB")
 //            Dru3SSXDYG9zyLGjKG
 //            R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx
+//            2Z9USg4FZilLred2Xj
     );
 
 //    maxVolInStrategy = 5085,000000, min = 58, maxVol = 25000,000000, shift = 0,009000, slTemp = 1,000000, tpTemp = 5,100000, strategy = 7
@@ -96,7 +101,7 @@ public class LimitOrder implements StrategyExecutor {
     @Value("${start-vol}")
     private int startVol;
 
-    private final static double maxVol = 25_000;
+    private final static double maxVol = 65_000;
     private double maxVolInStrategy = 0;
 
     private final DealDaoService dealService;
@@ -121,19 +126,21 @@ public class LimitOrder implements StrategyExecutor {
         Pair<String, String> pairKeySecret = map.get(strategy);
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
-//        ResponsePosition position = positionService.getPosition(key, secret);
-//        System.out.println(position);
+
+//        positionService.setSlTp(key, secret, BigDecimal.valueOf(2.513), BigDecimal.valueOf(2));
+
+        ResponsePosition position = positionService.getPosition(key, secret);
+        System.out.println(position);
 //        bybitOrderService.closeOpenLimitOrder(key, secret);
 
-//        positionService.setSlTp(key, secret, BigDecimal.valueOf(1.889), BigDecimal.valueOf(2.1));
 //
 //        bybitOrderService.openLimitOrder(
 //                key,
 //                secret,
 //                Symbol.WLD,
-//                "1.954",
-//                "2",
-//                "1500",
+//                "2.150",
+//                "2.485",
+//                "5",
 //                Side.Sell,
 //                OrderType.LIMIT,
 //                UUID.randomUUID(),
@@ -146,9 +153,9 @@ public class LimitOrder implements StrategyExecutor {
 //        System.out.println("maxVolInStrategy : " + maxVolInStrategy);
 
         showPositionAndBalance();
+
     }
 
-    private final EntityManagerFactory entityManagerFactory;
     @Override
     public void execute(Bar lastBar) {
 //        if (lastBar.getCreateDate().isBefore(LocalDateTime.now().minusDays(15))) {
@@ -253,12 +260,12 @@ public class LimitOrder implements StrategyExecutor {
             return;
         }
 
-        double shift = 0.009;
+        double shift = 0.01;
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
         double sl = onePercent * 1;
-        double tp = onePercent * 5.1;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.5) : startVol;
+        double tp = onePercent * 4.5;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) : startVol;
 
         if (isTestStrategy && vol == startVol) {
             vol = getVol(null, null);
@@ -266,7 +273,7 @@ public class LimitOrder implements StrategyExecutor {
 
         if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
-            if (strategy.equals("8") || strategy.equals("4")) {
+            if (strategy.equals("8") || strategy.equals("10")) {
                 openPrice = openPrice + shift;
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
             } else {
@@ -284,7 +291,7 @@ public class LimitOrder implements StrategyExecutor {
         if (volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
 
-            if (strategy.equals("8") || strategy.equals("4")) {
+            if (strategy.equals("8") || strategy.equals("10")) {
                 openPrice = openPrice - shift;
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
             } else {
@@ -358,7 +365,7 @@ public class LimitOrder implements StrategyExecutor {
     private boolean isCancelPosition(Bar bar, Deal deal) {
         LocalDateTime openDate = deal.getOpenDate()
 //                .plusHours(1)
-                .plusMinutes(58);
+                .plusMinutes(13);
         LocalDateTime createDate = bar.getCreateDate();
 
         if (createDate.isAfter(openDate)) {
@@ -369,6 +376,13 @@ public class LimitOrder implements StrategyExecutor {
         return false;
     }
 
+    /**
+     * Проверка открылась ли лимитная заявка или нет для теста стратегии
+     *
+     * @param bar
+     * @param deal
+     * @return
+     */
     private boolean isOpenPosition(Bar bar, Deal deal) {
         double low = Double.parseDouble(bar.getLow());
         double high = Double.parseDouble(bar.getHigh());
@@ -470,6 +484,11 @@ public class LimitOrder implements StrategyExecutor {
         System.out.println("commonBalance : " + commonBalance.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
+    /**
+     * Проверка на наличие открытых позиций
+     *
+     * @return TRUE - если нет открытых позиций
+     */
     private boolean isNotPosition() {
         Pair<String, String> pairKeySecret = map.get(strategy);
         String key = pairKeySecret.getKey();
@@ -487,29 +506,33 @@ public class LimitOrder implements StrategyExecutor {
             resultBalance = balanceService.getBalance(key, secret);
             log.info("resultBalance = {}", resultBalance);
         }
-        if (resultBalance.doubleValue() >= 3770) {
+        if (resultBalance.doubleValue() >= 50) {
             startVol = 610;
             startVol = 987;
+            startVol = 5;
         } else if (resultBalance.doubleValue() >= 2330) {
             startVol = 610;
+            startVol = 144;
         } else if (resultBalance.doubleValue() >= 1440) {
             startVol = 377;
             startVol = 610;
+            startVol = 89;
         } else if (resultBalance.doubleValue() >= 890) {
             startVol = 233;
             startVol = 377;
-        } else if (resultBalance.doubleValue() >= 550) {
-            startVol = 233;
-            startVol = 144;
-        } else if (resultBalance.doubleValue() >= 340) {
-            startVol = 89;
             startVol = 55;
-        } else if (resultBalance.doubleValue() >= 210) {
+        } else if (resultBalance.doubleValue() >= 550) {
             startVol = 34;
-        } else if (resultBalance.doubleValue() >= 130) {
+        } else if (resultBalance.doubleValue() >= 340) {
             startVol = 21;
-        } else if (resultBalance.doubleValue() >= 80) {
+        } else if (resultBalance.doubleValue() >= 210) {
             startVol = 13;
+        } else if (resultBalance.doubleValue() >= 130) {
+            startVol = 8;
+//            startVol = 34;
+        } else if (resultBalance.doubleValue() >= 50) {
+            startVol = 5;
+//            startVol = 21;
         }
 //        log.info("startVol = {}", startVol);
         return startVol;

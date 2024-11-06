@@ -1,6 +1,7 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${HOSTNAME:45.8.251.166}:${PORT:5432}/${DB_NAME:postgres}?currentSchema=bot
+    url: jdbc:postgresql://${HOSTNAME:localhost}:${PORT:5432}/${DB_NAME:postgres}?currentSchema=bot
+#    url: jdbc:postgresql://${HOSTNAME:45.8.251.166}:${PORT:5432}/${DB_NAME:postgres}?currentSchema=bot
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver

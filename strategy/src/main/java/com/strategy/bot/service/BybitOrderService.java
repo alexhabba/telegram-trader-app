@@ -9,6 +9,7 @@ import com.bybit.api.client.service.BybitApiClientFactory;
 import com.dao.bot.enums.OrderType;
 import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strategy.bot.dto.BybitLimitOrderResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -110,7 +112,8 @@ public class BybitOrderService {
     @SneakyThrows
     public void closeOpenLimitOrder(String key, String secret) {
         try {
-            BybitLimitOrderResponse openLimitOrder = getOpenLimitOrder(key, secret);
+//            BybitLimitOrderResponse openLimitOrder = getOpenLimitOrder(key, secret);
+            BybitLimitOrderResponse openLimitOrder = getOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy");
             if (openLimitOrder.getResult().getList().isEmpty()) {
                 return;
             }
@@ -126,8 +129,59 @@ public class BybitOrderService {
         }
     }
 
-    public static void main(String[] args) {
-//        closeOpenLimitOrder();
+    public static void closeOpenLimitOrder(String key, String secret, boolean t) {
+        try {
+            BybitLimitOrderResponse openLimitOrder = getOpenLimitOrderr(key, secret);
+//            BybitLimitOrderResponse openLimitOrder = getOpenLimitOrderr();
+            if (openLimitOrder.getResult().getList().isEmpty()) {
+                return;
+            }
+            String orderId = openLimitOrder.getResult().getList().get(0).getOrderId();
+            var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN).newTradeRestClient();
+
+
+            var result = client.cancelOrder(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol("WLDUSDT").orderId(orderId).build());
+            System.out.println(result);
+        } catch (BybitApiException e) {
+            // Обработка ошибок
+            System.err.println("Ошибка: " + e.getMessage());
+        }
     }
+
+    public static BybitLimitOrderResponse getOpenLimitOrderr(String key, String secret) {
+        try {
+            var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN).newTradeRestClient();
+            var openLinearOrdersResult = client.getOpenOrders(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol("WLDUSDT").build());
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(objectMapper.writeValueAsString(openLinearOrdersResult), BybitLimitOrderResponse.class);
+        } catch (BybitApiException | JsonProcessingException e) {
+            // Обработка ошибок
+            System.err.println("Ошибка: " + e.getMessage());
+        }
+        return null;
+    }
+
+    @SneakyThrows
+    public static void main(String[] args) {
+//        closeOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy", true);
+        BybitOrderService service = new BybitOrderService(new ObjectMapper());
+        while (true) {
+//            "10", Pair.of("6KHHWQ26pEBvLGTvNq", "ADD12KPrgwmMBewxeWaWj1dGbLvyooJtLZYB")
+
+            service.openOrder("6KHHWQ26pEBvLGTvNq",
+                    "ADD12KPrgwmMBewxeWaWj1dGbLvyooJtLZYB",
+                    Symbol.WLD,
+                    "2.51",
+                    "2",
+                    "3",
+                    Side.Sell,
+                    OrderType.MARKET,
+                    UUID.randomUUID(),
+                    System.out::println);
+            System.out.println(LocalDateTime.now());
+            Thread.sleep(300000);
+        }
+    }
+//            "10", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
 
 }

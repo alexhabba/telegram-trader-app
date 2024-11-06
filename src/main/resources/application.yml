@@ -14,6 +14,7 @@ spring:
 #    url: jdbc:postgresql://${RDS_HOSTNAME:host.docker.internal:${RDS_PORT:5432}/${RDS_DB_NAME:bot}?currentSchema=bot
 #    docker run -d --name tickwld -e HOSTNAME=192.168.1.241 -e PORT=5432 tickwld
 #    docker run -d --name test -e HOSTNAME=host.docker.internal -e PORT=5432 tickwld
+#    docker run -d --name str10 -e strategy=10 -e HOSTNAME=host.docker.internal -e PORT=5432 --restart=always str13
     username: ${RDS_USERNAME:postgres}
     password: ${RDS_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
