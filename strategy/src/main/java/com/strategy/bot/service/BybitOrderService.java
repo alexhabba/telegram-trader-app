@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -54,10 +55,11 @@ public class BybitOrderService {
 
     }
 
-    public void openLimitOrder(String key, String secret, Symbol symbol, String tvh, String sl, String qty,
+    @SneakyThrows
+    public UUID openLimitOrder(String key, String secret, Symbol symbol, String tvh, String sl, String qty,
                                Side side, OrderType orderType, UUID orderLinkId, BybitApiCallback<Object> callback) {
         try {
-            var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN, true).newAsyncTradeRestClient();
+            var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN, true).newTradeRestClient();
             Map<String, Object> order = Map.of(
                     "category", "linear",
                     "symbol", symbol.name() + "USDT",
@@ -71,10 +73,24 @@ public class BybitOrderService {
                     "tpslMode", "Full"
             );
 
-            client.createOrder(order, callback);
+            log.info("Sent order to server bybit");
+            Object response = client.createOrder(order);
+            log.info("Response from server: {}", response);
+
+            Object orderId = ((LinkedHashMap<?, ?>) ((LinkedHashMap<?, ?>) response).get("result")).get("orderId");
+            Object retCode = ((LinkedHashMap<?, ?>) response).get("retCode");
+            if ((int) retCode != 0) {
+                log.info("Повторная попытка отправить запрос");
+                Thread.sleep(5000);
+                response = client.createOrder(order);
+                log.info("Response from server: {}", response);
+                orderId = ((LinkedHashMap<?, ?>) ((LinkedHashMap<?, ?>) response).get("result")).get("orderId");
+            }
+            return UUID.fromString((String) orderId);
         } catch (BybitApiException e) {
             // Обработка ошибок
             System.err.println("Ошибка: " + e.getMessage());
+            throw e;
         }
 
     }
@@ -112,8 +128,7 @@ public class BybitOrderService {
     @SneakyThrows
     public void closeOpenLimitOrder(String key, String secret) {
         try {
-//            BybitLimitOrderResponse openLimitOrder = getOpenLimitOrder(key, secret);
-            BybitLimitOrderResponse openLimitOrder = getOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy");
+            BybitLimitOrderResponse openLimitOrder = getOpenLimitOrder(key, secret);
             if (openLimitOrder.getResult().getList().isEmpty()) {
                 return;
             }
@@ -163,25 +178,13 @@ public class BybitOrderService {
 
     @SneakyThrows
     public static void main(String[] args) {
-//        closeOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy", true);
-        BybitOrderService service = new BybitOrderService(new ObjectMapper());
-        while (true) {
-//            "10", Pair.of("6KHHWQ26pEBvLGTvNq", "ADD12KPrgwmMBewxeWaWj1dGbLvyooJtLZYB")
-
-            service.openOrder("6KHHWQ26pEBvLGTvNq",
-                    "ADD12KPrgwmMBewxeWaWj1dGbLvyooJtLZYB",
-                    Symbol.WLD,
-                    "2.51",
-                    "2",
-                    "3",
-                    Side.Sell,
-                    OrderType.MARKET,
-                    UUID.randomUUID(),
-                    System.out::println);
-            System.out.println(LocalDateTime.now());
-            Thread.sleep(300000);
-        }
-    }
 //            "10", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
+
+        //.  8a50bd47-4711-44bf-8b5e-c20ed26e464f       orderStatus=New
+//        BybitLimitOrderResponse openLimitOrderr = getOpenLimitOrderr("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF");
+        CommonUtils.isOpenPositionFromLimitOrder("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF",
+                UUID.fromString("8a50bd47-4711-44bf-8b5e-c20ed26e464f"), "WLDUSDT");
+//        System.out.println(openLimitOrderr);
+    }
 
 }

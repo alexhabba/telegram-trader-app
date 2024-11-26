@@ -7,12 +7,10 @@ import com.bybit.api.client.service.BybitApiClientFactory;
 import com.dao.bot.enums.OrderType;
 import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -20,10 +18,11 @@ import java.util.concurrent.Executors;
 
 public class TestStrategy {
 
-    public void openOrder(String key, String secret, Symbol symbol, String st, String tp, String qty,
+    @SneakyThrows
+    public UUID openOrder(String key, String secret, Symbol symbol, String st, String tp, String qty,
                           Side side, OrderType orderType, UUID orderLinkId, int hedgeMode, BybitApiCallback<Object> callback) {
         try {
-            var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN, true).newAsyncTradeRestClient();
+            var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN, true).newTradeRestClient();
             Map<String, Object> order = new HashMap<>();
                     order.put("category", "linear");
                     order.put("symbol", symbol.name() + "USDT");
@@ -37,10 +36,15 @@ public class TestStrategy {
                     order.put("tpslMode", "Full");
                     order.put("positionIdx", hedgeMode);
 
-            client.createOrder(order, callback);
+            Object response = client.createOrder(order);
+
+            Object orderId = ((LinkedHashMap<?, ?>) ((LinkedHashMap<?, ?>) response).get("result")).get("orderId");
+            UUID uuid = UUID.fromString((String) orderId);
+            return UUID.fromString((String) orderId);
         } catch (BybitApiException e) {
             // Обработка ошибок
             System.err.println("Ошибка: " + e.getMessage());
+            throw e;
         }
 
     }
@@ -52,12 +56,11 @@ public class TestStrategy {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
         executorService.submit(() -> {
             while (true) {
-//                "10", Pair.of("6KHHWQ26pEBvLGTvNq", "ADD12KPrgwmMBewxeWaWj1dGbLvyooJtLZYB")
-
-                service.openOrder("6KHHWQ26pEBvLGTvNq",
-                        "ADD12KPrgwmMBewxeWaWj1dGbLvyooJtLZYB",
+                service.openOrder(
+                        "XoX4nqAL5ZZxqr3r0j",
+                        "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF",
                         Symbol.WLD,
-                        "2.480",
+                        "2.5",
                         "2",
                         "3",
                         Side.Sell,
@@ -65,9 +68,12 @@ public class TestStrategy {
                         UUID.randomUUID(),
                         2,
                         System.out::println);
-                Thread.sleep(300000);
+                Thread.sleep(3000000);
             }
         });
+//        Unrecognized field "retCode" (class com.strategy.bot.dto.ResponseDto), not marked as ignorable
+//        {retCode=0, retMsg=OK, result={orderId=8e5cd745-a01f-4bbf-87dc-4c595a02b2d6, orderLinkId=e1117ad5-bdaf-4610-886f-d882afe95408}, retExtInfo={}, time=1732446468730}
+
 //        executorService.submit(() -> {
 //            while (true) {
 //                service.openOrder("XoX4nqAL5ZZxqr3r0j",

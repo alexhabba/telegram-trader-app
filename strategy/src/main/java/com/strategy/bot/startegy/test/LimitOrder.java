@@ -12,6 +12,7 @@ import com.strategy.bot.dto.ResponsePosition;
 import com.strategy.bot.service.BybitBalanceService;
 import com.strategy.bot.service.BybitOrderService;
 import com.strategy.bot.service.BybitPositionService;
+import com.strategy.bot.service.CommonUtils;
 import com.strategy.bot.startegy.StrategyExecutor;
 import com.strategy.bot.utils.PositionUtils;
 import lombok.RequiredArgsConstructor;
@@ -73,9 +74,9 @@ public class LimitOrder implements StrategyExecutor {
 //            // SUB_THIRD_BYBIT 93.45
 //            "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
             // KRIS_BYBIT 100   запуск 20 август
-            "10", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy")
+//            "10", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy")
             // MY MAIN ACC
-//            "10", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
+            "10", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
             // DEMO
 //            "10", Pair.of("6KHHWQ26pEBvLGTvNq", "ADD12KPrgwmMBewxeWaWj1dGbLvyooJtLZYB")
 //            Dru3SSXDYG9zyLGjKG
@@ -91,7 +92,6 @@ public class LimitOrder implements StrategyExecutor {
     private Map<Owner, Map<String, String>> keySecretMap;
     private BigDecimal resultBalance = BigDecimal.valueOf(100);
 
-//    private BigDecimal
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
 
@@ -226,6 +226,7 @@ public class LimitOrder implements StrategyExecutor {
             return;
         }
 
+        // todo нужно реализовать механизм проверки открытия позиции через лимитку
         if (nonNull(lastDeal) && lastDeal.getStatus() == STARTED) {
             Pair<String, String> pairKeySecret = map.get(strategy);
             String key = pairKeySecret.getKey();
@@ -238,8 +239,8 @@ public class LimitOrder implements StrategyExecutor {
                     isCancelPosition(lastBar, lastDeal);
                 }
 
-                // если позиция есть то открылась лимитка
-            } else if (!isNotPosition()) {
+                // если позиция есть, то открылась лимитка
+            } else if (CommonUtils.isOpenPositionFromLimitOrder(key, secret, lastDeal.getId(), "WLDUSDT")) {
                 // todo тут нужно доработать закрытие позиции по лимиту
                 lastDeal.setStatus(PROCESSING);
                 dealService.save(lastDeal);
@@ -265,7 +266,7 @@ public class LimitOrder implements StrategyExecutor {
         double onePercent = openPrice / 100;
         double sl = onePercent * 1;
         double tp = onePercent * 4.5;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) : startVol;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) Math.ceil(lastDeal.getVol() * 1.3) : startVol;
 
         if (isTestStrategy && vol == startVol) {
             vol = getVol(null, null);
@@ -330,31 +331,38 @@ public class LimitOrder implements StrategyExecutor {
     }
 
     private void checkTpSl(Bar bar, Deal deal) {
-        if (deal.getStatus() == COMPLETED) {
-            return;
-        }
         double low = Double.parseDouble(bar.getLow());
         double high = Double.parseDouble(bar.getHigh());
 
+        // если позиции нет, а статус Proccesing то нужно определить закрытие позиции по sl или tp
+        // если стратегия не тестовая то начинаем проверять нет ли позиции и если она есть то завершаем метод
+        if (!isTestStrategy && !isNotPosition()) {
+            return;
+        }
+        // этот сдвиг необходим только для реальной торговли так как данные разнятся между байбит и бинанс
+        double shift = 0.008;
+        if (isTestStrategy) {
+            shift = 0;
+        }
         if (deal.getSide() == Side.Buy) {
-            if (low <= deal.getSl()) {
+            if (low - shift <= deal.getSl()) {
                 // закрытие по стоп лосс
                 commonCloseAction(deal, bar, deal.getSl(), deal.getSl() - deal.getOpen());
             }
 
-            if (high >= deal.getTp()) {
+            if (high + shift >= deal.getTp()) {
                 // закрытие по тейк профит
                 commonCloseAction(deal, bar, deal.getTp(), deal.getTp() - deal.getOpen());
             }
         }
 
         if (deal.getSide() == Side.Sell) {
-            if (high >= deal.getSl()) {
+            if (high + shift >= deal.getSl()) {
                 // закрытие по стоп лосс
                 commonCloseAction(deal, bar, deal.getSl(), deal.getOpen() - deal.getSl());
             }
 
-            if (low <= deal.getTp()) {
+            if (low - shift <= deal.getTp()) {
                 // закрытие по тейк профит
                 commonCloseAction(deal, bar, deal.getTp(), deal.getOpen() - deal.getTp());
             }
@@ -410,13 +418,14 @@ public class LimitOrder implements StrategyExecutor {
         Pair<String, String> pairKeySecret = map.get(strategy);
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
-        double size =  createDeal.getVol();
+        double size = createDeal.getVol();
         if (size == startVol) {
             size = getVol(key, secret);
             createDeal.setVol(size);
         }
+        UUID orderId = null;
         if (deals.isEmpty()) {
-            openOrder(
+            orderId = openOrder(
                     createDeal.getVol(),
                     createDeal.getSide(),
                     Double.toString(createDeal.getOpen()),
@@ -426,7 +435,7 @@ public class LimitOrder implements StrategyExecutor {
             dealService.save(createDeal);
             deals.clear();
         }
-
+        createDeal.setId(orderId);
         try {
             dealService.save(createDeal);
             log.info("Successful save deal {}", createDeal);
@@ -446,12 +455,13 @@ public class LimitOrder implements StrategyExecutor {
         return Math.round(value * 1000) / 1000.0;
     }
 
-    void openOrder(double size, Side side, String tvh, String sl) {
+    UUID openOrder(double size, Side side, String tvh, String sl) {
         Pair<String, String> pairKeySecret = map.get(strategy);
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
 
-        bybitOrderService.openLimitOrder(
+        log.info("Open limit order size : {}, side : {}, tvh : {}", size, side, tvh);
+        return bybitOrderService.openLimitOrder(
                 key,
                 secret,
                 Symbol.WLD,
@@ -462,7 +472,6 @@ public class LimitOrder implements StrategyExecutor {
                 OrderType.LIMIT,
                 UUID.randomUUID(),
                 d -> log.info("open order {} ", d));
-        log.info("Open limit order size : {}, side : {}, tvh : {}", size, side, tvh);
     }
 
     @SneakyThrows
@@ -506,7 +515,7 @@ public class LimitOrder implements StrategyExecutor {
             resultBalance = balanceService.getBalance(key, secret);
             log.info("resultBalance = {}", resultBalance);
         }
-        if (resultBalance.doubleValue() >= 50) {
+        if (resultBalance.doubleValue() >= 5000) {
             startVol = 610;
             startVol = 987;
             startVol = 5;
@@ -530,11 +539,13 @@ public class LimitOrder implements StrategyExecutor {
         } else if (resultBalance.doubleValue() >= 130) {
             startVol = 8;
 //            startVol = 34;
-        } else if (resultBalance.doubleValue() >= 50) {
+        } else if (resultBalance.doubleValue() >= 80) {
             startVol = 5;
 //            startVol = 21;
+        } else if (resultBalance.doubleValue() >= 30) {
+            startVol = 3;
+//            startVol = 21;
         }
-//        log.info("startVol = {}", startVol);
         return startVol;
     }
 }
