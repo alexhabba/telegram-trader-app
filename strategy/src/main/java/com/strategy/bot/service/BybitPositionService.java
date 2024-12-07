@@ -12,6 +12,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,5 +30,11 @@ public class BybitPositionService {
     @SneakyThrows
     public void setSlTp(String key, String secret, BigDecimal sl, BigDecimal tp) {
         PositionUtils.sentTpSl(key, secret, sl, tp);
+    }
+
+    public static void main(String[] args) {
+        BybitPositionService bybitPositionService = new BybitPositionService(new ObjectMapper());
+        ResponsePosition position = bybitPositionService.getPosition("mXtga6i1kKM7E6QxZd", "xdockA1PaahdKwGecn18VgngE2ddXwhF5z0e");
+        System.out.println(position);
     }
 }

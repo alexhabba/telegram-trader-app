@@ -91,8 +91,8 @@ public class RunnerTestStrategy {
             while (sl < 2) {
                 double tp = 1.5;
                 while (tp < 5) {
-                    double maxVol = 10000;
-                    while (maxVol < 70000) {
+                    double maxVol = 20000;
+                    while (maxVol < 150000) {
                         int min = 13;
                         while (min < 100) {
                             double finalShift = shift;

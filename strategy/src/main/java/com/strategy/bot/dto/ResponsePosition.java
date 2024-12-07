@@ -41,12 +41,15 @@ public class ResponsePosition {
         private String tpslMode;
         private int riskId;
         private String trailingStop;
+        // Нереализованная прибыль
         private String unrealisedPnl;
         private String markPrice;
         private int adlRankIndicator;
         private String cumRealisedPnl;
         private String positionMM;
         private String createdTime;
+        // Если 2, то Sell позиция
+        // Если 1, то Buy позиция
         private int positionIdx;
         private String positionIM;
         private long seq;
@@ -67,15 +70,54 @@ public class ResponsePosition {
         public String toString() {
             return "Position{" +
                     "symbol='" + symbol + '\'' +
+                    ", leverage='" + leverage + '\'' +
+                    ", autoAddMargin=" + autoAddMargin +
                     ", avgPrice=" + avgPrice +
-                    ", leverage=" + leverage +
                     ", liqPrice=" + liqPrice +
+                    ", riskLimitValue='" + riskLimitValue + '\'' +
                     ", takeProfit=" + takeProfit +
+                    ", positionValue='" + positionValue + '\'' +
+                    ", isReduceOnly=" + isReduceOnly +
+                    ", tpslMode='" + tpslMode + '\'' +
+                    ", riskId=" + riskId +
+                    ", trailingStop='" + trailingStop + '\'' +
+                    ", unrealisedPnl='" + unrealisedPnl + '\'' +
                     ", markPrice='" + markPrice + '\'' +
+                    ", adlRankIndicator=" + adlRankIndicator +
+                    ", cumRealisedPnl='" + cumRealisedPnl + '\'' +
+                    ", positionMM='" + positionMM + '\'' +
+                    ", createdTime='" + createdTime + '\'' +
+                    ", positionIdx=" + positionIdx +
+                    ", positionIM='" + positionIM + '\'' +
+                    ", seq=" + seq +
+                    ", updatedTime='" + updatedTime + '\'' +
                     ", side='" + side + '\'' +
+                    ", bustPrice='" + bustPrice + '\'' +
+                    ", positionBalance='" + positionBalance + '\'' +
+                    ", leverageSysUpdatedTime='" + leverageSysUpdatedTime + '\'' +
+                    ", curRealisedPnl='" + curRealisedPnl + '\'' +
                     ", size=" + size +
+                    ", positionStatus='" + positionStatus + '\'' +
+                    ", mmrSysUpdatedTime='" + mmrSysUpdatedTime + '\'' +
                     ", stopLoss=" + stopLoss +
+                    ", tradeMode=" + tradeMode +
+                    ", sessionAvgPrice='" + sessionAvgPrice + '\'' +
                     '}';
         }
+
+//        @Override
+//        public String toString() {
+//            return "Position{" +
+//                    "symbol='" + symbol + '\'' +
+//                    ", avgPrice=" + avgPrice +
+//                    ", leverage=" + leverage +
+//                    ", liqPrice=" + liqPrice +
+//                    ", takeProfit=" + takeProfit +
+//                    ", markPrice='" + markPrice + '\'' +
+//                    ", side='" + side + '\'' +
+//                    ", size=" + size +
+//                    ", stopLoss=" + stopLoss +
+//                    '}';
+//        }
     }
 }

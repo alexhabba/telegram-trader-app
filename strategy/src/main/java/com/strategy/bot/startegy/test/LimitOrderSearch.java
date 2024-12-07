@@ -134,7 +134,7 @@ public class LimitOrderSearch {
 
             int c = count;
             double maxVoll = maxVolInStrategy.get().getValue();
-            if (result > 0.5 && maxVoll < 1000) {
+            if (result > 0.2 && maxVoll < 500 && tpTemp > slTemp) {
                 Statistic statistic = Statistic.builder()
                         .id(UUID.randomUUID())
                         .maxVolInStrategy(maxVolInStrategy.get().getValue())
@@ -259,13 +259,18 @@ public class LimitOrderSearch {
         double onePercent = openPrice / 100;
         double sl = onePercent * slTemp;
         double tp = onePercent * tpTemp;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.5) : startVol;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) : startVol;
 
         if (isTestStrategy && vol == startVol) {
             vol = getVol(null, null);
         }
 
-        if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
+        // todo тут похоже что нужно выбрать приоритет взависимости от того какой обьем больше на покупку или продажу
+        boolean isBuyMore = false;
+        if (volBuyLastBar > volSellLastBar) {
+            isBuyMore = true;
+        }
+        if (isBuyMore && volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
             if (strategy.equals("8") || strategy.equals("4")) {
                 openPrice = openPrice + shift;
@@ -282,7 +287,7 @@ public class LimitOrderSearch {
             }
         }
 
-        if (volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
+        if (!isBuyMore && volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
 
             if (strategy.equals("8") || strategy.equals("4")) {
@@ -490,12 +495,12 @@ public class LimitOrderSearch {
         } else if (resultBalance.get().getBalance().doubleValue() >= 340) {
             startVol = 89;
         } else if (resultBalance.get().getBalance().doubleValue() >= 210) {
-            startVol = 55;
+            startVol = 8;
         } else if (resultBalance.get().getBalance().doubleValue() >= 130) {
-            startVol = 34;
+            startVol = 5;
         } else if (resultBalance.get().getBalance().doubleValue() >= 80) {
             startVol = 13;
-            startVol = 21;
+            startVol = 3;
         }
 //        log.info("startVol = {}", startVol);
         return startVol;

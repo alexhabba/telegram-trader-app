@@ -62,13 +62,13 @@ public class LimitOrder implements StrategyExecutor {
 //            // ISLAM_SUB_FIRST_BYBIT 76.18
 //            "5", Pair.of("GHT40gkxrAlMmYJPfk", "kORD1LFlJsS00S7mbuwSkYY8ZvN4e1s7r5Zl"),
 //            // SUB_FIRST_BYBIT 100
-////            "6", Pair.of("UNa8RzDDztTkStiDUY", "mGwJooK5qVT4hdN3k53rGBuJDyMk8EyYoArv"),
+////            "6", Pair.of("mXtga6i1kKM7E6QxZd", "xdockA1PaahdKwGecn18VgngE2ddXwhF5z0e"),
 //            // islam copy
 //            "6", Pair.of("Dru3SSXDYG9zyLGjKG", "R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx"),
 //            // ISLAM_SUB_SECOND_BYBIT 60
 //            "7", Pair.of("bPVe4ZjME00iqeDAbk", "5wo5H9E2xWpxLq4t0TO6gHoSp5VhdQD7BJ88"),
-//            // ISLAM_SUB_THIRD_BYBIT 60
-////            "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
+            // ISLAM_SUB_THIRD_BYBIT 60
+//            "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
 //            // islam copy
 //            "8", Pair.of("Dru3SSXDYG9zyLGjKG", "R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx"),
 //            // SUB_THIRD_BYBIT 93.45
@@ -76,7 +76,7 @@ public class LimitOrder implements StrategyExecutor {
             // KRIS_BYBIT 100   запуск 20 август
 //            "10", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy")
             // MY MAIN ACC
-            "10", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
+            "7", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
             // DEMO
 //            "10", Pair.of("6KHHWQ26pEBvLGTvNq", "ADD12KPrgwmMBewxeWaWj1dGbLvyooJtLZYB")
 //            Dru3SSXDYG9zyLGjKG
@@ -90,7 +90,7 @@ public class LimitOrder implements StrategyExecutor {
 
     @Value("#{${accounts}}")
     private Map<Owner, Map<String, String>> keySecretMap;
-    private BigDecimal resultBalance = BigDecimal.valueOf(100);
+    private BigDecimal resultBalance = BigDecimal.valueOf(30);
 
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
@@ -101,7 +101,7 @@ public class LimitOrder implements StrategyExecutor {
     @Value("${start-vol}")
     private int startVol;
 
-    private final static double maxVol = 65_000;
+    private final static double maxVol = 100_000;
     private double maxVolInStrategy = 0;
 
     private final DealDaoService dealService;
@@ -261,18 +261,24 @@ public class LimitOrder implements StrategyExecutor {
             return;
         }
 
-        double shift = 0.01;
+        double shift = 0.037;
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 1;
-        double tp = onePercent * 4.5;
+        double sl = onePercent * 1.8;
+        double tp = onePercent * 4.7;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) Math.ceil(lastDeal.getVol() * 1.3) : startVol;
 
         if (isTestStrategy && vol == startVol) {
             vol = getVol(null, null);
         }
 
-        if (volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
+        // todo тут похоже что нужно выбрать приоритет взависимости от того какой обьем больше на покупку или продажу
+        boolean isBuyMore = false;
+        if (volBuyLastBar > volSellLastBar) {
+            // Протестироал, с этим флагом результаты значительно улучшились
+            isBuyMore = true;
+        }
+        if (isBuyMore && volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
             if (strategy.equals("8") || strategy.equals("10")) {
                 openPrice = openPrice + shift;
@@ -289,7 +295,7 @@ public class LimitOrder implements StrategyExecutor {
             }
         }
 
-        if (volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
+        if (!isBuyMore && volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
 
             if (strategy.equals("8") || strategy.equals("10")) {
@@ -373,7 +379,7 @@ public class LimitOrder implements StrategyExecutor {
     private boolean isCancelPosition(Bar bar, Deal deal) {
         LocalDateTime openDate = deal.getOpenDate()
 //                .plusHours(1)
-                .plusMinutes(13);
+                .plusMinutes(61);
         LocalDateTime createDate = bar.getCreateDate();
 
         if (createDate.isAfter(openDate)) {
@@ -544,7 +550,7 @@ public class LimitOrder implements StrategyExecutor {
 //            startVol = 21;
         } else if (resultBalance.doubleValue() >= 30) {
             startVol = 3;
-//            startVol = 21;
+            startVol = 5;
         }
         return startVol;
     }
