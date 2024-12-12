@@ -46,7 +46,7 @@ public class BarService {
     }
 
     public List<Bar> findLastBar(int count) {
-      return barRepository.findLastBar(count);
+      return barRepository.findLastBar(List.of());
     }
 
     public List<Bar> findAll() {

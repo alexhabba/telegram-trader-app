@@ -10,5 +10,6 @@ CREATE TABLE statistic
     strategy            VARCHAR(255),
     bad_count           DOUBLE PRECISION,
     success_count       DOUBLE PRECISION,
-    result              DOUBLE PRECISION
+    result              DOUBLE PRECISION,
+    common_result       DOUBLE PRECISION
 );

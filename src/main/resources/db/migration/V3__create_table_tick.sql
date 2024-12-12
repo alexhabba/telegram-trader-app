@@ -10,3 +10,4 @@ CREATE TABLE tick
     last_tick   VARCHAR(20)                 NULL,
     create_date TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );
+

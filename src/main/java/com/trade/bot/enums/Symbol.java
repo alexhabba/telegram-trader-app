@@ -2,5 +2,13 @@ package com.trade.bot.enums;
 
 public enum Symbol {
     NOT,
-    WLD
+    WLD,
+    BTC,
+    SOL,
+    TON,
+    ETH,
+    BNB,
+    WIF,
+    LTC,
+
 }

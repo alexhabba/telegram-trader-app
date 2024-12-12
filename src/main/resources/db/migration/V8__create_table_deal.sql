@@ -14,5 +14,6 @@ CREATE TABLE deal
     stepper    VARCHAR(10),
     status     VARCHAR(10)      NOT NULL,
     result     double precision,
+    current_result     double precision,
     CONSTRAINT deal_pkey PRIMARY KEY (id)
 );

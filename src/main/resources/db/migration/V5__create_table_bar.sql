@@ -1,6 +1,7 @@
 CREATE TABLE bar
 (
-    create_date TIMESTAMP PRIMARY KEY,
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    create_date TIMESTAMP,
     symbol      VARCHAR(10) NULL,
     vol_buy     VARCHAR(10) NULL,
     vol_sell    VARCHAR(10) NULL,

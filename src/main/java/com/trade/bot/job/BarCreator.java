@@ -1,9 +1,9 @@
 package com.trade.bot.job;
 
 import com.trade.bot.entity.Bar;
-import com.trade.bot.entity.LockJob;
 import com.trade.bot.entity.Tick;
 import com.trade.bot.enums.Side;
+import com.trade.bot.enums.Symbol;
 import com.trade.bot.repository.BarRepository;
 import com.trade.bot.repository.LockJobRepository;
 import com.trade.bot.repository.TickRepository;
@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
@@ -34,45 +34,41 @@ public class BarCreator {
     private final TickRepository tickRepository;
     private final BarRepository barRepository;
     private final LockJobRepository lockJobRepository;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     @Scheduled(cron = "02 * * * * *")
     public void createBarAndSave() {
-//        Optional<LockJob> lockJobOptional = lockJobRepository.findByNameAndIsLock(JOB_NAME, true);
-//        if (lockJobOptional.isPresent()) {
-//            return;
-//        } else {
-//            lockJobRepository.save(new LockJob(JOB_NAME, true));
-//        }
+        List<String> symbols = Arrays.stream(Symbol.values()).map(Symbol::name).collect(Collectors.toList());
+        List<Bar> bars = barRepository.findLastBar(symbols);
 
-        List<Bar> bars = barRepository.findLastBar(1);
 
-        if (!bars.isEmpty()) {
-            Bar lastBar = bars.get(0);
-
-            LocalDateTime lastCreateDate = lastBar.getCreateDate();
-            LocalDateTime start = lastCreateDate.plusMinutes(1);
-            LocalDateTime end = start.plusMinutes(1);
-
-            extracted(start, end);
-        } else {
-            Optional<Tick> firstTickOptional = tickRepository.findFirstTick();
-
-            if (firstTickOptional.isPresent()) {
-                Tick firstTick = firstTickOptional.get();
-                LocalDateTime firstTickCreateDate = firstTick.getCreateDate();
-
-                LocalDateTime start = firstTickCreateDate.withSecond(0).withNano(0);
+        if (bars.size() == symbols.size()) {
+            bars.forEach(lastBar -> {
+                LocalDateTime lastCreateDate = lastBar.getCreateDate();
+                LocalDateTime start = lastCreateDate.plusMinutes(1);
                 LocalDateTime end = start.plusMinutes(1);
-                extracted(start, end);
-            }
-        }
 
-//        lockJobRepository.save(new LockJob(JOB_NAME, false));
+                extracted(lastBar.getSymbol(), start, end);
+            });
+        } else {
+            symbols.forEach(symbol -> {
+                Optional<Tick> firstTickOptional = tickRepository.findFirstTick(symbol);
+
+                if (firstTickOptional.isPresent()) {
+                    Tick firstTick = firstTickOptional.get();
+                    LocalDateTime firstTickCreateDate = firstTick.getCreateDate();
+
+                    LocalDateTime start = firstTickCreateDate.withSecond(0).withNano(0);
+                    LocalDateTime end = start.plusMinutes(1);
+                    extracted(symbol, start, end);
+                }
+            });
+        }
     }
 
-    private void extracted(LocalDateTime start, LocalDateTime end) {
+    private void extracted(String symbol, LocalDateTime start, LocalDateTime end) {
         while (end.isBefore(LocalDateTime.now().minusHours(hour))) {
-            Bar bar = getBar(start, end);
+            Bar bar = getBar(symbol, start, end);
             if (nonNull(bar)) {
                 barRepository.save(bar);
             }
@@ -81,15 +77,15 @@ public class BarCreator {
         }
     }
 
-    public Bar getBar(LocalDateTime start, LocalDateTime end) {
-        List<Tick> tickByCreateDateBetween = tickRepository.findTickByCreateDateBetween(start, end);
+    public Bar getBar(String symbol, LocalDateTime start, LocalDateTime end) {
+        List<Tick> tickByCreateDateBetween = tickRepository.findTickBySymbolAndCreateDateBetween(Symbol.valueOf(symbol), start, end);
 
         List<Tick> binance = tickByCreateDateBetween.stream()
                 .filter(tick -> tick.getExchange().equals("binance"))
                 .sorted(Comparator.comparing(Tick::getCreateDate))
                 .collect(Collectors.toList());
 
-        if (binance.size() == 0) return null;
+        if (binance.isEmpty()) return null;
         BigDecimal buy = binance.stream()
                 .filter(tick -> tick.getSide() == Side.Buy)
                 .map(Tick::getQuantity)
@@ -107,12 +103,7 @@ public class BarCreator {
                 .map(BigDecimal::new)
                 .sorted()
                 .collect(Collectors.toList());
-//        try {
-//
-//            binance.get(binance.size() - 1).getPrice();
-//        } catch (Exception e) {
-//            System.out.println();
-//        }
+
         return Bar.builder()
                 .volBuy(buy.toString())
                 .volSell(sell.toString())
@@ -121,6 +112,7 @@ public class BarCreator {
                 .low(listLowHigh.get(0).toString())
                 .high(listLowHigh.get(listLowHigh.size() - 1).toString())
                 .createDate(start)
+                .symbol(symbol)
                 .build();
     }
 }
