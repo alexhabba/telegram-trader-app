@@ -1,11 +1,7 @@
 package com.trade.bot.tics;
 
+import com.dao.bot.repository.TickRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.trade.bot.repository.TickRepository;
 import lombok.SneakyThrows;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;

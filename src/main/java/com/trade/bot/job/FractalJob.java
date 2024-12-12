@@ -1,12 +1,11 @@
 package com.trade.bot.job;
 
-import com.trade.bot.entity.Bar;
-import com.trade.bot.entity.Fractal;
-import com.trade.bot.repository.BarRepository;
-import com.trade.bot.repository.FractalRepository;
+import com.dao.bot.entity.Bar;
+import com.dao.bot.entity.Fractal;
+import com.dao.bot.repository.BarRepository;
+import com.dao.bot.repository.FractalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

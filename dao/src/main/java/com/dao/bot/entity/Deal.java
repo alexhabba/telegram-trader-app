@@ -40,5 +40,6 @@ public class Deal {
     @Enumerated(EnumType.STRING)
     private Status status;
     private double result;
+    private double commonResult;
 
 }

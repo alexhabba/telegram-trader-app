@@ -1,12 +1,11 @@
 package com.trade.bot.job;
 
-import com.trade.bot.entity.Bar;
-import com.trade.bot.entity.Tick;
-import com.trade.bot.enums.Side;
-import com.trade.bot.enums.Symbol;
-import com.trade.bot.repository.BarRepository;
-import com.trade.bot.repository.LockJobRepository;
-import com.trade.bot.repository.TickRepository;
+import com.dao.bot.entity.Bar;
+import com.dao.bot.entity.Tick;
+import com.dao.bot.enums.Side;
+import com.dao.bot.enums.Symbol;
+import com.dao.bot.repository.BarRepository;
+import com.dao.bot.repository.TickRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +14,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -33,7 +35,6 @@ public class BarCreator {
     private int hour;
     private final TickRepository tickRepository;
     private final BarRepository barRepository;
-    private final LockJobRepository lockJobRepository;
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     @Scheduled(cron = "02 * * * * *")

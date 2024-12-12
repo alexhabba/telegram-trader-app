@@ -1,12 +1,12 @@
 package com.trade.bot.tics;
 
+import com.dao.bot.entity.Tick;
+import com.dao.bot.enums.Side;
+import com.dao.bot.enums.Symbol;
+import com.dao.bot.enums.TradeLastTick;
+import com.dao.bot.repository.TickRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trade.bot.dto.FutureBybitTradeDto;
-import com.trade.bot.entity.Tick;
-import com.trade.bot.enums.Side;
-import com.trade.bot.enums.Symbol;
-import com.trade.bot.enums.TradeLastTick;
-import com.trade.bot.repository.TickRepository;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.handshake.ServerHandshake;

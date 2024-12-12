@@ -110,7 +110,7 @@ public class LimitOrderSearch {
 //            return;
 //        }
 //        if (isTestStrategy) return;
-        if (isTestStrategy && LocalDateTime.now().minusHours(13).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
+        if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
 //            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
 //            deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
 //                    .forEach(System.out::println);
@@ -134,7 +134,7 @@ public class LimitOrderSearch {
 
             int c = count;
             double maxVoll = maxVolInStrategy.get().getValue();
-            if (result > 0.2 && maxVoll < 500 && tpTemp > slTemp) {
+            if (result > 0.2 && maxVoll < 500 && tpTemp > slTemp * 1.5 && successCount > badCount + 5) {
                 Statistic statistic = Statistic.builder()
                         .id(UUID.randomUUID())
                         .maxVolInStrategy(maxVolInStrategy.get().getValue())
@@ -147,6 +147,7 @@ public class LimitOrderSearch {
                         .badCount(badCount)
                         .successCount(successCount)
                         .result(result)
+                        .commonResult(commonResult)
                         .build();
 
                 statisticRepository.save(statistic);
@@ -503,6 +504,6 @@ public class LimitOrderSearch {
             startVol = 3;
         }
 //        log.info("startVol = {}", startVol);
-        return startVol;
+        return 13;
     }
 }

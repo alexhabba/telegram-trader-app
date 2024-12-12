@@ -1,15 +1,15 @@
 package com.trade.bot.tics;
 
+import com.dao.bot.entity.Tick;
+import com.dao.bot.enums.Side;
+import com.dao.bot.enums.Symbol;
+import com.dao.bot.repository.TickRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.trade.bot.dto.SpotOkxTradeDto;
-import com.trade.bot.entity.Tick;
-import com.trade.bot.enums.Side;
-import com.trade.bot.enums.Symbol;
-import com.trade.bot.repository.TickRepository;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;

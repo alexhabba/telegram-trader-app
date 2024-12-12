@@ -32,4 +32,5 @@ public class Statistic {
     private double badCount;
     private double successCount;
     private double result;
+    private double commonResult;
 }

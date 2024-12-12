@@ -1,6 +1,7 @@
 package com.dao.bot.repository;
 
 import com.dao.bot.entity.Tick;
+import com.dao.bot.enums.Symbol;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -13,12 +14,12 @@ public interface TickRepository extends JpaRepository<Tick, Long> {
 
     List<Tick> findTickByCreateDateAfter(LocalDateTime createDate);
 
-    List<Tick> findTickByCreateDateBetween(LocalDateTime createDateStart, LocalDateTime createDateEnd);
+    List<Tick> findTickBySymbolAndCreateDateBetween(Symbol symbol, LocalDateTime createDateStart, LocalDateTime createDateEnd);
 
     @Query(value = "SELECT *\n" +
             "FROM tick\n" +
-            "WHERE exchange = 'binance' " +
+            "WHERE exchange = 'binance' AND symbol = :symbol \n" +
             "ORDER BY create_date \n" +
             "LIMIT 1;", nativeQuery = true)
-    Optional<Tick> findFirstTick();
+    Optional<Tick> findFirstTick(String symbol);
 }

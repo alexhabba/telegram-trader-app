@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -34,16 +35,16 @@ public class RunnerTestStrategy {
     private final List<StrategyExecutor> strategyExecutorList;
     private final BarDaoService barService;
     private final LimitOrderSearch limitOrderSearch;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(8);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
 
     @EventListener({ContextRefreshedEvent.class})
     @SneakyThrows
     public void init() {
-//        runTestStrategy();
+        runTestStrategy();
     }
 
-    @Scheduled(cron = "04 * * * * *")
+//    @Scheduled(cron = "04 * * * * *")
     public void runTestStrategy() {
 //        List<Bar> all = barService.findAll();
 //        List<BarDto> barsCreateDateBetween = barService.getBarsCreateDateBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now());
@@ -72,7 +73,8 @@ public class RunnerTestStrategy {
             isTestRun = false;
             List<Bar> collect = barService.findAll()
                     .stream()
-//                    .filter(bar -> bar.getCreateDate().getMonth() != Month.JULY)
+                    .filter(bar -> bar.getCreateDate().getMonth() == Month.DECEMBER)
+//                    .filter(bar -> bar.getCreateDate().isAfter(LocalDateTime.now().minusDays(2)))
                     .sorted(Comparator.comparing(Bar::getCreateDate))
                     .collect(Collectors.toList());
             collect.forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar)));
