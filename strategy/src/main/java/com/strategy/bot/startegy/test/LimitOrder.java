@@ -74,7 +74,8 @@ public class LimitOrder implements StrategyExecutor {
 //            // SUB_THIRD_BYBIT 93.45
 //            "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
             // KRIS_BYBIT 100   запуск 20 август
-            "7", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy")
+//            "7", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
+            "8", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy")
             // MY MAIN ACC
 //            "7", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
             // DEMO
@@ -101,7 +102,7 @@ public class LimitOrder implements StrategyExecutor {
     @Value("${start-vol}")
     private int startVol;
 
-    private final static double maxVol = 40_000;
+    private final static double maxVol = 75_000;
     private double maxVolInStrategy = 0;
 
     private final DealDaoService dealService;
@@ -261,11 +262,11 @@ public class LimitOrder implements StrategyExecutor {
             return;
         }
 
-        double shift = 0.004;
+        double shift = 0.007;
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 1.8;
-        double tp = onePercent * 3.1;
+        double sl = onePercent * 1.6;
+        double tp = onePercent * 2.5;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) Math.ceil(lastDeal.getVol() * 1.4) : startVol;
 
         if (isTestStrategy && vol == startVol) {
@@ -379,7 +380,7 @@ public class LimitOrder implements StrategyExecutor {
     private boolean isCancelPosition(Bar bar, Deal deal) {
         LocalDateTime openDate = deal.getOpenDate()
 //                .plusHours(1)
-                .plusMinutes(22);
+                .plusMinutes(61);
         LocalDateTime createDate = bar.getCreateDate();
 
         if (createDate.isAfter(openDate)) {
@@ -525,6 +526,7 @@ public class LimitOrder implements StrategyExecutor {
             startVol = 610;
             startVol = 987;
             startVol = 5;
+        }
 //        } else if (resultBalance.doubleValue() >= 2330) {
 //            startVol = 610;
 //            startVol = 144;
@@ -548,10 +550,10 @@ public class LimitOrder implements StrategyExecutor {
 //        } else if (resultBalance.doubleValue() >= 55) {
 //            startVol = 55;
 //            startVol = 21;
-        } else if (resultBalance.doubleValue() >= 10) {
-//            startVol = 3;
-            startVol = 13;
-        }
+//        } else if (resultBalance.doubleValue() >= 10) {
+////            startVol = 3;
+//            startVol = 13;
+//        }
         return startVol;
     }
 }

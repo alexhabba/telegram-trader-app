@@ -2,6 +2,7 @@ package com.strategy.bot.job;
 
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Deal;
+import com.dao.bot.enums.Symbol;
 import com.dao.bot.service.BarDaoService;
 import com.strategy.bot.startegy.StrategyExecutor;
 import com.strategy.bot.startegy.test.LimitOrderSearch;
@@ -12,11 +13,9 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -71,7 +70,7 @@ public class RunnerTestStrategy {
 
         if (isTestStrategy && isTestRun) {
             isTestRun = false;
-            List<Bar> collect = barService.findAll()
+            List<Bar> collect = barService.findAllBySymbol(Symbol.WLD)
                     .stream()
                     .filter(bar -> bar.getCreateDate().getMonth() == Month.DECEMBER)
 //                    .filter(bar -> bar.getCreateDate().isAfter(LocalDateTime.now().minusDays(2)))
@@ -80,7 +79,7 @@ public class RunnerTestStrategy {
             collect.forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar)));
 //            testOptimization(collect);
         } else if (!isTestStrategy) {
-            barService.findLastBar(1)
+            barService.findLastBarBySymbol(Symbol.WLD)
                     .forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar)));
         }
     }

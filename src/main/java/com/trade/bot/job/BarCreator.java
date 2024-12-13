@@ -40,7 +40,7 @@ public class BarCreator {
     @Scheduled(cron = "02 * * * * *")
     public void createBarAndSave() {
         List<String> symbols = Arrays.stream(Symbol.values()).map(Symbol::name).collect(Collectors.toList());
-        List<Bar> bars = barRepository.findLastBar(symbols);
+        List<Bar> bars = barRepository.findLastBarBySymbol(symbols);
 
 
         if (bars.size() == symbols.size()) {

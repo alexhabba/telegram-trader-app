@@ -27,7 +27,7 @@ public class FractalJob {
         // чтобы сформировать фрактал, нужно слева и справа иметь одинаковое кол-во баров
         // фрактал 13 баров берем кол-во баров умножаем на 2 и плюс 2
         int count = 28;
-        List<Bar> bars = barRepository.findLastBar(List.of()).stream()
+        List<Bar> bars = barRepository.findLastBarBySymbol(List.of()).stream()
                 .filter(Objects::nonNull)
                 .sorted(comparing(Bar::getCreateDate))
                 .limit(count - 1)
