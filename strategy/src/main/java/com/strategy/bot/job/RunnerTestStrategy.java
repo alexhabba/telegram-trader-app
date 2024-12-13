@@ -13,6 +13,7 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -40,10 +41,10 @@ public class RunnerTestStrategy {
     @EventListener({ContextRefreshedEvent.class})
     @SneakyThrows
     public void init() {
-        runTestStrategy();
+//        runTestStrategy();
     }
 
-//    @Scheduled(cron = "04 * * * * *")
+    @Scheduled(cron = "04 * * * * *")
     public void runTestStrategy() {
 //        List<Bar> all = barService.findAll();
 //        List<BarDto> barsCreateDateBetween = barService.getBarsCreateDateBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now());

@@ -267,7 +267,7 @@ public class LimitOrder implements StrategyExecutor {
         double onePercent = openPrice / 100;
         double sl = onePercent * 1.6;
         double tp = onePercent * 2.5;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) Math.ceil(lastDeal.getVol() * 1.4) : startVol;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) Math.ceil(lastDeal.getVol() * 1.3) : startVol;
 
         if (isTestStrategy && vol == startVol) {
             vol = getVol(null, null);
