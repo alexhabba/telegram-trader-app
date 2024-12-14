@@ -40,7 +40,7 @@ logging:
     com.bybit.api.client.service: ERROR
 
 isTestStrategy: false
-strategy: 8
-start-vol: 3
+strategy: 7
+start-vol: 15
 
 accounts: ${ACCOUNTS:{}}

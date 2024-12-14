@@ -2,12 +2,15 @@ package com.trade.bot.job;
 
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Fractal;
+import com.dao.bot.enums.Symbol;
 import com.dao.bot.repository.BarRepository;
 import com.dao.bot.repository.FractalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,40 +24,48 @@ public class FractalJob {
     private final FractalRepository fractalRepository;
     private final BarRepository barRepository;
 
-//    @Scheduled(fixedDelay = 60000)
+    @Scheduled(cron = "10 * * * * *")
     @SneakyThrows
     private void someMethod() {
         // чтобы сформировать фрактал, нужно слева и справа иметь одинаковое кол-во баров
         // фрактал 13 баров берем кол-во баров умножаем на 2 и плюс 2
         int count = 28;
-        List<Bar> bars = barRepository.findLastBarBySymbol(List.of()).stream()
-                .filter(Objects::nonNull)
-                .sorted(comparing(Bar::getCreateDate))
-                .limit(count - 1)
-                .collect(toList());
+        List<String> symbols = Arrays.stream(Symbol.values()).map(Symbol::name).collect(toList());
 
-        int median = bars.size() / 2;
-        Bar bar = bars.get(median);
+        symbols.forEach(symbol -> {
 
-        if (isLowFractalLeft(bars, median) && isLowFractalRight(bars, median)) {
-            Fractal fractal = Fractal.builder()
-                    .countBar(count)
-                    .createDate(bar.getCreateDate())
-                    .interval(60)
-                    .low(bar.getLow())
-                    .build();
-            fractalRepository.save(fractal);
-        }
 
-        if (isHighFractalLeft(bars, median) && isHighFractalRight(bars, median)) {
-            Fractal fractal = Fractal.builder()
-                    .countBar(count)
-                    .createDate(bar.getCreateDate())
-                    .interval(60)
-                    .high(bar.getHigh())
-                    .build();
-            fractalRepository.save(fractal);
-        }
+            List<Bar> bars = barRepository.findLastBarBySymbol(symbol, count).stream()
+                    .filter(Objects::nonNull)
+                    .sorted(comparing(Bar::getCreateDate))
+                    .limit(count - 1)
+                    .collect(toList());
+
+            int median = bars.size() / 2;
+            Bar bar = bars.get(median);
+
+            if (isLowFractalLeft(bars, median) && isLowFractalRight(bars, median)) {
+                Fractal fractal = Fractal.builder()
+                        .countBar(count)
+                        .symbol(symbol)
+                        .createDate(bar.getCreateDate())
+                        .interval(1)
+                        .low(bar.getLow())
+                        .build();
+                fractalRepository.save(fractal);
+            }
+
+            if (isHighFractalLeft(bars, median) && isHighFractalRight(bars, median)) {
+                Fractal fractal = Fractal.builder()
+                        .countBar(count)
+                        .symbol(symbol)
+                        .createDate(bar.getCreateDate())
+                        .interval(1)
+                        .high(bar.getHigh())
+                        .build();
+                fractalRepository.save(fractal);
+            }
+        });
     }
 
     private boolean isLowFractalLeft(List<Bar> bars, int median) {
