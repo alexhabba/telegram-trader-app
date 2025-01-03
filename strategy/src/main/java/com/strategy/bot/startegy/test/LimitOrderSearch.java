@@ -8,38 +8,29 @@ import com.dao.bot.enums.Owner;
 import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import com.dao.bot.repository.StatisticRepository;
-import com.dao.bot.service.BarDaoService;
-import com.dao.bot.service.DealDaoService;
+import com.dao.bot.service.BarService;
+import com.dao.bot.service.DealService;
 import com.strategy.bot.dto.ResponsePosition;
 import com.strategy.bot.service.BybitBalanceService;
 import com.strategy.bot.service.BybitOrderService;
 import com.strategy.bot.service.BybitPositionService;
-import com.strategy.bot.startegy.StrategyExecutor;
 import com.strategy.bot.utils.PositionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.aspectj.apache.bcel.classfile.LocalVariable;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.dao.bot.enums.Status.CANCEL;
-import static com.dao.bot.enums.Status.COMPLETED;
-import static com.dao.bot.enums.Status.PROCESSING;
-import static com.dao.bot.enums.Status.STARTED;
-import static java.util.Objects.isNull;
+import static com.dao.bot.enums.Status.*;
 import static java.util.Objects.nonNull;
 
 /**
@@ -92,8 +83,8 @@ public class LimitOrderSearch {
     private final ThreadLocal<WrapperBalance> resultBalance = new ThreadLocal<>();
 
 
-    private final DealDaoService dealService;
-    private final BarDaoService barService;
+    private final DealService dealService;
+    private final BarService barService;
     private final BybitOrderService bybitOrderService;
     private final BybitBalanceService balanceService;
     private final BybitPositionService positionService;
@@ -110,7 +101,7 @@ public class LimitOrderSearch {
 //            return;
 //        }
 //        if (isTestStrategy) return;
-        if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
+        if (isTestStrategy && LocalDateTime.now().minusHours(7).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
 //            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
 //            deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
 //                    .forEach(System.out::println);
@@ -134,7 +125,13 @@ public class LimitOrderSearch {
 
             int c = count;
             double maxVoll = maxVolInStrategy.get().getValue();
-            if (result > 0.2 && maxVoll < 500 && tpTemp > slTemp * 1.5 && successCount > badCount + 5) {
+            if (
+                    result > -0.5
+                            && maxVoll < 80
+//                            && tpTemp > slTemp * 3
+                            && badCount < successCount * 2.5
+                            && commonResult > 10
+            ) {
                 Statistic statistic = Statistic.builder()
                         .id(UUID.randomUUID())
                         .maxVolInStrategy(maxVolInStrategy.get().getValue())
@@ -152,10 +149,8 @@ public class LimitOrderSearch {
 
                 statisticRepository.save(statistic);
 
-
-
-                        System.out.printf("maxVolInStrategy = %f, min = %d, maxVol = %f, shift = %f, slTemp = %f, tpTemp = %f, strategy = %s, badCount = %d, successCount : %d, commonResult :  %f\n",
-                                maxVoll, min, maxVol, shift, slTemp, tpTemp, strategy, badCount, successCount, result);
+                System.out.printf("maxVolInStrategy = %f, min = %d, maxVol = %f, shift = %f, slTemp = %f, tpTemp = %f, strategy = %s, badCount = %d, successCount : %d, commonResult :  %f, Result :  %f\n",
+                        maxVoll, min, maxVol, shift, slTemp, tpTemp, strategy, badCount, successCount, commonResult, result);
             }
 
 //            maxVolInStrategy = 729,000000, min = 82, maxVol = 15000,000000, shift = 0,001000, slTemp = 1,000000, tpTemp = 4,100000, strategy = 7
@@ -199,8 +194,8 @@ public class LimitOrderSearch {
 //            System.out.println("баланс стал таким : " + resultBalance);
         }
 
-        double volBuyLastBar = Double.parseDouble(lastBar.getVolBuy());
-        double volSellLastBar = Double.parseDouble(lastBar.getVolSell());
+        double volBuyLastBar = lastBar.getVolBuy();
+        double volSellLastBar = lastBar.getVolSell();
         double closeLastBar = Double.parseDouble(lastBar.getClose());
         double openBuyLastBar = Double.parseDouble(lastBar.getOpen());
 
@@ -504,6 +499,6 @@ public class LimitOrderSearch {
             startVol = 3;
         }
 //        log.info("startVol = {}", startVol);
-        return 13;
+        return 5;
     }
 }

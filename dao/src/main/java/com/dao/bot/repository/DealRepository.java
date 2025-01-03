@@ -1,12 +1,14 @@
 package com.dao.bot.repository;
 
-import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Deal;
+import com.dao.bot.enums.Status;
+import com.dao.bot.enums.Symbol;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface DealRepository extends JpaRepository<Deal, LocalDateTime> {
 
@@ -21,6 +23,8 @@ public interface DealRepository extends JpaRepository<Deal, LocalDateTime> {
             "ORDER BY open_date DESC\n" +
             "LIMIT :count", nativeQuery = true)
     List<Deal> findLastDealStrategy(int count, String strategy);
+
+    Optional<Deal> findDealByStatusAndSymbol(Status status, Symbol symbol);
 
 //    List<Bar> findBarByCreateDateBetween(LocalDateTime createDateStart, LocalDateTime createDateEnd);
 

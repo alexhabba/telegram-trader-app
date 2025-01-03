@@ -28,8 +28,8 @@ public class Bar {
     private UUID id;
     private LocalDateTime createDate;
     private String symbol;
-    private String volBuy;
-    private String volSell;
+    private double volBuy;
+    private double volSell;
     private String open;
     private String close;
     private String low;

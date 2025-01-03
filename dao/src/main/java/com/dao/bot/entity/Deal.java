@@ -3,6 +3,7 @@ package com.dao.bot.entity;
 import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Status;
 import com.dao.bot.enums.Stepper;
+import com.dao.bot.enums.Symbol;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,7 +34,8 @@ public class Deal {
     private double sl;
     @Enumerated(EnumType.STRING)
     private Side side;
-    private String symbol;
+    @Enumerated(EnumType.STRING)
+    private Symbol symbol;
     private String strategy;
     @Enumerated(EnumType.STRING)
     private Stepper stepper;

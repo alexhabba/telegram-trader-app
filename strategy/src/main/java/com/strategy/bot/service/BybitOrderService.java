@@ -181,10 +181,12 @@ public class BybitOrderService {
 //            "10", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
 
         //.  8a50bd47-4711-44bf-8b5e-c20ed26e464f       orderStatus=New
-//        BybitLimitOrderResponse openLimitOrderr = getOpenLimitOrderr("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF");
-        CommonUtils.isOpenPositionFromLimitOrder("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF",
-                UUID.fromString("8a50bd47-4711-44bf-8b5e-c20ed26e464f"), "WLDUSDT");
+        BybitLimitOrderResponse openLimitOrderr = getOpenLimitOrderr("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy");
+//        CommonUtils.isOpenPositionFromLimitOrder("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF",
+//                UUID.fromString("8a50bd47-4711-44bf-8b5e-c20ed26e464f"), "WLDUSDT");
 //        System.out.println(openLimitOrderr);
+        BybitOrderService bybitOrderService = new BybitOrderService(new ObjectMapper());
+        bybitOrderService.closeOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy");
     }
 
 }

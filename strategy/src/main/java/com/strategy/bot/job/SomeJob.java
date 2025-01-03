@@ -1,6 +1,6 @@
 package com.strategy.bot.job;
 
-import com.dao.bot.service.BarDaoService;
+import com.dao.bot.service.BarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -8,5 +8,5 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SomeJob {
 
-    private final BarDaoService barDaoService;
+    private final BarService barService;
 }

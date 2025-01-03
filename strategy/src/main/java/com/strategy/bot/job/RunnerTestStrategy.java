@@ -3,7 +3,7 @@ package com.strategy.bot.job;
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Deal;
 import com.dao.bot.enums.Symbol;
-import com.dao.bot.service.BarDaoService;
+import com.dao.bot.service.BarService;
 import com.strategy.bot.startegy.StrategyExecutor;
 import com.strategy.bot.startegy.test.LimitOrderSearch;
 import com.strategy.bot.startegy.test.WrapperBalance;
@@ -33,7 +33,7 @@ public class RunnerTestStrategy {
     private boolean isTestRun = true;
 
     private final List<StrategyExecutor> strategyExecutorList;
-    private final BarDaoService barService;
+    private final BarService barService;
     private final LimitOrderSearch limitOrderSearch;
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
@@ -73,7 +73,7 @@ public class RunnerTestStrategy {
             isTestRun = false;
             List<Bar> collect = barService.findAllBySymbol(Symbol.WLD)
                     .stream()
-                    .filter(bar -> bar.getCreateDate().getMonth() == Month.DECEMBER)
+//                    .filter(bar -> bar.getCreateDate().getMonth() == Month.DECEMBER)
 //                    .filter(bar -> bar.getCreateDate().isAfter(LocalDateTime.now().minusDays(2)))
                     .sorted(Comparator.comparing(Bar::getCreateDate))
                     .collect(Collectors.toList());
@@ -87,12 +87,12 @@ public class RunnerTestStrategy {
 
     public void testOptimization(List<Bar> bars) {
         int count = 0;
-        double shift = 0.001;
+        double shift = 0.007;
         while (shift < 0.1) {
-            double sl = 0.8;
+            double sl = 0.5;
             while (sl < 2) {
                 double tp = 1.5;
-                while (tp < 5) {
+                while (tp < 7) {
                     double maxVol = 20000;
                     while (maxVol < 150000) {
                         int min = 13;
@@ -113,7 +113,7 @@ public class RunnerTestStrategy {
                 }
                 sl += 0.2;
             }
-            shift += 0.003;
+            shift += 0.002;
         }
 
         // 6207516

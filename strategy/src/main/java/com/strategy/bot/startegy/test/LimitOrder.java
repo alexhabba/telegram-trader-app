@@ -6,8 +6,8 @@ import com.dao.bot.enums.OrderType;
 import com.dao.bot.enums.Owner;
 import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
-import com.dao.bot.service.BarDaoService;
-import com.dao.bot.service.DealDaoService;
+import com.dao.bot.service.BarService;
+import com.dao.bot.service.DealService;
 import com.strategy.bot.dto.ResponsePosition;
 import com.strategy.bot.service.BybitBalanceService;
 import com.strategy.bot.service.BybitOrderService;
@@ -24,10 +24,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.LockModeType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -75,9 +71,9 @@ public class LimitOrder implements StrategyExecutor {
 //            "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
             // KRIS_BYBIT 100   запуск 20 август
 //            "7", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
-            "7", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy")
+//            "8", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy")
             // MY MAIN ACC
-//            "7", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
+            "8", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
             // DEMO
 //            "10", Pair.of("6KHHWQ26pEBvLGTvNq", "ADD12KPrgwmMBewxeWaWj1dGbLvyooJtLZYB")
 //            Dru3SSXDYG9zyLGjKG
@@ -102,11 +98,16 @@ public class LimitOrder implements StrategyExecutor {
     @Value("${start-vol}")
     private int startVol;
 
-    private final static double maxVol = 100_000;
+    private final static double maxVol = 70_000;
+    private final static long minute = 13;
+    private final static double slParam = 1.3;
+    private final static double tpParam = 4.9;
+
+
     private double maxVolInStrategy = 0;
 
-    private final DealDaoService dealService;
-    private final BarDaoService barService;
+    private final DealService dealService;
+    private final BarService barService;
     private final BybitOrderService bybitOrderService;
     private final BybitBalanceService balanceService;
     private final BybitPositionService positionService;
@@ -128,22 +129,22 @@ public class LimitOrder implements StrategyExecutor {
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
 
-//        positionService.setSlTp(key, secret, BigDecimal.valueOf(2.513), BigDecimal.valueOf(2));
+//        positionService.setSlTp(key, secret, BigDecimal.valueOf(2.963), BigDecimal.valueOf(4));
 
         ResponsePosition position = positionService.getPosition(key, secret);
         System.out.println(position);
 //        bybitOrderService.closeOpenLimitOrder(key, secret);
 
 //
-//        bybitOrderService.openLimitOrder(
+//        bybitOrderService.openOrder(
 //                key,
 //                secret,
 //                Symbol.WLD,
-//                "2.150",
-//                "2.485",
-//                "5",
+//                "3",
+//                "1",
+//                "3",
 //                Side.Sell,
-//                OrderType.LIMIT,
+//                OrderType.MARKET,
 //                UUID.randomUUID(),
 //                System.out::println);
 
@@ -202,8 +203,8 @@ public class LimitOrder implements StrategyExecutor {
             System.out.println("баланс стал таким : " + resultBalance);
         }
 
-        double volBuyLastBar = Double.parseDouble(lastBar.getVolBuy());
-        double volSellLastBar = Double.parseDouble(lastBar.getVolSell());
+        double volBuyLastBar = lastBar.getVolBuy();
+        double volSellLastBar = lastBar.getVolSell();
         double closeLastBar = Double.parseDouble(lastBar.getClose());
         double openBuyLastBar = Double.parseDouble(lastBar.getOpen());
 
@@ -262,11 +263,11 @@ public class LimitOrder implements StrategyExecutor {
             return;
         }
 
-        double shift = 0.037;
+        double shift = 0.007;
         double openPrice = Double.parseDouble(lastBar.getClose());
         double onePercent = openPrice / 100;
-        double sl = onePercent * 1.8;
-        double tp = onePercent * 4.7;
+        double sl = onePercent * slParam;
+        double tp = onePercent * tpParam;
         double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) Math.ceil(lastDeal.getVol() * 1.3) : startVol;
 
         if (isTestStrategy && vol == startVol) {
@@ -329,6 +330,7 @@ public class LimitOrder implements StrategyExecutor {
                 .sl(sl)
                 .tp(tp)
                 .vol(vol)
+                .symbol(Symbol.WLD)
                 .strategy(strategy)
                 .build();
         if (maxVolInStrategy < vol) {
@@ -380,7 +382,7 @@ public class LimitOrder implements StrategyExecutor {
     private boolean isCancelPosition(Bar bar, Deal deal) {
         LocalDateTime openDate = deal.getOpenDate()
 //                .plusHours(1)
-                .plusMinutes(61);
+                .plusMinutes(minute);
         LocalDateTime createDate = bar.getCreateDate();
 
         if (createDate.isAfter(openDate)) {
@@ -559,6 +561,6 @@ public class LimitOrder implements StrategyExecutor {
 ////            startVol = 3;
 //            startVol = 13;
 //        }
-        return startVol;
+        return 3;
     }
 }

@@ -2,12 +2,10 @@ package com.dao.bot.entity;
 
 import com.dao.bot.enums.Role;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import java.sql.Timestamp;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -25,6 +23,7 @@ public class TelegramUser {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private Timestamp registeredAt;
+    @CreationTimestamp
+    private LocalDateTime registeredAt;
 
 }

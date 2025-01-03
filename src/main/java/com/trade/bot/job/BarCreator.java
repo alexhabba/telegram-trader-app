@@ -71,7 +71,13 @@ public class BarCreator {
         while (end.isBefore(LocalDateTime.now().minusHours(hour))) {
             Bar bar = getBar(symbol, start, end);
             if (nonNull(bar)) {
-                barRepository.save(bar);
+                try {
+
+                    barRepository.save(bar);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    System.out.println(e);
+                }
             }
             start = start.plusMinutes(1);
             end = end.plusMinutes(1);
@@ -106,8 +112,8 @@ public class BarCreator {
                 .collect(Collectors.toList());
 
         return Bar.builder()
-                .volBuy(buy.toString())
-                .volSell(sell.toString())
+                .volBuy(buy.doubleValue())
+                .volSell(sell.doubleValue())
                 .close(binance.get(binance.size() - 1).getPrice())
                 .open(binance.get(0).getPrice())
                 .low(listLowHigh.get(0).toString())
@@ -116,4 +122,6 @@ public class BarCreator {
                 .symbol(symbol)
                 .build();
     }
+
+
 }
