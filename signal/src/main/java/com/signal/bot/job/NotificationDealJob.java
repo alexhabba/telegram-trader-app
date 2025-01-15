@@ -1,6 +1,8 @@
 package com.signal.bot.job;
 
 import com.dao.bot.entity.Deal;
+import com.dao.bot.enums.Status;
+import com.dao.bot.enums.Symbol;
 import com.dao.bot.service.DealService;
 import com.signal.bot.config.TelegramBot;
 import lombok.RequiredArgsConstructor;
@@ -8,10 +10,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static java.util.Objects.nonNull;
+import static com.dao.bot.enums.Status.CANCEL;
+import static com.dao.bot.enums.Status.PROCESSING;
 
 @Service
 @RequiredArgsConstructor
@@ -23,18 +27,34 @@ public class NotificationDealJob {
 
     @Scheduled(cron = "06 * * * * *")
     public void checkDeal() {
-        // todo необходимо реализовать логику по появлению сделки в бд
-        Deal lastDeal = dealService.getLastDealByStatusAndBySymbol();
-//        https://www.bybit.com/en/dashboard/?ref=N1GZ5V
-//        https://www.bybit.com/trade/usdt/WLDUSDT
-        if (nonNull(lastDeal) && !MAP_UUID_DEAL.containsKey(lastDeal.getId())) {
-            MAP_UUID_DEAL.put(lastDeal.getId(), lastDeal);
-            var answer = new StringBuilder("Регистрации на байбит\nhttps://www.bybit.com/en/dashboard/?ref=N1GZ5V\n\n");
-            answer.append(lastDeal.getSide()).append("Limit\nTVH = ").append(lastDeal.getOpen()).append("\nSTOP = ").append(lastDeal.getSl()).append("\nTP = ").append(lastDeal.getTp())
-                    .append("\nhttps://www.bybit.com/trade/usdt/")
-                    .append(lastDeal.getSymbol().name()).append("USDT");
+        if (!MAP_UUID_DEAL.isEmpty()) {
+            MAP_UUID_DEAL.values().stream()
+                    .map(el -> dealService.getById(el.getId()))
+                    .map(Deal::getStatus)
+                    .findFirst()
+                    .ifPresent(el -> {
+                        if (CANCEL == el) {
+                            telegramBot.prepareAndSendMessage(-1002294735226L, "Отмена лимитного ордера для WLD");
+                            MAP_UUID_DEAL.clear();
+                        } else if (PROCESSING == el) {
+                            MAP_UUID_DEAL.clear();
+                        }
+                    });
+        } else {
+            List<Deal> deals = dealService.getLastDealByStatusAndBySymbol(Status.STARTED, Symbol.WLD);
+//          https://www.bybit.com/en/dashboard/?ref=N1GZ5V
+//          https://www.bybit.com/trade/usdt/WLDUSDT
+            if (!deals.isEmpty() && !MAP_UUID_DEAL.containsKey(deals.get(0).getId())) {
+                Deal lastDeal = deals.get(0);
+                MAP_UUID_DEAL.put(lastDeal.getId(), lastDeal);
+                var answer = new StringBuilder("Регистрации на байбит\nhttps://www.bybit.com/en/dashboard/?ref=N1GZ5V\n\n");
+                answer.append(lastDeal.getSide()).append("Limit ").append(lastDeal.getSymbol()).append("\nTVH = ").append(lastDeal.getOpen()).append("\nSTOP = ").append(lastDeal.getSl()).append("\nTP = ").append(lastDeal.getTp())
+                        .append("\nhttps://www.bybit.com/trade/usdt/")
+                        .append(lastDeal.getSymbol().name()).append("USDT");
 
-            telegramBot.prepareAndSendMessage(-1002294735226L, answer.toString());
+                telegramBot.prepareAndSendMessage(-1002294735226L, answer.toString());
+            }
+
         }
     }
 

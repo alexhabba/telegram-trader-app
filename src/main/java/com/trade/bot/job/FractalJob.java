@@ -50,7 +50,7 @@ public class FractalJob {
                         .symbol(symbol)
                         .createDate(bar.getCreateDate())
                         .interval(1)
-                        .low(bar.getLow())
+                        .low(Double.toString(bar.getLow()))
                         .build();
                 fractalRepository.save(fractal);
             }
@@ -61,7 +61,7 @@ public class FractalJob {
                         .symbol(symbol)
                         .createDate(bar.getCreateDate())
                         .interval(1)
-                        .high(bar.getHigh())
+                        .high(Double.toString(bar.getHigh()))
                         .build();
                 fractalRepository.save(fractal);
             }
@@ -70,7 +70,7 @@ public class FractalJob {
 
     private boolean isLowFractalLeft(List<Bar> bars, int median) {
         for (int i = 0; i < median; i++) {
-            if (!(Double.parseDouble(bars.get(median).getLow()) <= Double.parseDouble(bars.get(i).getLow()))) {
+            if (!(bars.get(median).getLow() <= bars.get(i).getLow())) {
                 return false;
             }
         }
@@ -79,7 +79,7 @@ public class FractalJob {
 
     private boolean isLowFractalRight(List<Bar> bars, int median) {
         for (int i = median + 1; i < bars.size(); i++) {
-            if (!(Double.parseDouble(bars.get(median).getLow()) < Double.parseDouble(bars.get(i).getLow()))) {
+            if (!(bars.get(median).getLow() < bars.get(i).getLow())) {
                 return false;
             }
         }
@@ -88,7 +88,7 @@ public class FractalJob {
 
     private boolean isHighFractalLeft(List<Bar> bars, int median) {
         for (int i = 0; i < median; i++) {
-            if (!(Double.parseDouble(bars.get(median).getHigh()) >= Double.parseDouble(bars.get(i).getHigh()))) {
+            if (!(bars.get(median).getHigh() >=bars.get(i).getHigh())) {
                 return false;
             }
         }
@@ -97,7 +97,7 @@ public class FractalJob {
 
     private boolean isHighFractalRight(List<Bar> bars, int median) {
         for (int i = median + 1; i < bars.size(); i++) {
-            if (!(Double.parseDouble(bars.get(median).getHigh()) > Double.parseDouble(bars.get(i).getHigh()))) {
+            if (!(bars.get(median).getHigh() >bars.get(i).getHigh())) {
                 return false;
             }
         }

@@ -1,11 +1,13 @@
 package com.dao.bot.repository;
 
 import com.dao.bot.entity.Bar;
+import com.dao.bot.enums.Symbol;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface BarRepository extends JpaRepository<Bar, LocalDateTime> {
 
@@ -25,7 +27,7 @@ public interface BarRepository extends JpaRepository<Bar, LocalDateTime> {
             "FROM bar where symbol = :symbol " +
             "ORDER BY create_date DESC\n" +
             "LIMIT 1", nativeQuery = true)
-    List<Bar> findLastBarBySymbol(String symbol);
+    Optional<Bar> findLastBarBySymbol(String symbol);
 
     @Query(value = "SELECT *\n" +
             "FROM bar where symbol = :symbol " +
@@ -33,7 +35,9 @@ public interface BarRepository extends JpaRepository<Bar, LocalDateTime> {
             "LIMIT :count", nativeQuery = true)
     List<Bar> findLastBarBySymbol(String symbol, int count);
 
-    List<Bar> findAllBySymbol(String symbol);
+    List<Bar> findAllBySymbol(Symbol symbol);
 
-    List<Bar> findBarByCreateDateBetween(LocalDateTime createDateStart, LocalDateTime createDateEnd);
+    @Query(value = "select sum(CAST(b.close AS numeric)) / 113 from bot.bar b " +
+            "where b.symbol = :symbol and b.create_date >= :createDateStart  and b.create_date <= :createDateEnd", nativeQuery = true)
+    double getAvg(String symbol, LocalDateTime createDateStart, LocalDateTime createDateEnd);
 }

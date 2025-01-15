@@ -112,10 +112,10 @@ public class BybitOrderService {
     }
 
     @SneakyThrows
-    public BybitLimitOrderResponse getOpenLimitOrder(String key, String secret) {
+    public BybitLimitOrderResponse getOpenLimitOrder(String key, String secret, Symbol symbol) {
         try {
             var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN).newTradeRestClient();
-            var openLinearOrdersResult = client.getOpenOrders(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol("WLDUSDT").build());
+            var openLinearOrdersResult = client.getOpenOrders(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol(symbol.name() + "USDT").build());
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(objectMapper.writeValueAsString(openLinearOrdersResult), BybitLimitOrderResponse.class);
         } catch (BybitApiException e) {
@@ -126,9 +126,9 @@ public class BybitOrderService {
     }
 
     @SneakyThrows
-    public void closeOpenLimitOrder(String key, String secret) {
+    public void closeOpenLimitOrder(String key, String secret, Symbol symbol) {
         try {
-            BybitLimitOrderResponse openLimitOrder = getOpenLimitOrder(key, secret);
+            BybitLimitOrderResponse openLimitOrder = getOpenLimitOrder(key, secret, symbol);
             if (openLimitOrder.getResult().getList().isEmpty()) {
                 return;
             }
@@ -136,11 +136,12 @@ public class BybitOrderService {
             var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN).newTradeRestClient();
 
 
-            var result = client.cancelOrder(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol("WLDUSDT").orderId(orderId).build());
-            System.out.println(result);
+            var result = client.cancelOrder(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol(symbol.name() + "USDT").orderId(orderId).build());
+            System.out.println("Отмена лимитной заявки\n" + result);
         } catch (BybitApiException e) {
             // Обработка ошибок
             System.err.println("Ошибка: " + e.getMessage());
+            throw new RuntimeException("Не удалось закрыть лимитную заявку");
         }
     }
 
@@ -186,7 +187,7 @@ public class BybitOrderService {
 //                UUID.fromString("8a50bd47-4711-44bf-8b5e-c20ed26e464f"), "WLDUSDT");
 //        System.out.println(openLimitOrderr);
         BybitOrderService bybitOrderService = new BybitOrderService(new ObjectMapper());
-        bybitOrderService.closeOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy");
+        bybitOrderService.closeOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy", Symbol.WLD);
     }
 
 }

@@ -69,10 +69,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         if (update.hasChannelPost() && update.getChannelPost().hasText()) {
             long chatId = update.getChannelPost().getChatId();
-            System.out.println("chatId:  " + chatId);
-            // chatId = -1002294735226
-//            registerUser(update.getChannelPost());
-            prepareAndSendMessage(chatId, "С этого аккаунта запрещено добавлять учеников и создавать QR");
+
             return;
         }
         if (update.hasMessage() && update.getMessage().hasText()) {

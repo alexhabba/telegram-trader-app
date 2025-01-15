@@ -91,7 +91,9 @@ public class LimitOrderSearch {
     private final ThreadLocal<LinkedList<Deal>> deals = new ThreadLocal<>();
 
     public void execute(Bar lastBar, double shift, double slTemp, double tpTemp, String strategy, LinkedList<Deal> list,
-                        double maxVol, int min, int count, WrapperDouble maxVolInStrategyWrapper, WrapperBalance resultBalanceWrapper) {
+                        double maxVol, int min,
+                        int count,
+                        WrapperDouble maxVolInStrategyWrapper, WrapperBalance resultBalanceWrapper) {
 
         maxVolInStrategy.set(maxVolInStrategyWrapper);
         deals.set(list);
@@ -101,36 +103,50 @@ public class LimitOrderSearch {
 //            return;
 //        }
 //        if (isTestStrategy) return;
-        if (isTestStrategy && LocalDateTime.now().minusHours(7).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
+        if (isTestStrategy && LocalDateTime.parse("2025-01-07T02:00:00").equals(lastBar.getCreateDate())) {
+//        if (isTestStrategy && LocalDateTime.now().minusHours(50).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
 //            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
 //            deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
 //                    .forEach(System.out::println);
-            Double commonResult = deals.get().stream()
-                    .map(deal -> deal.getResult() * deal.getVol() - deal.getVol() * 0.0015)
-                    .reduce(0d, Double::sum);
+            double commonResult = 0;
+//            deals.get().stream()
+//                    .map(deal -> deal.getResult() * deal.getVol() - deal.getVol() * 0.0015)
+//                    .reduce(0d, Double::sum);
 
-            Double result = deals.get().stream()
-                    .map(Deal::getResult)
-                    .reduce(0d, Double::sum);
+            double result = 0;
+//            deals.get().stream()
+//                    .map(Deal::getResult)
+//                    .reduce(0d, Double::sum);
 
-            long badCount = deals.get().stream()
-                    .map(Deal::getResult)
-                    .filter(r -> r < 0)
-                    .count();
+            long badCount = 0;
+//            deals.get().stream()
+//                    .map(Deal::getResult)
+//                    .filter(r -> r < 0)
+//                    .count();
 
-            long successCount = deals.get().stream()
-                    .map(Deal::getResult)
-                    .filter(r -> r > 0)
-                    .count();
+            long successCount = 0;
+//            deals.get().stream()
+//                    .map(Deal::getResult)
+//                    .filter(r -> r > 0)
+//                    .count();
+
+            LinkedList<Deal> dealsList = deals.get();
+            for (int i = 0; i < dealsList.size() - 1; i++) {
+                Deal deal = dealsList.get(i);
+                commonResult += deal.getResult() * deal.getVol() - deal.getVol() * 0.0015;
+                result += deal.getResult();
+                badCount += deal.getResult() < 0 ? 1 : 0;
+                successCount += deal.getResult() > 0 ? 1 : 0;
+            }
 
             int c = count;
             double maxVoll = maxVolInStrategy.get().getValue();
             if (
                     result > -0.5
-                            && maxVoll < 80
+                            && maxVoll < 10
 //                            && tpTemp > slTemp * 3
-                            && badCount < successCount * 2.5
-                            && commonResult > 10
+//                            && badCount < successCount * 2.5
+//                            && commonResult > 10
             ) {
                 Statistic statistic = Statistic.builder()
                         .id(UUID.randomUUID())
@@ -149,8 +165,9 @@ public class LimitOrderSearch {
 
                 statisticRepository.save(statistic);
 
-                System.out.printf("maxVolInStrategy = %f, min = %d, maxVol = %f, shift = %f, slTemp = %f, tpTemp = %f, strategy = %s, badCount = %d, successCount : %d, commonResult :  %f, Result :  %f\n",
-                        maxVoll, min, maxVol, shift, slTemp, tpTemp, strategy, badCount, successCount, commonResult, result);
+//                System.out.printf("maxVolInStrategy = %f, min = %d, maxVol = %f, shift = %f, slTemp = %f, tpTemp = %f, strategy = %s, badCount = %d, successCount : %d, commonResult :  %f, Result :  %f\n",
+//                        maxVoll, min, maxVol, shift, slTemp, tpTemp, strategy, badCount, successCount, commonResult, result);
+//                System.out.println(Thread.currentThread().getName());
             }
 
 //            maxVolInStrategy = 729,000000, min = 82, maxVol = 15000,000000, shift = 0,001000, slTemp = 1,000000, tpTemp = 4,100000, strategy = 7
@@ -196,9 +213,8 @@ public class LimitOrderSearch {
 
         double volBuyLastBar = lastBar.getVolBuy();
         double volSellLastBar = lastBar.getVolSell();
-        double closeLastBar = Double.parseDouble(lastBar.getClose());
-        double openBuyLastBar = Double.parseDouble(lastBar.getOpen());
-
+        double closeLastBar = lastBar.getClose();
+        double openBuyLastBar = lastBar.getOpen();
         // Посмотреть на последнюю сделку по времени
         Deal lastDeal = null;
 
@@ -207,7 +223,7 @@ public class LimitOrderSearch {
                 lastDeal = deals.get().getLast();
             }
         } else {
-            lastDeal = dealService.getLastDealStrategy(strategy);
+            lastDeal = dealService.getLastDealStrategy(strategy, lastBar.getSymbol().name());
         }
 
         // Если есть не завершенная сделка то проверяем закрылась она или нет
@@ -224,8 +240,9 @@ public class LimitOrderSearch {
                 if (isOpenPosition(lastBar, lastDeal)) {
                     // todo если была открыта любая позиция открытая не ботом то переведет в статус PROCESSING
                     lastDeal.setStatus(PROCESSING);
-                } else {
-                    isCancelPosition(lastBar, lastDeal, min);
+                    return;
+                } else if (isCancelPosition(lastBar, lastDeal, min)) {
+                    return;
                 }
 
                 // если позиция есть то открылась лимитка
@@ -234,14 +251,12 @@ public class LimitOrderSearch {
                 lastDeal.setStatus(PROCESSING);
                 dealService.save(lastDeal);
                 // todo округлить до 3 цифр или в мапу добавить
-                PositionUtils.sentTpSl(key, secret, BigDecimal.valueOf(lastDeal.getSl()), BigDecimal.valueOf(lastDeal.getTp()));
-                log.info("Открытие лимитной заявки, перевод в статус PROCESSING");
+                PositionUtils.sentTpSl(key, secret, BigDecimal.valueOf(lastDeal.getSl()), BigDecimal.valueOf(lastDeal.getTp()), Symbol.WLD);
             } else if (isCancelPosition(lastBar, lastDeal, min)) {
-                bybitOrderService.closeOpenLimitOrder(key, secret);
+                bybitOrderService.closeOpenLimitOrder(key, secret, Symbol.WLD);
                 lastDeal.setStatus(CANCEL);
                 lastDeal.setCloseDate(LocalDateTime.now());
                 dealService.save(lastDeal);
-                log.info("Отмена лимитной заявки, перевод в статус CANCEL");
             }
             return;
         }
@@ -250,43 +265,35 @@ public class LimitOrderSearch {
             return;
         }
 
-//        double shift = shift;
-        double openPrice = Double.parseDouble(lastBar.getClose());
+        double openPrice = lastBar.getClose();
         double onePercent = openPrice / 100;
         double sl = onePercent * slTemp;
         double tp = onePercent * tpTemp;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) (lastDeal.getVol() * 1.3) : startVol;
+        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? lastDeal.getVol() * 1.3 : startVol;
 
         if (isTestStrategy && vol == startVol) {
             vol = getVol(null, null);
         }
 
         // todo тут похоже что нужно выбрать приоритет взависимости от того какой обьем больше на покупку или продажу
-        boolean isBuyMore = false;
-        if (volBuyLastBar > volSellLastBar) {
-            isBuyMore = true;
-        }
+        boolean isBuyMore = volBuyLastBar > volSellLastBar;
+
         if (isBuyMore && volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
-            if (strategy.equals("8") || strategy.equals("4")) {
+            if (strategy.equals("8")) {
                 openPrice = openPrice + shift;
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
             } else {
                 openPrice = openPrice - shift;
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
             }
-            // открытие и сохранение сделки в БД
-            if (isTestStrategy) {
-                deals.get().add(createDeal);
-            } else {
-                openOrder(createDeal);
-            }
+            deals.get().add(createDeal);
         }
 
         if (!isBuyMore && volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
 
-            if (strategy.equals("8") || strategy.equals("4")) {
+            if (strategy.equals("8")) {
                 openPrice = openPrice - shift;
                 createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
             } else {
@@ -294,19 +301,12 @@ public class LimitOrderSearch {
                 createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
             }
 
-            // открытие и сохранение сделки в БД
-            if (isTestStrategy) {
-                deals.get().add(createDeal);
-            } else {
-                openOrder(createDeal);
-            }
+            deals.get().add(createDeal);
         }
 
     }
 
     private Deal createDeal(Bar lastBar, double openPrice, Side sell, double sl, double tp, double vol) {
-//        log.info("Рабочий обьем : {}", vol);
-//        log.info("Working volume : {}", vol);
         Deal createDeal = Deal.builder()
                 .id(UUID.randomUUID())
                 .openDate(lastBar.getCreateDate().plusMinutes(1))
@@ -326,11 +326,8 @@ public class LimitOrderSearch {
     }
 
     private void checkTpSl(Bar bar, Deal deal) {
-        if (deal.getStatus() == COMPLETED) {
-            return;
-        }
-        double low = Double.parseDouble(bar.getLow());
-        double high = Double.parseDouble(bar.getHigh());
+        double low = bar.getLow();
+        double high = bar.getHigh();
 
         if (deal.getSide() == Side.Buy) {
             if (low <= deal.getSl()) {
@@ -360,7 +357,6 @@ public class LimitOrderSearch {
 
     private boolean isCancelPosition(Bar bar, Deal deal, int min) {
         LocalDateTime openDate = deal.getOpenDate()
-//                .plusHours(1)
                 .plusMinutes(min);
         LocalDateTime createDate = bar.getCreateDate();
 
@@ -373,8 +369,8 @@ public class LimitOrderSearch {
     }
 
     private boolean isOpenPosition(Bar bar, Deal deal) {
-        double low = Double.parseDouble(bar.getLow());
-        double high = Double.parseDouble(bar.getHigh());
+        double low = bar.getLow();
+        double high = bar.getHigh();
 
         if (deal.getSide() == Side.Buy && low <= deal.getOpen()) {
             return true;
@@ -397,108 +393,18 @@ public class LimitOrderSearch {
         }
     }
 
-    private void openOrder(Deal createDeal) {
-        if (deals.get().isEmpty()) {
-            openOrder(
-                    createDeal.getVol(),
-                    createDeal.getSide(),
-                    Double.toString(createDeal.getOpen()),
-                    Double.toString(createDeal.getSl())
-            );
-        } else {
-            dealService.save(createDeal);
-            deals.get().clear();
-        }
-
-        try {
-            dealService.save(createDeal);
-            log.info("Successful save deal {}", createDeal);
-        } catch (Throwable e) {
-            log.error("Error save deal {}", createDeal, e);
-            deals.get().addLast(createDeal);
-        }
-    }
-
-    void openOrder(double size, Side side, String tvh, String sl) {
-        Pair<String, String> pairKeySecret = map.get(strategy);
-        String key = pairKeySecret.getKey();
-        String secret = pairKeySecret.getValue();
-
-        if (size == startVol) {
-            size = getVol(key, secret);
-        }
-
-        bybitOrderService.openLimitOrder(
-                key,
-                secret,
-                Symbol.WLD,
-                tvh,
-                sl,
-                Double.toString(size),
-                side,
-                OrderType.LIMIT,
-                UUID.randomUUID(),
-                d -> log.info("open order {} ", d));
-        log.info("Open limit order size : {}, side : {}, tvh : {}", size, side, tvh);
-    }
-
-    @SneakyThrows
-    private void showPositionAndBalance() {
-        Thread.sleep(5000);
-        ArrayList<BigDecimal> commonBalance = new ArrayList<>();
-        map.forEach((k, v) -> {
-            ResponsePosition position = positionService.getPosition(v.getKey(), v.getValue());
-            BigDecimal size = position.getResult().getPositions().get(0).getSize();
-            String side = position.getResult().getPositions().get(0).getSide();
-
-            BigDecimal balance = balanceService.getBalance(v.getKey(), v.getValue());
-            commonBalance.add(balance);
-            System.out.println();
-            System.out.println("=======================================================");
-            System.out.println("account : " + k + " balance : " + balance + " side : " + side + " size : " + size);
-            System.out.println("=======================================================");
-        });
-        System.out.println("commonBalance : " + commonBalance.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
-    }
-
     private boolean isNotPosition() {
         Pair<String, String> pairKeySecret = map.get(strategy);
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
 
-        ResponsePosition position = positionService.getPosition(key, secret);
+        ResponsePosition position = positionService.getPosition(key, secret, Symbol.WLD);
         BigDecimal size = position.getResult().getPositions().get(0)
                 .getSize();
         return size.equals(BigDecimal.ZERO);
     }
 
     private double getVol(String key, String secret) {
-
-//        if (!isTestStrategy) {
-//            resultBalance = balanceService.getBalance(key, secret);
-//            log.info("resultBalance = {}", resultBalance);
-//        }
-        if (resultBalance.get().getBalance().doubleValue() >= 3770) {
-            startVol = 610;
-        } else if (resultBalance.get().getBalance().doubleValue() >= 2330) {
-            startVol = 377;
-        } else if (resultBalance.get().getBalance().doubleValue() >= 1440) {
-            startVol = 233;
-        } else if (resultBalance.get().getBalance().doubleValue() >= 890) {
-            startVol = 144;
-        } else if (resultBalance.get().getBalance().doubleValue() >= 550) {
-            startVol = 144;
-        } else if (resultBalance.get().getBalance().doubleValue() >= 340) {
-            startVol = 89;
-        } else if (resultBalance.get().getBalance().doubleValue() >= 210) {
-            startVol = 8;
-        } else if (resultBalance.get().getBalance().doubleValue() >= 130) {
-            startVol = 5;
-        } else if (resultBalance.get().getBalance().doubleValue() >= 80) {
-            startVol = 13;
-            startVol = 3;
-        }
-//        log.info("startVol = {}", startVol);
-        return 5;
+        return 0.1;
     }
 }

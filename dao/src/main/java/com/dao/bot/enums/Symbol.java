@@ -6,4 +6,7 @@ public enum Symbol {
     ETH,
     BNB,
     LTC,
+
+    AAVE,
+    WIF,
 }

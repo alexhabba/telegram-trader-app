@@ -1,14 +1,13 @@
 package com.dao.bot.entity;
 
+import com.dao.bot.enums.Symbol;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -27,11 +26,14 @@ public class Bar {
     )
     private UUID id;
     private LocalDateTime createDate;
-    private String symbol;
+    @Enumerated(EnumType.STRING)
+    private Symbol symbol;
     private double volBuy;
     private double volSell;
-    private String open;
-    private String close;
-    private String low;
-    private String high;
+    private double vol;
+    private double open;
+    private double close;
+    private double low;
+    private double high;
+    private int interval;
 }

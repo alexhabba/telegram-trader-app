@@ -9,8 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface DealRepository extends JpaRepository<Deal, LocalDateTime> {
+public interface DealRepository extends JpaRepository<Deal, UUID> {
 
     @Query(value = "SELECT *\n" +
             "FROM deal\n" +
@@ -19,12 +20,12 @@ public interface DealRepository extends JpaRepository<Deal, LocalDateTime> {
     List<Deal> findLastDeal(int count);
 
     @Query(value = "SELECT *\n" +
-            "FROM deal d where d.strategy = :strategy and d.status not in ('CANCEL') " +
+            "FROM deal d where d.strategy = :strategy and d.status not in ('CANCEL') and d.symbol = :symbol " +
             "ORDER BY open_date DESC\n" +
             "LIMIT :count", nativeQuery = true)
-    List<Deal> findLastDealStrategy(int count, String strategy);
+    List<Deal> findLastDealStrategy(int count, String strategy, String symbol);
 
-    Optional<Deal> findDealByStatusAndSymbol(Status status, Symbol symbol);
+    List<Deal> findDealByStatusAndSymbol(Status status, Symbol symbol);
 
 //    List<Bar> findBarByCreateDateBetween(LocalDateTime createDateStart, LocalDateTime createDateEnd);
 

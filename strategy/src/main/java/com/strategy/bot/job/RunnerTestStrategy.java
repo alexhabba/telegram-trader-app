@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -35,7 +36,7 @@ public class RunnerTestStrategy {
     private final List<StrategyExecutor> strategyExecutorList;
     private final BarService barService;
     private final LimitOrderSearch limitOrderSearch;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
+    private final ExecutorService executorService;
 
 
     @EventListener({ContextRefreshedEvent.class})
@@ -44,7 +45,7 @@ public class RunnerTestStrategy {
 //        runTestStrategy();
     }
 
-    @Scheduled(cron = "04 * * * * *")
+//    @Scheduled(cron = "04 * * * * *")
     public void runTestStrategy() {
 //        List<Bar> all = barService.findAll();
 //        List<BarDto> barsCreateDateBetween = barService.getBarsCreateDateBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now());
@@ -71,17 +72,16 @@ public class RunnerTestStrategy {
 
         if (isTestStrategy && isTestRun) {
             isTestRun = false;
-            List<Bar> collect = barService.findAllBySymbol(Symbol.WLD)
+            List<Bar> collect = barService.findAllBySymbol(Symbol.SOL)
                     .stream()
-//                    .filter(bar -> bar.getCreateDate().getMonth() == Month.DECEMBER)
-//                    .filter(bar -> bar.getCreateDate().isAfter(LocalDateTime.now().minusDays(2)))
+//                    .filter(bar -> bar.getCreateDate().isBefore(LocalDateTime.now().minusDays(90)))
                     .sorted(Comparator.comparing(Bar::getCreateDate))
+//                    .filter(bar -> bar.getCreateDate().getMonth() == Month.SEPTEMBER)
                     .collect(Collectors.toList());
             collect.forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar)));
 //            testOptimization(collect);
         } else if (!isTestStrategy) {
-            barService.findLastBarBySymbol(Symbol.WLD)
-                    .forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar)));
+            strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.SOL.name())));
         }
     }
 

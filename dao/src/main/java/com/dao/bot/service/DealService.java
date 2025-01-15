@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,16 +22,18 @@ public class DealService {
         return deals.isEmpty() ? null : deals.get(0);
     }
 
-    public Deal getLastDealStrategy(String strategy) {
-        List<Deal> deals = dealRepository.findLastDealStrategy(1, strategy);
+    public Deal getLastDealStrategy(String strategy, String symbol) {
+        List<Deal> deals = dealRepository.findLastDealStrategy(1, strategy, symbol);
         return deals.isEmpty() ? null : deals.get(0);
     }
 
-    public Deal getLastDealByStatusAndBySymbol() {
-        Optional<Deal> deal = dealRepository.findDealByStatusAndSymbol(Status.STARTED, Symbol.WLD);
-        return deal.orElse(null);
+    public List<Deal> getLastDealByStatusAndBySymbol(Status status, Symbol symbol) {
+        return dealRepository.findDealByStatusAndSymbol(status, symbol);
     }
 
+    public Deal getById(UUID id) {
+        return dealRepository.findById(id).orElse(null);
+    }
 
     public Deal save(Deal deal) {
         return dealRepository.save(deal);

@@ -25,6 +25,7 @@ public class DateTimeUtils {
     }
 
     public static void main(String[] args) {
+        // trend
         long x1 = getDateTime(LocalDateTime.parse("2024-10-17T18:00:00"));
         long x2 = getDateTime(LocalDateTime.parse("2024-10-18T12:45:00"));
 

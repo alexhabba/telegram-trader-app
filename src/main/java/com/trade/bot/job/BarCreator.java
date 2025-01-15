@@ -61,13 +61,13 @@ public class BarCreator {
 
                     LocalDateTime start = firstTickCreateDate.withSecond(0).withNano(0);
                     LocalDateTime end = start.plusMinutes(1);
-                    extracted(symbol, start, end);
+                    extracted(Symbol.valueOf(symbol), start, end);
                 }
             });
         }
     }
 
-    private void extracted(String symbol, LocalDateTime start, LocalDateTime end) {
+    private void extracted(Symbol symbol, LocalDateTime start, LocalDateTime end) {
         while (end.isBefore(LocalDateTime.now().minusHours(hour))) {
             Bar bar = getBar(symbol, start, end);
             if (nonNull(bar)) {
@@ -84,8 +84,8 @@ public class BarCreator {
         }
     }
 
-    public Bar getBar(String symbol, LocalDateTime start, LocalDateTime end) {
-        List<Tick> tickByCreateDateBetween = tickRepository.findTickBySymbolAndCreateDateBetween(Symbol.valueOf(symbol), start, end);
+    public Bar getBar(Symbol symbol, LocalDateTime start, LocalDateTime end) {
+        List<Tick> tickByCreateDateBetween = tickRepository.findTickBySymbolAndCreateDateBetween(symbol, start, end);
 
         List<Tick> binance = tickByCreateDateBetween.stream()
                 .filter(tick -> tick.getExchange().equals("binance"))
@@ -114,10 +114,10 @@ public class BarCreator {
         return Bar.builder()
                 .volBuy(buy.doubleValue())
                 .volSell(sell.doubleValue())
-                .close(binance.get(binance.size() - 1).getPrice())
-                .open(binance.get(0).getPrice())
-                .low(listLowHigh.get(0).toString())
-                .high(listLowHigh.get(listLowHigh.size() - 1).toString())
+//                .close(binance.get(binance.size() - 1).getPrice())
+//                .open(binance.get(0).getPrice())
+//                .low(listLowHigh.get(0).toString())
+//                .high(listLowHigh.get(listLowHigh.size() - 1).toString())
                 .createDate(start)
                 .symbol(symbol)
                 .build();

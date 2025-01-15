@@ -44,7 +44,7 @@ public class BinanceTickJob {
     public void init() {
         connect();
     }
-
+//    https://data.binance.vision/?prefix=data/spot/daily/aggTrades/SOLUSDT/#:~:text=06T03%3A29%3A01.000Z-,SOLUSDT%2DaggTrades%2D2025%2D01%2D05.zip,-4.6%20MB
     public void connect() {
         //      /bnbusdt@aggTrade/notusdt@aggTrade/ethusdt@aggTrade/wldusdt@aggTrade/btcusdt@aggTrade/solusdt@aggTrade/tonusdt@aggTrade
         String path = "/" + Arrays.stream(Symbol.values())

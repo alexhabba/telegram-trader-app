@@ -6,6 +6,7 @@ import com.bybit.api.client.domain.position.TpslMode;
 import com.bybit.api.client.domain.position.request.PositionDataRequest;
 import com.bybit.api.client.domain.trade.PositionIdx;
 import com.bybit.api.client.service.BybitApiClientFactory;
+import com.dao.bot.enums.Symbol;
 import lombok.SneakyThrows;
 
 import java.math.BigDecimal;
@@ -13,10 +14,10 @@ import java.math.BigDecimal;
 public class PositionUtils {
 
     @SneakyThrows
-    public static void sentTpSl(String key, String secret, BigDecimal sl, BigDecimal tp) {
+    public static void sentTpSl(String key, String secret, BigDecimal sl, BigDecimal tp, Symbol symbol) {
         var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN, true).newAsyncPositionRestClient();
         var setTradingStopRequest = PositionDataRequest.builder()
-                .symbol("WLDUSDT")
+                .symbol(symbol + "USDT")
                 .positionIdx(PositionIdx.ONE_WAY_MODE)
                 .category(CategoryType.LINEAR)
                 .takeProfit(tp.toString())
@@ -24,6 +25,7 @@ public class PositionUtils {
                 .tpslMode(TpslMode.FULL)
                 .build();
 //        client.setTradingStop(setTradingStopRequest, System.out::println);
-        client.setTradingStop(setTradingStopRequest, response -> {});
+        client.setTradingStop(setTradingStopRequest, response -> {
+        });
     }
 }

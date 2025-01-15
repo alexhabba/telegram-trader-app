@@ -2,12 +2,14 @@ package com.strategy.bot.startegy.test;
 
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Deal;
+import com.dao.bot.entity.Parameter;
 import com.dao.bot.enums.OrderType;
 import com.dao.bot.enums.Owner;
 import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import com.dao.bot.service.BarService;
 import com.dao.bot.service.DealService;
+import com.dao.bot.service.ParameterService;
 import com.strategy.bot.dto.ResponsePosition;
 import com.strategy.bot.service.BybitBalanceService;
 import com.strategy.bot.service.BybitOrderService;
@@ -26,16 +28,14 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.dao.bot.enums.Status.CANCEL;
 import static com.dao.bot.enums.Status.COMPLETED;
 import static com.dao.bot.enums.Status.PROCESSING;
 import static com.dao.bot.enums.Status.STARTED;
+import static com.dao.bot.enums.Symbol.*;
 import static java.util.Objects.nonNull;
 
 /**
@@ -46,44 +46,20 @@ import static java.util.Objects.nonNull;
 @RequiredArgsConstructor
 public class LimitOrder implements StrategyExecutor {
 
-    private final static Map<String, Pair<String, String>> map = Map.of(
-//            // KRIS_SUB_SECOND_BYBIT 0
-//            "1", Pair.of("9jaVPeAdvHrCmX0ns1", "SQnh4QIBRPY7e5ergx66hSox2LtanPfWl4J0"),
-//            // KRIS_SUB_THIRD_BYBIT 106
-//            "2", Pair.of("H3GirAjzpWudDl5OdM", "b0HhjkwZev5TbkeaAiyNCoPTgF03HrBfqxSS"),
-//            // KRIS_SUB_FIRST_BYBIT 43
-//            "3", Pair.of("AlQPnc97vD3e2rmL8g", "7nhr96hrqY1ugIVEa7Hdz4e091O63OZNvVfu"),
-//            // ISLAM_BYBIT 74.51
-//            "4", Pair.of("06sETlkoP2qjgAMTG5", "UN3kh8zBizlhI2U04D56nCkADUxbHsRm6g21"),
-//            // ISLAM_SUB_FIRST_BYBIT 76.18
-//            "5", Pair.of("GHT40gkxrAlMmYJPfk", "kORD1LFlJsS00S7mbuwSkYY8ZvN4e1s7r5Zl"),
-//            // SUB_FIRST_BYBIT 100
-////            "6", Pair.of("mXtga6i1kKM7E6QxZd", "xdockA1PaahdKwGecn18VgngE2ddXwhF5z0e"),
-//            // islam copy
-//            "6", Pair.of("Dru3SSXDYG9zyLGjKG", "R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx"),
-//            // ISLAM_SUB_SECOND_BYBIT 60
-//            "7", Pair.of("bPVe4ZjME00iqeDAbk", "5wo5H9E2xWpxLq4t0TO6gHoSp5VhdQD7BJ88"),
-            // ISLAM_SUB_THIRD_BYBIT 60
-//            "8", Pair.of("mKZXsgddffQLxkBvC5", "Qlx8o0o8LgZoAI7TWIbFOzN2HPzi6faxIBxT"),
-//            // islam copy
-//            "8", Pair.of("Dru3SSXDYG9zyLGjKG", "R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx"),
-//            // SUB_THIRD_BYBIT 93.45
-//            "9", Pair.of("fR9alUpUcX23hqhsBt", "Uek064v0iaYeW5HAC2oAK1QjCGihL9UwzSJ8"),
-            // KRIS_BYBIT 100   запуск 20 август
-//            "7", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
-//            "8", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy")
-            // MY MAIN ACC
-            "8", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
-            // DEMO
-//            "10", Pair.of("6KHHWQ26pEBvLGTvNq", "ADD12KPrgwmMBewxeWaWj1dGbLvyooJtLZYB")
-//            Dru3SSXDYG9zyLGjKG
-//            R9EndOkAxzdgDZmxJyLbboNcaaGxOLxsX3xx
-//            2Z9USg4FZilLred2Xj
+    private final static Map<Symbol, Double> MAP_SYMBOL_SHIFT = Map.of(
+            WLD, 0.008,
+            SOL, 2.0,
+            AAVE, 3.0
     );
 
-//    maxVolInStrategy = 5085,000000, min = 58, maxVol = 25000,000000, shift = 0,009000, slTemp = 1,000000, tpTemp = 5,100000, strategy = 7
-//    badCount = 58, successCount : 33
-//    commonResult :  2,021778
+    private final static Map<String, Pair<String, String>> map = Map.of(
+
+            // KRIS_BYBIT 100   запуск 20 август
+            "8", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
+            "7", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
+            // MY MAIN ACC
+            "1", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
+    );
 
     @Value("#{${accounts}}")
     private Map<Owner, Map<String, String>> keySecretMap;
@@ -98,10 +74,14 @@ public class LimitOrder implements StrategyExecutor {
     @Value("${start-vol}")
     private int startVol;
 
-    private final static double maxVol = 70_000;
-    private final static long minute = 13;
-    private final static double slParam = 1.3;
-    private final static double tpParam = 4.9;
+    private double maxVol = 3_000;
+    private long minute = 19;
+    private double slParam = 1.7;
+    private double tpParam = 2.5;
+    private double shift = 1.3;
+
+    private double coefficient = 1.3;
+    private double volPosition = 1.3;
 
 
     private double maxVolInStrategy = 0;
@@ -111,60 +91,27 @@ public class LimitOrder implements StrategyExecutor {
     private final BybitOrderService bybitOrderService;
     private final BybitBalanceService balanceService;
     private final BybitPositionService positionService;
+    private final ParameterService parameterService;
     private final LinkedList<Deal> deals = new LinkedList<>();
 
     @EventListener({ContextRefreshedEvent.class})
     @SneakyThrows
     public void init() {
-//        BigDecimal balance = balanceService.getBalance(key, secret);
-//        ResponsePosition position = positionService.getPosition(key, secret);
-//        System.out.println(balance);
-//        System.out.println(position);
-//        dealService.deleteAll();
-//        openOrder("5", Side.Sell, "1.8", "1.5");
-//        System.out.println();
-
-
-        Pair<String, String> pairKeySecret = map.get(strategy);
-        String key = pairKeySecret.getKey();
-        String secret = pairKeySecret.getValue();
-
-//        positionService.setSlTp(key, secret, BigDecimal.valueOf(2.963), BigDecimal.valueOf(4));
-
-        ResponsePosition position = positionService.getPosition(key, secret);
-        System.out.println(position);
-//        bybitOrderService.closeOpenLimitOrder(key, secret);
-
-//
-//        bybitOrderService.openOrder(
-//                key,
-//                secret,
-//                Symbol.WLD,
-//                "3",
-//                "1",
-//                "3",
-//                Side.Sell,
-//                OrderType.MARKET,
-//                UUID.randomUUID(),
-//                System.out::println);
-
-//        BigDecimal balance = balanceService.getBalance(key, secret);
-//        ResponsePosition position = positionService.getPosition(key, secret);
-//        System.out.println(balance);
-//        System.out.println(position);
-//        System.out.println("maxVolInStrategy : " + maxVolInStrategy);
-
         showPositionAndBalance();
-
     }
 
     @Override
     public void execute(Bar lastBar) {
+        Parameter parameter = parameterService.getParameter(lastBar.getSymbol(), Integer.parseInt(strategy));
+        setParameter(parameter);
+
+
 //        if (lastBar.getCreateDate().isBefore(LocalDateTime.now().minusDays(15))) {
 //            return;
 //        }
 //        if (isTestStrategy) return;
-        if (isTestStrategy && LocalDateTime.now().minusHours(3).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
+//        if (isTestStrategy && LocalDateTime.now().minusHours(30).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
+        if (isTestStrategy && LocalDateTime.parse("2025-01-13T09:17:00").equals(lastBar.getCreateDate())) {
 //            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
@@ -187,26 +134,33 @@ public class LimitOrder implements StrategyExecutor {
                     .count();
 
 
-            System.out.println("commonResult : " + commonResult);
+            System.out.println("commonResult : " + commonResult.intValue());
             System.out.println("result : " + result);
             System.out.println("убыточных сделок : " + badCount);
             System.out.println("успешных сделок : " + successCount);
             Pair<String, String> pairKeySecret = map.get(strategy);
-            String key = pairKeySecret.getKey();
-            String secret = pairKeySecret.getValue();
-            BigDecimal balance = balanceService.getBalance(key, secret);
-            ResponsePosition position = positionService.getPosition(key, secret);
-            System.out.println(balance);
-            System.out.println(position);
+//            String key = pairKeySecret.getKey();
+//            String secret = pairKeySecret.getValue();
+//            BigDecimal balance = balanceService.getBalance(key, secret);
+//            ResponsePosition position = positionService.getPosition(key, secret);
+//            System.out.println(balance);
+//            System.out.println(position);
             System.out.println("maxVolInStrategy : " + maxVolInStrategy);
 
             System.out.println("баланс стал таким : " + resultBalance);
+            LinkedList<Double> lst = new LinkedList<>();
+            lst.addLast(2000.0);
+            deals.stream()
+                    .map(deal -> deal.getResult() * deal.getVol())
+                    .forEach(res -> lst.addLast(lst.getLast() + res));
+
+            System.out.println(lst);
         }
 
         double volBuyLastBar = lastBar.getVolBuy();
         double volSellLastBar = lastBar.getVolSell();
-        double closeLastBar = Double.parseDouble(lastBar.getClose());
-        double openBuyLastBar = Double.parseDouble(lastBar.getOpen());
+        double closeLastBar = lastBar.getClose();
+        double openBuyLastBar = lastBar.getOpen();
 
 //        maxVolInStrategy = 729,000000, min = 73, maxVol = 10000,000000, shift = 0,003000, slTemp = 1,400000, tpTemp = 5,500000, strategy = 7
 //        badCount = 39, successCount : 29
@@ -214,12 +168,13 @@ public class LimitOrder implements StrategyExecutor {
         // Посмотреть на последнюю сделку по времени
         Deal lastDeal = null;
 
+        Symbol symbol = lastBar.getSymbol();
         if (isTestStrategy) {
             if (!deals.isEmpty()) {
                 lastDeal = deals.getLast();
             }
         } else {
-            lastDeal = dealService.getLastDealStrategy(strategy);
+            lastDeal = dealService.getLastDealStrategy(strategy, symbol.name());
         }
 
         // Если есть не завершенная сделка то проверяем закрылась она или нет
@@ -242,15 +197,15 @@ public class LimitOrder implements StrategyExecutor {
                 }
 
                 // если позиция есть, то открылась лимитка
-            } else if (CommonUtils.isOpenPositionFromLimitOrder(key, secret, lastDeal.getId(), "WLDUSDT")) {
+            } else if (CommonUtils.isOpenPositionFromLimitOrder(key, secret, lastDeal.getId(), symbol + "USDT")) {
                 // todo тут нужно доработать закрытие позиции по лимиту
                 lastDeal.setStatus(PROCESSING);
                 dealService.save(lastDeal);
                 // todo округлить до 3 цифр или в мапу добавить
-                PositionUtils.sentTpSl(key, secret, BigDecimal.valueOf(lastDeal.getSl()), BigDecimal.valueOf(lastDeal.getTp()));
+                PositionUtils.sentTpSl(key, secret, BigDecimal.valueOf(lastDeal.getSl()), BigDecimal.valueOf(lastDeal.getTp()), symbol);
                 log.info("Открытие лимитной заявки, перевод в статус PROCESSING");
             } else if (isCancelPosition(lastBar, lastDeal)) {
-                bybitOrderService.closeOpenLimitOrder(key, secret);
+                bybitOrderService.closeOpenLimitOrder(key, secret, symbol);
                 lastDeal.setStatus(CANCEL);
                 lastDeal.setCloseDate(LocalDateTime.now());
                 dealService.save(lastDeal);
@@ -263,31 +218,51 @@ public class LimitOrder implements StrategyExecutor {
             return;
         }
 
-        double shift = 0.007;
-        double openPrice = Double.parseDouble(lastBar.getClose());
+//        double shift = 0.007;
+        double openPrice = lastBar.getClose();
         double onePercent = openPrice / 100;
         double sl = onePercent * slParam;
         double tp = onePercent * tpParam;
-        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) Math.ceil(lastDeal.getVol() * 1.3) : startVol;
+//        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) Math.ceil(lastDeal.getVol() * 1.3) : startVol;
+//        coefficient = nonNull(lastDeal) && lastDeal.getResult() < 0 ? coefficient + 0.1 : 1.3;
 
-        if (isTestStrategy && vol == startVol) {
-            vol = getVol(null, null);
-        }
+//        if (deals.size() > 1 && lastDeal.getResult() < 0) {
+//            System.out.println();
+//        }
+//        coefficient = nonNull(lastDeal) && lastDeal.getResult() < 0 ? coefficient + 0.1 : 1.3;
+
+//        double volPosition = nonNull(lastDeal) && lastDeal.getResult() < 0 ? lastDeal.getVol() * coefficient : startVol;
+
+        // 199
+
+//        if (isTestStrategy && volPosition == startVol) {
+//            volPosition = getVol(null, null);
+//            // для 1000$
+////            vol = 300 / Double.parseDouble(lastBar.getOpen()) * 13;
+//            volPosition = 13;
+//        }
 
         // todo тут похоже что нужно выбрать приоритет взависимости от того какой обьем больше на покупку или продажу
-        boolean isBuyMore = false;
-        if (volBuyLastBar > volSellLastBar) {
-            // Протестироал, с этим флагом результаты значительно улучшились
-            isBuyMore = true;
-        }
+        boolean isBuyMore = volBuyLastBar > volSellLastBar;
+        // Протестироал, с этим флагом результаты значительно улучшились
         if (isBuyMore && volBuyLastBar > maxVol && closeLastBar > openBuyLastBar) {
             Deal createDeal;
-            if (strategy.equals("8") || strategy.equals("10")) {
+//            double avg = barService.getAvg(lastBar.getSymbol().name(), lastBar.getCreateDate());
+
+//            vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? lastDeal.getVol() * coefficient : startVol;
+//            if (isTestStrategy && vol == startVol) {
+//                vol = getVol(null, null);
+//            Начало 2024-07-02T20:01, конец 2025-01-09T16:09, полгода, общий результат в долларах 500, результат в пунктах 399$ убыточных сделок 282, прибыльных 123, максимальная позиция 4.6
+//            }
+            if (strategy.equals("8")
+//                    && avg < Double.parseDouble(lastBar.getHigh())
+            ) {
+//            if (strategy.equals("8") || strategy.equals("10")) {
                 openPrice = openPrice + shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
+                createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, volPosition, symbol);
             } else {
                 openPrice = openPrice - shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
+                createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, volPosition, symbol);
             }
             // открытие и сохранение сделки в БД
             if (isTestStrategy) {
@@ -295,17 +270,26 @@ public class LimitOrder implements StrategyExecutor {
             } else {
                 openOrder(createDeal);
             }
+            return;
         }
 
         if (!isBuyMore && volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
 
-            if (strategy.equals("8") || strategy.equals("10")) {
+//            double avg = barService.getAvg(lastBar.getSymbol().name(), lastBar.getCreateDate());
+//            coefficient = nonNull(lastDeal) && lastDeal.getResult() < 0 ? coefficient + 0.1 : 1.3;
+//            vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? lastDeal.getVol() * coefficient : startVol;
+//            if (isTestStrategy && vol == startVol) {
+//                vol = getVol(null, null);
+//            }
+            if (strategy.equals("8")
+//                    && avg > Double.parseDouble(lastBar.getHigh())
+            ) {
                 openPrice = openPrice - shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
+                createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, volPosition, symbol);
             } else {
                 openPrice = openPrice + shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
+                createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, volPosition, symbol);
             }
 
             // открытие и сохранение сделки в БД
@@ -315,10 +299,22 @@ public class LimitOrder implements StrategyExecutor {
                 openOrder(createDeal);
             }
         }
+        return;
 
     }
 
-    private Deal createDeal(Bar lastBar, double openPrice, Side sell, double sl, double tp, double vol) {
+    private void setParameter(Parameter parameter) {
+        maxVol = parameter.getVol();
+        volPosition = parameter.getVolPosition();
+        minute = parameter.getMinute();
+        slParam = parameter.getSl();
+        tpParam = parameter.getTp();
+        shift = parameter.getShift();
+        coefficient = parameter.getCoefficient();
+        strategy = Integer.toString(parameter.getStrategy());
+    }
+
+    private Deal createDeal(Bar lastBar, double openPrice, Side sell, double sl, double tp, double vol, Symbol symbol) {
 //        log.info("Рабочий обьем : {}", vol);
 //        log.info("Working volume : {}", vol);
         Deal createDeal = Deal.builder()
@@ -330,7 +326,7 @@ public class LimitOrder implements StrategyExecutor {
                 .sl(sl)
                 .tp(tp)
                 .vol(vol)
-                .symbol(Symbol.WLD)
+                .symbol(symbol)
                 .strategy(strategy)
                 .build();
         if (maxVolInStrategy < vol) {
@@ -340,8 +336,8 @@ public class LimitOrder implements StrategyExecutor {
     }
 
     private void checkTpSl(Bar bar, Deal deal) {
-        double low = Double.parseDouble(bar.getLow());
-        double high = Double.parseDouble(bar.getHigh());
+        double low = bar.getLow();
+        double high = bar.getHigh();
 
         // если позиции нет, а статус Proccesing то нужно определить закрытие позиции по sl или tp
         // если стратегия не тестовая то начинаем проверять нет ли позиции и если она есть то завершаем метод
@@ -349,7 +345,7 @@ public class LimitOrder implements StrategyExecutor {
             return;
         }
         // этот сдвиг необходим только для реальной торговли так как данные разнятся между байбит и бинанс
-        double shift = 0.008;
+        double shift = MAP_SYMBOL_SHIFT.get(deal.getSymbol());
         if (isTestStrategy) {
             shift = 0;
         }
@@ -388,6 +384,8 @@ public class LimitOrder implements StrategyExecutor {
         if (createDate.isAfter(openDate)) {
             deal.setStatus(CANCEL);
             deals.remove(deal);
+//            coefficient = deals.size() > 1 && deals.getLast().getResult() < 0 ? coefficient - 0.1 : coefficient;
+
             return true;
         }
         return false;
@@ -401,8 +399,8 @@ public class LimitOrder implements StrategyExecutor {
      * @return
      */
     private boolean isOpenPosition(Bar bar, Deal deal) {
-        double low = Double.parseDouble(bar.getLow());
-        double high = Double.parseDouble(bar.getHigh());
+        double low = bar.getLow();
+        double high = bar.getHigh();
 
         if (deal.getSide() == Side.Buy && low <= deal.getOpen()) {
             return true;
@@ -422,49 +420,51 @@ public class LimitOrder implements StrategyExecutor {
         }
     }
 
-    private void openOrder(Deal createDeal) {
-        changeDoubleValue(createDeal);
+    private void openOrder(Deal deal) {
+        changeDoubleValue(deal);
         Pair<String, String> pairKeySecret = map.get(strategy);
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
-        double size = createDeal.getVol();
+        double size = deal.getVol();
         if (size == startVol) {
             size = getVol(key, secret);
-            createDeal.setVol(size);
+            deal.setVol(size);
         }
         UUID orderId = null;
         if (deals.isEmpty()) {
             orderId = openOrder(
-                    createDeal.getVol(),
-                    createDeal.getSide(),
-                    Double.toString(createDeal.getOpen()),
-                    Double.toString(createDeal.getSl())
+                    deal.getVol(),
+                    deal.getSide(),
+                    Double.toString(deal.getOpen()),
+                    Double.toString(deal.getSl()),
+                    deal.getSymbol()
             );
         } else {
-            dealService.save(createDeal);
+            dealService.save(deal);
             deals.clear();
         }
-        createDeal.setId(orderId);
+        deal.setId(orderId);
         try {
-            dealService.save(createDeal);
-            log.info("Successful save deal {}", createDeal);
+            dealService.save(deal);
+            log.info("Successful save deal {}", deal);
         } catch (Throwable e) {
-            log.error("Error save deal {}", createDeal, e);
-            deals.addLast(createDeal);
+            log.error("Error save deal {}", deal, e);
+            deals.addLast(deal);
         }
     }
 
-    private void changeDoubleValue(Deal createDeal) {
-        createDeal.setOpen(changeDoubleValue(createDeal.getOpen()));
-        createDeal.setSl(changeDoubleValue(createDeal.getSl()));
-        createDeal.setTp(changeDoubleValue(createDeal.getTp()));
+    private void changeDoubleValue(Deal deal) {
+        deal.setOpen(changeDoubleValue(deal.getOpen(), 100.0));
+        deal.setSl(changeDoubleValue(deal.getSl(), 100.0));
+        deal.setTp(changeDoubleValue(deal.getTp(), 100.0));
+        deal.setVol(changeDoubleValue(deal.getVol(), 10.0));
     }
 
-    private static double changeDoubleValue(double value) {
-        return Math.round(value * 1000) / 1000.0;
+    private static double changeDoubleValue(double value, double round) {
+        return Math.round(value * ((int) round)) / round;
     }
 
-    UUID openOrder(double size, Side side, String tvh, String sl) {
+    UUID openOrder(double size, Side side, String tvh, String sl, Symbol symbol) {
         Pair<String, String> pairKeySecret = map.get(strategy);
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
@@ -473,7 +473,7 @@ public class LimitOrder implements StrategyExecutor {
         return bybitOrderService.openLimitOrder(
                 key,
                 secret,
-                Symbol.WLD,
+                symbol,
                 tvh,
                 sl,
                 Double.toString(size),
@@ -488,7 +488,7 @@ public class LimitOrder implements StrategyExecutor {
         Thread.sleep(5000);
         ArrayList<BigDecimal> commonBalance = new ArrayList<>();
         map.forEach((k, v) -> {
-            ResponsePosition position = positionService.getPosition(v.getKey(), v.getValue());
+            ResponsePosition position = positionService.getPosition(v.getKey(), v.getValue(), Symbol.SOL);
             BigDecimal size = position.getResult().getPositions().get(0).getSize();
             String side = position.getResult().getPositions().get(0).getSide();
 
@@ -512,7 +512,7 @@ public class LimitOrder implements StrategyExecutor {
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
 
-        ResponsePosition position = positionService.getPosition(key, secret);
+        ResponsePosition position = positionService.getPosition(key, secret, deal.getSymbol());
         BigDecimal size = position.getResult().getPositions().get(0)
                 .getSize();
         boolean isNotPosition = size.equals(BigDecimal.ZERO);
@@ -561,6 +561,99 @@ public class LimitOrder implements StrategyExecutor {
 ////            startVol = 3;
 //            startVol = 13;
 //        }
+        // todo нужно просчитать объем контракта в зависимости от цены например:
+        //  цена 300$ -> 3 контракта
+        //  цена 100$ -> 9 контракта
+        //  цена 10$ -> 90 контракта
+
+//        a / b * c
+
         return 3;
+//        на 100 % -> 0.5 - 1
+//        на 1000 % -> 5 - 10
+//        Начало 2024-07-02T20:01, конец 2025-01-09T16:09, полгода, общий результат в долларах 500, результат в пунктах 399$ если коэффициент = 1.1 рабочий обьем 1контракт убыточных сделок 282, прибыльных 123, максимальная позиция 4.6
+
+
+    }
+
+    public static void main(String[] args) {
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("yes", "no");
+        hashMap.put("no", "no");
+
+        int index = "yes".hashCode() & (16 - 1);
+        System.out.println();
     }
 }
+
+//import java.util.UUID;
+//
+///**
+// * Сервис бронирования места в самолете.
+// * Клиент с купленным билетом может за дополнительную плату выбрать конкретное место.
+// * Базовая цена мест определяется тарифами (внешним сервисом).
+// * Для клиентов с определенными тарифами (PREMIUM, ULTRA) необходимо сделать скидку при оплате.
+// * При бронировании клиенту выставляется инвойс на оплату. Управление оплатой осуществляется в стороннем сервисе.
+// */
+//@Service
+//public class SeatBookingService {
+//
+//    @Autowired  private SeatBookingRepository seatBookingRepository;
+//    @Autowired  private TicketRepository ticketRepository;
+//    @Autowired  private TariffClient tariffClient;
+//    @Autowired  private CustomerClient customerClient;
+//    @Autowired  private PaymentClient paymentClient;
+//
+//    /**
+//     * Бронирование.
+//     * @param seatCode код места (например 19A)
+//     * @param ticketId ид билета
+//     */
+//    @Transactional
+//    public void bookSeat(String seatCode, UUID ticketId) {
+//        var ticket = ticketRepository.findById(ticketId);
+//        //бронируем
+//        var seatBooking = new SeatBooking(seatCode, ticket.get().getFlightId(), ticketId, BookingStatus.BOOKED);
+//        seatBookingRepository.save(seatBooking);
+//
+//        //ищем базовый тариф для выбранного места в самолете
+//        var basePrice = tariffClient.getBasePrice(ticket.get().getPlaneModel(), seatCode);
+//        //ищем данные о клиенте
+//        Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        var userData = customerClient.getCustomer(userId);
+//        System.out.println("Найден пользователь " + userData.getFio() + " номер документа " + userData.getDocument());
+//        var price = basePrice;
+//        if (userData.getTariff() == "PREMIUM") {
+//            //скидка 50%
+//            price = basePrice * 0.5d;
+//        }
+//        if (userData.getTariff() == "ULTRA") {
+//            //скидка 20%
+//            price = basePrice * 0.8d;
+//        }
+//        var invoice = new Invoice(price, ticketId, userId);
+//        //выставляем платежку
+//        paymentClient.sendInvoice(invoice);
+//        System.out.println("Счет выставлен");
+//    }
+//
+//    @Data
+//    @Table("seat_booking")
+//    public class SeatBooking {
+//
+//        @Column
+//        private String seatCode;
+//        @Column
+//        private UUID flightId;
+//        @Column
+//        private UUID ticketId;
+//        @Column
+//        private BookingStatus status;
+//    }
+//
+//    public enum BookingStatus {
+//        BOOKED, PAID;
+//    }
+//}
+
+

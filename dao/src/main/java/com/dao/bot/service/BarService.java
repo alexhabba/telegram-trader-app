@@ -6,7 +6,10 @@ import com.dao.bot.repository.BarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -14,8 +17,16 @@ public class BarService {
 
     private final BarRepository barRepository;
 
-    public List<Bar> findLastBarBySymbol(Symbol symbol) {
-      return barRepository.findLastBarBySymbol(symbol.name());
+    public Bar findLastBarBySymbol(String symbol) {
+      return barRepository.findLastBarBySymbol(symbol).orElseThrow(EntityNotFoundException::new);
+    }
+
+    public void saveAll(List<Bar> bars) {
+        barRepository.saveAll(bars);
+    }
+
+    public double getAvg(String symbol, LocalDateTime dateTime) {
+        return barRepository.getAvg(symbol, dateTime.minusMinutes(113), dateTime);
     }
 
     public List<Bar> findAll() {
@@ -23,7 +34,7 @@ public class BarService {
     }
 
     public List<Bar> findAllBySymbol(Symbol symbol) {
-        return barRepository.findAllBySymbol(symbol.name());
+        return barRepository.findAllBySymbol(symbol);
     }
 
     public void deleteAll() {
