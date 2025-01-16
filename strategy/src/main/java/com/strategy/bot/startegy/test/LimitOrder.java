@@ -56,9 +56,9 @@ public class LimitOrder implements StrategyExecutor {
 
             // KRIS_BYBIT 100   запуск 20 август
             "8", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
-            "7", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
+            "1", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
             // MY MAIN ACC
-            "1", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
+            "2", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
     );
 
     @Value("#{${accounts}}")
@@ -68,7 +68,6 @@ public class LimitOrder implements StrategyExecutor {
     @Value("${isTestStrategy}")
     private boolean isTestStrategy;
 
-    @Value("${strategy}")
     private String strategy;
 
     @Value("${start-vol}")
@@ -100,9 +99,15 @@ public class LimitOrder implements StrategyExecutor {
         showPositionAndBalance();
     }
 
+    Map<Symbol, Integer> MAP_SYMBOL_STRATEGY = Map.of(
+            WLD, 8,
+            SOL, 1,
+            AAVE, 1
+    );
+
     @Override
     public void execute(Bar lastBar) {
-        Parameter parameter = parameterService.getParameter(lastBar.getSymbol(), Integer.parseInt(strategy));
+        Parameter parameter = parameterService.getParameter(lastBar.getSymbol(), MAP_SYMBOL_STRATEGY.get(lastBar.getSymbol()));
         setParameter(parameter);
 
 
@@ -111,7 +116,7 @@ public class LimitOrder implements StrategyExecutor {
 //        }
 //        if (isTestStrategy) return;
 //        if (isTestStrategy && LocalDateTime.now().minusHours(30).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
-        if (isTestStrategy && LocalDateTime.parse("2025-01-13T09:17:00").equals(lastBar.getCreateDate())) {
+        if (isTestStrategy && LocalDateTime.parse("2025-01-15T02:58:00").equals(lastBar.getCreateDate())) {
 //            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
@@ -231,7 +236,6 @@ public class LimitOrder implements StrategyExecutor {
 //        }
 //        coefficient = nonNull(lastDeal) && lastDeal.getResult() < 0 ? coefficient + 0.1 : 1.3;
 
-//        double volPosition = nonNull(lastDeal) && lastDeal.getResult() < 0 ? lastDeal.getVol() * coefficient : startVol;
 
         // 199
 

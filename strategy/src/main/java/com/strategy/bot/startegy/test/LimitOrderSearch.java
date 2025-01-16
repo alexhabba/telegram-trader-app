@@ -103,7 +103,7 @@ public class LimitOrderSearch {
 //            return;
 //        }
 //        if (isTestStrategy) return;
-        if (isTestStrategy && LocalDateTime.parse("2025-01-07T02:00:00").equals(lastBar.getCreateDate())) {
+        if (isTestStrategy && LocalDateTime.parse("2025-01-15T02:58:00").equals(lastBar.getCreateDate())) {
 //        if (isTestStrategy && LocalDateTime.now().minusHours(50).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
 //            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
 //            deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
@@ -142,8 +142,8 @@ public class LimitOrderSearch {
             int c = count;
             double maxVoll = maxVolInStrategy.get().getValue();
             if (
-                    result > -0.5
-                            && maxVoll < 10
+                    result > 0
+//                            && maxVoll < 10
 //                            && tpTemp > slTemp * 3
 //                            && badCount < successCount * 2.5
 //                            && commonResult > 10
@@ -405,6 +405,6 @@ public class LimitOrderSearch {
     }
 
     private double getVol(String key, String secret) {
-        return 0.1;
+        return 3;
     }
 }

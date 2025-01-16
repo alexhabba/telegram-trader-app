@@ -15,7 +15,7 @@ public class PositionUtils {
 
     @SneakyThrows
     public static void sentTpSl(String key, String secret, BigDecimal sl, BigDecimal tp, Symbol symbol) {
-        var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN, true).newAsyncPositionRestClient();
+        var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN, true).newPositionRestClient();
         var setTradingStopRequest = PositionDataRequest.builder()
                 .symbol(symbol + "USDT")
                 .positionIdx(PositionIdx.ONE_WAY_MODE)
@@ -24,8 +24,8 @@ public class PositionUtils {
                 .stopLoss(sl.toString())
                 .tpslMode(TpslMode.FULL)
                 .build();
-//        client.setTradingStop(setTradingStopRequest, System.out::println);
-        client.setTradingStop(setTradingStopRequest, response -> {
-        });
+        System.out.println("устанавливаем тейк профит");
+        client.setTradingStop(setTradingStopRequest);
+
     }
 }

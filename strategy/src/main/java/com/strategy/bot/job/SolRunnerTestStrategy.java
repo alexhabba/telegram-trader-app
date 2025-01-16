@@ -62,6 +62,7 @@ public class SolRunnerTestStrategy {
         } else if (!isTestStrategy) {
             strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.SOL.name())));
             strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.AAVE.name())));
+            strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.WLD.name())));
         }
     }
 
