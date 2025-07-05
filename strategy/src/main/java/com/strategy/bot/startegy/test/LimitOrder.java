@@ -194,6 +194,7 @@ public class LimitOrder implements StrategyExecutor {
             return;
         }
 
+
         // todo нужно реализовать механизм проверки открытия позиции через лимитку
         if (nonNull(lastDeal) && lastDeal.getStatus() == STARTED) {
             Pair<String, String> pairKeySecret = map.get(strategy);
