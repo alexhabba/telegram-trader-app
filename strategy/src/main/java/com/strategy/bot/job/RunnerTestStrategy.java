@@ -18,13 +18,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-@Service
+//@Service
 @RequiredArgsConstructor
 public class RunnerTestStrategy {
 
@@ -45,7 +43,7 @@ public class RunnerTestStrategy {
 //        runTestStrategy();
     }
 
-//    @Scheduled(cron = "04 * * * * *")
+//    @Scheduled(cron = "03 * * * * *")
     public void runTestStrategy() {
 //        List<Bar> all = barService.findAll();
 //        List<BarDto> barsCreateDateBetween = barService.getBarsCreateDateBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now());
@@ -72,29 +70,41 @@ public class RunnerTestStrategy {
 
         if (isTestStrategy && isTestRun) {
             isTestRun = false;
-            List<Bar> collect = barService.findAllBySymbol(Symbol.SOL)
+            List<Bar> candles = barService.findAllBySymbol(Symbol.SOL)
                     .stream()
-//                    .filter(bar -> bar.getCreateDate().isBefore(LocalDateTime.now().minusDays(90)))
                     .sorted(Comparator.comparing(Bar::getCreateDate))
+//                    .filter(bar -> bar.getCreateDate().isBefore(LocalDateTime.now().minusDays(90)))
+//                    .filter(bar -> bar.getCreateDate().isAfter(LocalDateTime.now().minusDays(3)))
+
 //                    .filter(bar -> bar.getCreateDate().getMonth() == Month.SEPTEMBER)
+//                    .filter(bar -> bar.getCreateDate().getMonth() == Month.JANUARY && bar.getCreateDate().getDayOfMonth() == 17)
+                    .filter(bar ->
+                            bar.getCreateDate().isAfter(LocalDateTime.parse("2025-01-19T23:00")) &&
+                            bar.getCreateDate().isBefore(LocalDateTime.parse("2025-01-20T06:00")))
                     .collect(Collectors.toList());
-            collect.forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar)));
-//            testOptimization(collect);
+
+//            for (int i = 0; i < candles.size(); i++) {
+//                int finalI = i;
+//                strategyExecutorList.forEach(strategy -> strategy.execute(candles.get(finalI)));
+//            }
+            LocalDateTime lastLocalDateTime = candles.get(candles.size() - 1).getCreateDate();
+            candles.forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar, lastLocalDateTime)));
+//            testOptimization(candles, lastLocalDateTime);
         } else if (!isTestStrategy) {
-            strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.SOL.name())));
+            strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.SOL.name()), LocalDateTime.now()));
         }
     }
 
-    public void testOptimization(List<Bar> bars) {
+    public void testOptimization(List<Bar> bars, LocalDateTime lastLocalDateTime) {
         int count = 0;
-        double shift = 0.007;
-        while (shift < 0.1) {
+        double shift = 0.003;
+        while (shift <= 0.007) {
             double sl = 0.5;
             while (sl < 2) {
                 double tp = 1.5;
                 while (tp < 7) {
-                    double maxVol = 20000;
-                    while (maxVol < 150000) {
+                    double maxVol = 10000;
+                    while (maxVol < 40000) {
                         int min = 13;
                         while (min < 100) {
                             double finalShift = shift;
@@ -103,32 +113,32 @@ public class RunnerTestStrategy {
                             double finalMaxVol = maxVol;
                             int finalMin = min;
                             int finalCount = count;
-                            executorService.submit(() -> extracted(bars, finalShift, finalSl, finalTp, finalMaxVol, finalMin, finalCount));
+                            executorService.submit(() -> extracted(bars, finalShift, finalSl, finalTp, finalMaxVol, finalMin, finalCount, lastLocalDateTime));
                             min += 3;
                             count++;
                         }
-                        maxVol += 5000;
+                        maxVol += 10000;
                     }
                     tp += 0.2;
                 }
                 sl += 0.2;
             }
-            shift += 0.002;
+            shift += 0.001;
         }
 
         // 6207516
         System.out.printf("все варианты протестированы их было %d", count);
     }
 
-    private void extracted(List<Bar> bars, double shift, double sl, double tp, double maxVol, int min, int count) {
+    private void extracted(List<Bar> bars, double shift, double sl, double tp, double maxVol, int min, int count, LocalDateTime lastLocalDateTime) {
         LinkedList<Deal> list = new LinkedList<>();
         WrapperDouble w = WrapperDouble.builder().value(0).build();
         WrapperBalance wrapperBalance = WrapperBalance.builder().balance(BigDecimal.valueOf(400)).build();
-        bars.forEach(b -> limitOrderSearch.execute(b, shift, sl, tp, "7", list, maxVol, min, count, w, wrapperBalance));
+        bars.forEach(b -> limitOrderSearch.execute(b, shift, sl, tp, "7", list, maxVol, min, count, w, wrapperBalance, lastLocalDateTime));
         LinkedList<Deal> list1 = new LinkedList<>();
         WrapperDouble w1 = WrapperDouble.builder().value(0).build();
         WrapperBalance wrapperBalance1 = WrapperBalance.builder().balance(BigDecimal.valueOf(400)).build();
-        bars.forEach(b -> limitOrderSearch.execute(b, shift, sl, tp, "8", list1, maxVol, min, count, w1, wrapperBalance1));
+        bars.forEach(b -> limitOrderSearch.execute(b, shift, sl, tp, "8", list1, maxVol, min, count, w1, wrapperBalance1, lastLocalDateTime));
     }
 
 

@@ -47,18 +47,19 @@ import static java.util.Objects.nonNull;
 public class LimitOrder implements StrategyExecutor {
 
     private final static Map<Symbol, Double> MAP_SYMBOL_SHIFT = Map.of(
-            WLD, 0.008,
-            SOL, 2.0,
-            AAVE, 3.0
+//            WLD, 0.008,
+            SOL, 2.0
+//            AAVE, 3.0
     );
 
     private final static Map<String, Pair<String, String>> map = Map.of(
 
             // KRIS_BYBIT 100   запуск 20 август
             "8", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
-            "1", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
+            "2", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
             // MY MAIN ACC
-            "2", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
+            "7", Pair.of("6CKgANrPFtih7TAAI4", "lu5WwteC0SOcT5IDgxYC9gMEFCuFONUIbaOR"),
+            "10", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
     );
 
     @Value("#{${accounts}}")
@@ -96,27 +97,31 @@ public class LimitOrder implements StrategyExecutor {
     @EventListener({ContextRefreshedEvent.class})
     @SneakyThrows
     public void init() {
-        showPositionAndBalance();
+//        showPositionAndBalance();
     }
 
     Map<Symbol, Integer> MAP_SYMBOL_STRATEGY = Map.of(
-            WLD, 8,
-            SOL, 1,
-            AAVE, 1
+//            WLD, 1,
+            SOL, 7
+//            AAVE, 1
     );
 
-    @Override
-    public void execute(Bar lastBar) {
-        Parameter parameter = parameterService.getParameter(lastBar.getSymbol(), MAP_SYMBOL_STRATEGY.get(lastBar.getSymbol()));
-        setParameter(parameter);
+    boolean fl = true;
 
+    @Override
+    public void execute(Bar lastBar, LocalDateTime lastDateTime) {
+        if (fl) {
+            Parameter parameter = parameterService.getParameter(lastBar.getSymbol(), MAP_SYMBOL_STRATEGY.get(lastBar.getSymbol()));
+            setParameter(parameter);
+            fl = false;
+        }
 
 //        if (lastBar.getCreateDate().isBefore(LocalDateTime.now().minusDays(15))) {
 //            return;
 //        }
 //        if (isTestStrategy) return;
 //        if (isTestStrategy && LocalDateTime.now().minusHours(30).minusMinutes(1).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
-        if (isTestStrategy && LocalDateTime.parse("2025-01-15T02:58:00").equals(lastBar.getCreateDate())) {
+        if (isTestStrategy && lastDateTime.minusMinutes(1).equals(lastBar.getCreateDate())) {
 //            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
             deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
                     .forEach(System.out::println);
@@ -154,9 +159,10 @@ public class LimitOrder implements StrategyExecutor {
 
             System.out.println("баланс стал таким : " + resultBalance);
             LinkedList<Double> lst = new LinkedList<>();
-            lst.addLast(2000.0);
+            lst.addLast(125.0);
             deals.stream()
                     .map(deal -> deal.getResult() * deal.getVol())
+//                    .map(Double::intValue)
                     .forEach(res -> lst.addLast(lst.getLast() + res));
 
             System.out.println(lst);
@@ -228,7 +234,9 @@ public class LimitOrder implements StrategyExecutor {
         double onePercent = openPrice / 100;
         double sl = onePercent * slParam;
         double tp = onePercent * tpParam;
-//        double vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) Math.ceil(lastDeal.getVol() * 1.3) : startVol;
+
+//        volPosition = nonNull(lastDeal) && lastDeal.getResult() < 0 ? (int) Math.ceil(lastDeal.getVol() * 1.8) : startVol;
+
 //        coefficient = nonNull(lastDeal) && lastDeal.getResult() < 0 ? coefficient + 0.1 : 1.3;
 
 //        if (deals.size() > 1 && lastDeal.getResult() < 0) {
@@ -258,7 +266,7 @@ public class LimitOrder implements StrategyExecutor {
 //                vol = getVol(null, null);
 //            Начало 2024-07-02T20:01, конец 2025-01-09T16:09, полгода, общий результат в долларах 500, результат в пунктах 399$ убыточных сделок 282, прибыльных 123, максимальная позиция 4.6
 //            }
-            if (strategy.equals("8")
+            if (strategy.equals("8") || strategy.equals("10")
 //                    && avg < Double.parseDouble(lastBar.getHigh())
             ) {
 //            if (strategy.equals("8") || strategy.equals("10")) {
@@ -286,7 +294,7 @@ public class LimitOrder implements StrategyExecutor {
 //            if (isTestStrategy && vol == startVol) {
 //                vol = getVol(null, null);
 //            }
-            if (strategy.equals("8")
+            if (strategy.equals("8") || strategy.equals("10")
 //                    && avg > Double.parseDouble(lastBar.getHigh())
             ) {
                 openPrice = openPrice - shift;
@@ -572,7 +580,7 @@ public class LimitOrder implements StrategyExecutor {
 
 //        a / b * c
 
-        return 3;
+        return 0.4;
 //        на 100 % -> 0.5 - 1
 //        на 1000 % -> 5 - 10
 //        Начало 2024-07-02T20:01, конец 2025-01-09T16:09, полгода, общий результат в долларах 500, результат в пунктах 399$ если коэффициент = 1.1 рабочий обьем 1контракт убыточных сделок 282, прибыльных 123, максимальная позиция 4.6

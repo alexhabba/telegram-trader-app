@@ -93,7 +93,7 @@ public class LimitOrderSearch {
     public void execute(Bar lastBar, double shift, double slTemp, double tpTemp, String strategy, LinkedList<Deal> list,
                         double maxVol, int min,
                         int count,
-                        WrapperDouble maxVolInStrategyWrapper, WrapperBalance resultBalanceWrapper) {
+                        WrapperDouble maxVolInStrategyWrapper, WrapperBalance resultBalanceWrapper, LocalDateTime lastLocalDateTime) {
 
         maxVolInStrategy.set(maxVolInStrategyWrapper);
         deals.set(list);
@@ -103,7 +103,7 @@ public class LimitOrderSearch {
 //            return;
 //        }
 //        if (isTestStrategy) return;
-        if (isTestStrategy && LocalDateTime.parse("2025-01-15T02:58:00").equals(lastBar.getCreateDate())) {
+        if (isTestStrategy && lastLocalDateTime.minusMinutes(1).equals(lastBar.getCreateDate())) {
 //        if (isTestStrategy && LocalDateTime.now().minusHours(50).minusMinutes(3).withSecond(0).withNano(0).equals(lastBar.getCreateDate())) {
 //            deals.removeIf(d -> d.getStatus() == CANCEL || d.getStatus() == PROCESSING || d.getStatus() == STARTED);
 //            deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
@@ -251,9 +251,9 @@ public class LimitOrderSearch {
                 lastDeal.setStatus(PROCESSING);
                 dealService.save(lastDeal);
                 // todo округлить до 3 цифр или в мапу добавить
-                PositionUtils.sentTpSl(key, secret, BigDecimal.valueOf(lastDeal.getSl()), BigDecimal.valueOf(lastDeal.getTp()), Symbol.WLD);
+                PositionUtils.sentTpSl(key, secret, BigDecimal.valueOf(lastDeal.getSl()), BigDecimal.valueOf(lastDeal.getTp()), Symbol.SOL);
             } else if (isCancelPosition(lastBar, lastDeal, min)) {
-                bybitOrderService.closeOpenLimitOrder(key, secret, Symbol.WLD);
+                bybitOrderService.closeOpenLimitOrder(key, secret, Symbol.SOL);
                 lastDeal.setStatus(CANCEL);
                 lastDeal.setCloseDate(LocalDateTime.now());
                 dealService.save(lastDeal);
@@ -274,7 +274,7 @@ public class LimitOrderSearch {
         if (isTestStrategy && vol == startVol) {
             vol = getVol(null, null);
         }
-
+        vol = 0.3;
         // todo тут похоже что нужно выбрать приоритет взависимости от того какой обьем больше на покупку или продажу
         boolean isBuyMore = volBuyLastBar > volSellLastBar;
 
@@ -398,7 +398,7 @@ public class LimitOrderSearch {
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
 
-        ResponsePosition position = positionService.getPosition(key, secret, Symbol.WLD);
+        ResponsePosition position = positionService.getPosition(key, secret, Symbol.SOL);
         BigDecimal size = position.getResult().getPositions().get(0)
                 .getSize();
         return size.equals(BigDecimal.ZERO);
@@ -407,4 +407,24 @@ public class LimitOrderSearch {
     private double getVol(String key, String secret) {
         return 3;
     }
+
+    public static void main(String[] args) {
+        int a = 5;
+        int b = 3;
+
+//        int c = a & b;
+        int c = b & a;
+        System.out.println("dvof = " + Integer.toBinaryString(a));
+        System.out.println("dvof = " + Integer.toBinaryString(b));
+        System.out.println("ccc = " + c);
+        System.out.println("res = " + Integer.toString(1011, 2));
+
+
+//        1010011001011000011010010111011
+//        0000000000000000000000000001111
+//        0000000000000000000000000001011
+
+    }
 }
+
+

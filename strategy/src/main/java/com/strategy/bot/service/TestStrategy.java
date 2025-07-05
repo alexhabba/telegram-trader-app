@@ -34,7 +34,7 @@ public class TestStrategy {
                     order.put("takeProfit", tp);
                     order.put("slOrderType", "Market");
                     order.put("tpslMode", "Full");
-                    order.put("positionIdx", hedgeMode);
+//                    order.put("positionIdx", hedgeMode);
 
             Object response = client.createOrder(order);
 
@@ -57,12 +57,12 @@ public class TestStrategy {
         executorService.submit(() -> {
             while (true) {
                 service.openOrder(
-                        "XoX4nqAL5ZZxqr3r0j",
-                        "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF",
-                        Symbol.WLD,
-                        "2.5",
-                        "2",
-                        "3",
+                        "6CKgANrPFtih7TAAI4",
+                        "lu5WwteC0SOcT5IDgxYC9gMEFCuFONUIbaOR",
+                        Symbol.SOL,
+                        "150",
+                        "140",
+                        "0.4",
                         Side.Sell,
                         OrderType.MARKET,
                         UUID.randomUUID(),
@@ -78,7 +78,7 @@ public class TestStrategy {
 //            while (true) {
 //                service.openOrder("XoX4nqAL5ZZxqr3r0j",
 //                        "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF",
-//                        Symbol.WLD,
+//                        Symbol.SOL,
 //                        "2",
 //                        "2.5",
 //                        "3",

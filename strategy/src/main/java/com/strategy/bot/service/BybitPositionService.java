@@ -30,12 +30,12 @@ public class BybitPositionService {
 
     @SneakyThrows
     public void setSlTp(String key, String secret, BigDecimal sl, BigDecimal tp) {
-        PositionUtils.sentTpSl(key, secret, sl, tp, Symbol.WLD);
+        PositionUtils.sentTpSl(key, secret, sl, tp, Symbol.SOL);
     }
 
     public static void main(String[] args) {
         BybitPositionService bybitPositionService = new BybitPositionService(new ObjectMapper());
-        ResponsePosition position = bybitPositionService.getPosition("mXtga6i1kKM7E6QxZd", "xdockA1PaahdKwGecn18VgngE2ddXwhF5z0e", Symbol.WLD);
+        ResponsePosition position = bybitPositionService.getPosition("mXtga6i1kKM7E6QxZd", "xdockA1PaahdKwGecn18VgngE2ddXwhF5z0e", Symbol.SOL);
         System.out.println(position);
     }
 }

@@ -1,20 +1,25 @@
 spring:
   flyway:
     locations: classpath:db/migration
-    schemas: bot
+    schemas: trader
     enabled: true
   jpa:
     show-sql: false
     hibernate:
       ddl-auto: validate
     database: postgresql
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Europe/Moscow
+
   datasource:
-    url: jdbc:postgresql://${HOSTNAME:localhost}:${PORT:5432}/${DB_NAME:postgres}?currentSchema=bot
-#    url: jdbc:postgresql://${HOSTNAME:45.8.251.166}:${PORT:5432}/${RDS_DB_NAME:postgres}?currentSchema=bot
+#    url: jdbc:postgresql://${HOSTNAME:localhost}:${PORT:5432}/${DB_NAME:postgres}?currentSchema=bot
+    url: jdbc:postgresql://${HOSTNAME:45.8.251.166}:${PORT:5433}/${RDS_DB_NAME:postgres}?currentSchema=trader
 #    url: jdbc:postgresql://${RDS_HOSTNAME:host.docker.internal:${RDS_PORT:5432}/${RDS_DB_NAME:bot}?currentSchema=bot
 #    docker run -d --name tickwld -e HOSTNAME=192.168.1.241 -e PORT=5432 tickwld
 #    docker run -d --name test -e HOSTNAME=host.docker.internal -e PORT=5432 tickwld
-#    docker run -d --name str10 -e strategy=10 -e HOSTNAME=host.docker.internal -e PORT=5432 --restart=always str13
+#    docker run -d --name str10 -e strategy=10 -e HOSTNAME=host.docker.internal -e PORT=5433 --restart=always str13
     username: ${RDS_USERNAME:postgres}
     password: ${RDS_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver

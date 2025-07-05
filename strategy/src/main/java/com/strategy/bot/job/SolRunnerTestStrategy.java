@@ -22,7 +22,6 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,18 +54,19 @@ public class SolRunnerTestStrategy {
                     .stream()
 //                    .filter(bar -> bar.getCreateDate().getMonth() == Month.DECEMBER)
                     .sorted(Comparator.comparing(Bar::getCreateDate))
-//                    .filter(bar -> bar.getCreateDate().isAfter(LocalDateTime.now().minusDays(33)))
+//                    .filter(bar -> bar.getCreateDate().isAfter(LocalDateTime.now().minusDays(50)))
                     .collect(Collectors.toList());
-            collect.forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar)));
-//            testOptimization(collect);
+            LocalDateTime lastLocalDateTime = collect.get(collect.size() - 1).getCreateDate();
+            collect.forEach(bar -> strategyExecutorList.forEach(strategy -> strategy.execute(bar, lastLocalDateTime)));
+//            testOptimization(collect, lastLocalDateTime);
         } else if (!isTestStrategy) {
-            strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.SOL.name())));
-            strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.AAVE.name())));
-            strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.WLD.name())));
+            strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.SOL.name()), LocalDateTime.now()));
+//            strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.AAVE.name())));
+//            strategyExecutorList.forEach(strategy -> strategy.execute(barService.findLastBarBySymbol(Symbol.SOL.name())));
         }
     }
 
-    public void testOptimization(List<Bar> bars) {
+    public void testOptimization(List<Bar> bars, LocalDateTime lastLocalDateTime) {
         int count = 0;
         double shift = 0.3;
         while (shift < 2) {
@@ -74,8 +74,8 @@ public class SolRunnerTestStrategy {
             while (sl < 2) {
                 double tp = 1.5;
                 while (tp < 7) {
-                    double maxVol = 600;
-                    while (maxVol < 7000) {
+                    double maxVol = 500;
+                    while (maxVol < 15000) {
                         int min = 13;
                         while (min < 100) {
                             double finalShift = shift;
@@ -84,7 +84,7 @@ public class SolRunnerTestStrategy {
                             double finalMaxVol = maxVol;
                             int finalMin = min;
                             int finalCount = count;
-                            executorService.submit(() -> extracted(bars, finalShift, finalSl, finalTp, finalMaxVol, finalMin, finalCount));
+                            executorService.submit(() -> extracted(bars, finalShift, finalSl, finalTp, finalMaxVol, finalMin, finalCount, lastLocalDateTime));
                             min += 3;
                             count++;
                         }
@@ -102,16 +102,16 @@ public class SolRunnerTestStrategy {
         System.out.println();
     }
 
-    private void extracted(List<Bar> bars, double shift, double sl, double tp, double maxVol, int min, int count) {
+    private void extracted(List<Bar> bars, double shift, double sl, double tp, double maxVol, int min, int count, LocalDateTime lastLocalDateTime) {
         LinkedList<Deal> list = new LinkedList<>();
         WrapperDouble w = WrapperDouble.builder().value(0).build();
         WrapperBalance wrapperBalance = WrapperBalance.builder().balance(BigDecimal.valueOf(400)).build();
-        bars.forEach(b -> limitOrderSearch.execute(b, shift, sl, tp, "7", list, maxVol, min, count, w, wrapperBalance));
+        bars.forEach(b -> limitOrderSearch.execute(b, shift, sl, tp, "7", list, maxVol, min, count, w, wrapperBalance, lastLocalDateTime));
 
         LinkedList<Deal> list1 = new LinkedList<>();
         WrapperDouble w1 = WrapperDouble.builder().value(0).build();
         WrapperBalance wrapperBalance1 = WrapperBalance.builder().balance(BigDecimal.valueOf(400)).build();
-        bars.forEach(b -> limitOrderSearch.execute(b, shift, sl, tp, "8", list1, maxVol, min, count, w1, wrapperBalance1));
+        bars.forEach(b -> limitOrderSearch.execute(b, shift, sl, tp, "8", list1, maxVol, min, count, w1, wrapperBalance1, lastLocalDateTime));
     }
 
 

@@ -25,6 +25,10 @@ dependencies {
     implementation 'org.projectlombok:lombok'
     implementation 'io.github.wuhewuhe:bybit-java-api:1.2.6'
     runtimeOnly 'org.postgresql:postgresql'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1'
+
+
 
 
     implementation(project(":dao"))

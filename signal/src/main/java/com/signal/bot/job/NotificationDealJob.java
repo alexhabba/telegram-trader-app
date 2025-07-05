@@ -41,7 +41,7 @@ public class NotificationDealJob {
                         }
                     });
         } else {
-            List<Deal> deals = dealService.getLastDealByStatusAndBySymbol(Status.STARTED, Symbol.WLD);
+            List<Deal> deals = dealService.getLastDealByStatusAndBySymbol(Status.STARTED, Symbol.SOL);
 //          https://www.bybit.com/en/dashboard/?ref=N1GZ5V
 //          https://www.bybit.com/trade/usdt/WLDUSDT
             if (!deals.isEmpty() && !MAP_UUID_DEAL.containsKey(deals.get(0).getId())) {

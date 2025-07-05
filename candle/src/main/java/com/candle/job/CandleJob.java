@@ -15,9 +15,11 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,14 +38,18 @@ public class CandleJob {
 
 
         List<Symbol> symbols = symbolService.getAllSymbol();
-        symbols.stream()
+        List<Bar> bars = symbols.stream()
                 .map(Symbol::getSymbol)
                 .map(com.dao.bot.enums.Symbol::valueOf)
-                .forEach(this::execute);
+                .map(this::execute)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        barService.saveAll(bars);
     }
 
     @SneakyThrows
-    public void execute(com.dao.bot.enums.Symbol symbol) {
+    public List<Bar> execute(com.dao.bot.enums.Symbol symbol) {
         LocalDateTime now = LocalDateTime.now();
         ZonedDateTime zonedNow = now.atZone(ZoneId.systemDefault());
         zonedNow = zonedNow.withZoneSameInstant(ZoneId.of("UTC"));
@@ -55,8 +61,7 @@ public class CandleJob {
         } catch (EntityNotFoundException e) {
             List<Bar> bars = CandleApi.getCandle(symbol, zonedNow.minusMinutes(3).toLocalDateTime());
             bars.remove(bars.size() - 1);
-            barService.saveAll(bars);
-            return;
+            return bars;
         }
 
         Bar lastBar = barService.findLastBarBySymbol(symbol.name());
@@ -66,6 +71,6 @@ public class CandleJob {
         bars.removeIf(b -> finalZonedNow
                 .withSecond(0).withNano(0).toLocalDateTime().equals(b.getCreateDate()));
 
-        barService.saveAll(bars);
+        return bars;
     }
 }

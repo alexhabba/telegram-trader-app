@@ -28,7 +28,6 @@ import java.util.UUID;
 public class BybitOrderService {
 
     private final ObjectMapper objectMapper;
-
     public void openOrder(String key, String secret, Symbol symbol, String st, String tp, String qty,
                           Side side, OrderType orderType, UUID orderLinkId, BybitApiCallback<Object> callback) {
         try {
@@ -187,7 +186,7 @@ public class BybitOrderService {
 //                UUID.fromString("8a50bd47-4711-44bf-8b5e-c20ed26e464f"), "WLDUSDT");
 //        System.out.println(openLimitOrderr);
         BybitOrderService bybitOrderService = new BybitOrderService(new ObjectMapper());
-        bybitOrderService.closeOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy", Symbol.WLD);
+        bybitOrderService.closeOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy", Symbol.SOL);
     }
 
 }
