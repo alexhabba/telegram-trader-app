@@ -1,6 +1,6 @@
 package com.dao.bot.entity;
 
-import com.dao.bot.enums.Side;
+import com.bybit.api.client.domain.trade.Side;
 import com.dao.bot.enums.Symbol;
 import com.dao.bot.enums.TradeLastTick;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

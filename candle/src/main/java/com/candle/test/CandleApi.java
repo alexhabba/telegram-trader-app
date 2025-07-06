@@ -1,18 +1,12 @@
 package com.candle.test;
 
-import com.candle.BookInfoDto;
-import com.candle.book.BinanceSymbolsFetcher;
+import com.bybit.api.client.domain.trade.Side;
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Candle;
 import com.dao.bot.entity.Tick;
-import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
 import org.json.JSONArray;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -20,10 +14,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.candle.test.BinanceTicks.getTicks;
-import static com.candle.test.BookServiceBinance.getInfoBookBySymbol;
 import static com.candle.test.Utils.getResponse;
 
 public class CandleApi {
@@ -62,12 +54,12 @@ public class CandleApi {
                         }
 
                         sumBuy = ticks.stream()
-                                .filter(t -> t.getSide() == Side.Buy)
+                                .filter(t -> t.getSide() == Side.BUY)
                                 .mapToDouble(t -> Double.parseDouble(t.getQuantity()))
                                 .sum();
 
                         sumSell = ticks.stream()
-                                .filter(t -> t.getSide() == Side.Sell)
+                                .filter(t -> t.getSide() == Side.SELL)
                                 .mapToDouble(t -> Double.parseDouble(t.getQuantity()))
                                 .sum();
                         if (sumBuy + sumSell >= volume) {
@@ -76,12 +68,12 @@ public class CandleApi {
                     }
 
                     sumBuy = ticks.stream()
-                            .filter(t -> t.getSide() == Side.Buy)
+                            .filter(t -> t.getSide() == Side.BUY)
                             .mapToDouble(t -> Double.parseDouble(t.getQuantity()))
                             .sum();
 
                     sumSell = ticks.stream()
-                            .filter(t -> t.getSide() == Side.Sell)
+                            .filter(t -> t.getSide() == Side.SELL)
                             .mapToDouble(t -> Double.parseDouble(t.getQuantity()))
                             .sum();
 

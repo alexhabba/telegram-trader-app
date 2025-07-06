@@ -1,10 +1,10 @@
 package com.trade.bot.job;
 
+import com.bybit.api.client.domain.trade.Side;
 import com.bybit.api.client.websocket.callback.WebSocketClosedCallback;
 import com.bybit.api.client.websocket.callback.WebSocketClosingCallback;
 import com.bybit.api.client.websocket.callback.WebSocketFailureCallback;
 import com.dao.bot.entity.Tick;
-import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import com.dao.bot.repository.TickRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,7 +87,7 @@ public class BinanceTickJob {
         Tick tick = Tick.builder()
                 .quantity(q)
                 .price(p)
-                .side(Side.valueOf(trade.isBuyerMaker() ? "Sell" : "Buy"))
+                .side(trade.isBuyerMaker() ? Side.SELL : Side.BUY)
                 .createDate(getDateTime(trade.getTradeTime()))
                 .symbol(Symbol.valueOf(symbol.replace("USDT", "")))
                 .exchange("binance")

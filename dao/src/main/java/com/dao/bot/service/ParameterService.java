@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -16,5 +17,9 @@ public class ParameterService {
 
     public Parameter getParameter(Symbol symbol, int strategy) {
         return parameterRepository.findParameterBySymbolAndStrategy(symbol, strategy).orElseThrow(EntityNotFoundException::new);
+    }
+
+    public List<Parameter> getParameters(Symbol symbol, List<Integer> strategies) {
+        return parameterRepository.findParameterBySymbolAndStrategies(symbol.name(), strategies);
     }
 }

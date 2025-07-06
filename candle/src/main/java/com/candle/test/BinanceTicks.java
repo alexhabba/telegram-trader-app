@@ -1,8 +1,8 @@
 package com.candle.test;
 
+import com.bybit.api.client.domain.trade.Side;
 import com.dao.bot.dto.SpotTradeDto;
 import com.dao.bot.entity.Tick;
-import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
@@ -10,11 +10,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.json.JSONArray;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -85,7 +81,7 @@ public class BinanceTicks {
                     Tick tick = Tick.builder()
                             .quantity(q)
                             .price(p)
-                            .side(Side.valueOf(trade.isBuyerMaker() ? "Sell" : "Buy"))
+                            .side(trade.isBuyerMaker() ? Side.SELL : Side.BUY)
                             .createDate(getDateTime(trade.getTradeTime()))
                             .symbol(Symbol.valueOf(symbol.replace("USDT", "")))
                             .exchange("binance")

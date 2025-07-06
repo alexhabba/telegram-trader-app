@@ -14,12 +14,11 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bybit.api.client.domain.trade.Side;
 import com.dao.bot.entity.Tick;
-import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class BinanceTicks {
 
@@ -39,12 +38,12 @@ public class BinanceTicks {
                 .sum();
 
         double sumBuy = ticks.stream()
-                .filter(t -> t.getSide() == Side.Buy)
+                .filter(t -> t.getSide() == Side.BUY)
                 .mapToDouble(t -> Double.parseDouble(t.getQuantity()))
                 .sum();
 
         double sumSell = ticks.stream()
-                .filter(t -> t.getSide() == Side.Sell)
+                .filter(t -> t.getSide() == Side.SELL)
                 .mapToDouble(t -> Double.parseDouble(t.getQuantity()))
                 .sum();
 

@@ -1,20 +1,17 @@
 package com.strategy.bot.startegy.test;
 
+import com.bybit.api.client.domain.trade.PositionIdx;
+import com.bybit.api.client.domain.trade.Side;
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Deal;
 import com.dao.bot.entity.Parameter;
-import com.dao.bot.enums.OrderType;
 import com.dao.bot.enums.Owner;
-import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import com.dao.bot.service.BarService;
 import com.dao.bot.service.DealService;
 import com.dao.bot.service.ParameterService;
 import com.strategy.bot.dto.ResponsePosition;
-import com.strategy.bot.service.BybitBalanceService;
-import com.strategy.bot.service.BybitOrderService;
-import com.strategy.bot.service.BybitPositionService;
-import com.strategy.bot.service.CommonUtils;
+import com.strategy.bot.service.*;
 import com.strategy.bot.startegy.StrategyExecutor;
 import com.strategy.bot.utils.PositionUtils;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +26,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static com.dao.bot.enums.Status.CANCEL;
-import static com.dao.bot.enums.Status.COMPLETED;
-import static com.dao.bot.enums.Status.PROCESSING;
-import static com.dao.bot.enums.Status.STARTED;
-import static com.dao.bot.enums.Symbol.*;
+import static com.dao.bot.enums.Status.*;
+import static com.dao.bot.enums.Symbol.SOL;
 import static java.util.Objects.nonNull;
 
 /**
@@ -44,7 +37,7 @@ import static java.util.Objects.nonNull;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class LimitOrder implements StrategyExecutor {
+public class HedgeLimitOrderStrategy implements StrategyExecutor {
 
     private final static Map<Symbol, Double> MAP_SYMBOL_SHIFT = Map.of(
 //            WLD, 0.008,
@@ -53,13 +46,8 @@ public class LimitOrder implements StrategyExecutor {
     );
 
     private final static Map<String, Pair<String, String>> map = Map.of(
-
-            // KRIS_BYBIT 100   запуск 20 август
-            "8", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
-            "2", Pair.of("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy"),
-            // MY MAIN ACC
-            "7", Pair.of("6CKgANrPFtih7TAAI4", "lu5WwteC0SOcT5IDgxYC9gMEFCuFONUIbaOR"),
-            "10", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
+            "7", Pair.of("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe"),
+            "8", Pair.of("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe")
     );
 
     @Value("#{${accounts}}")
@@ -88,7 +76,7 @@ public class LimitOrder implements StrategyExecutor {
 
     private final DealService dealService;
     private final BarService barService;
-    private final BybitOrderService bybitOrderService;
+    private final OrderLimitHedgeModeService bybitOrderService;
     private final BybitBalanceService balanceService;
     private final BybitPositionService positionService;
     private final ParameterService parameterService;
@@ -100,21 +88,17 @@ public class LimitOrder implements StrategyExecutor {
 //        showPositionAndBalance();
     }
 
-    Map<Symbol, Integer> MAP_SYMBOL_STRATEGY = Map.of(
-//            WLD, 1,
-            SOL, 7
-//            AAVE, 1
-    );
-
-    boolean fl = true;
 
     @Override
     public void execute(Bar lastBar, LocalDateTime lastDateTime) {
-        if (fl) {
-            Parameter parameter = parameterService.getParameter(lastBar.getSymbol(), MAP_SYMBOL_STRATEGY.get(lastBar.getSymbol()));
+        List<Parameter> parameters = parameterService.getParameters(lastBar.getSymbol(), List.of(7, 8));
+        parameters.forEach(parameter -> {
             setParameter(parameter);
-            fl = false;
-        }
+            executeRun(lastBar, lastDateTime);
+        });
+    }
+
+    public void executeRun(Bar lastBar, LocalDateTime lastDateTime) {
 
 //        if (lastBar.getCreateDate().isBefore(LocalDateTime.now().minusDays(15))) {
 //            return;
@@ -217,7 +201,7 @@ public class LimitOrder implements StrategyExecutor {
                 PositionUtils.sentTpSl(key, secret, BigDecimal.valueOf(lastDeal.getSl()), BigDecimal.valueOf(lastDeal.getTp()), symbol);
                 log.info("Открытие лимитной заявки, перевод в статус PROCESSING");
             } else if (isCancelPosition(lastBar, lastDeal)) {
-                bybitOrderService.closeOpenLimitOrder(key, secret, symbol);
+                bybitOrderService.closeOpenLimitOrder(key, secret, symbol, lastDeal.getId());
                 lastDeal.setStatus(CANCEL);
                 lastDeal.setCloseDate(LocalDateTime.now());
                 dealService.save(lastDeal);
@@ -272,10 +256,10 @@ public class LimitOrder implements StrategyExecutor {
             ) {
 //            if (strategy.equals("8") || strategy.equals("10")) {
                 openPrice = openPrice + shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, volPosition, symbol);
+                createDeal = createDeal(lastBar, openPrice, Side.SELL, openPrice + sl, openPrice - tp, volPosition, symbol);
             } else {
                 openPrice = openPrice - shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, volPosition, symbol);
+                createDeal = createDeal(lastBar, openPrice, Side.BUY, openPrice - sl, openPrice + tp, volPosition, symbol);
             }
             // открытие и сохранение сделки в БД
             if (isTestStrategy) {
@@ -299,10 +283,10 @@ public class LimitOrder implements StrategyExecutor {
 //                    && avg > Double.parseDouble(lastBar.getHigh())
             ) {
                 openPrice = openPrice - shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, volPosition, symbol);
+                createDeal = createDeal(lastBar, openPrice, Side.BUY, openPrice - sl, openPrice + tp, volPosition, symbol);
             } else {
                 openPrice = openPrice + shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, volPosition, symbol);
+                createDeal = createDeal(lastBar, openPrice, Side.SELL, openPrice + sl, openPrice - tp, volPosition, symbol);
             }
 
             // открытие и сохранение сделки в БД
@@ -327,7 +311,7 @@ public class LimitOrder implements StrategyExecutor {
         strategy = Integer.toString(parameter.getStrategy());
     }
 
-    private Deal createDeal(Bar lastBar, double openPrice, Side sell, double sl, double tp, double vol, Symbol symbol) {
+    private Deal createDeal(Bar lastBar, double openPrice, Side side, double sl, double tp, double vol, Symbol symbol) {
 //        log.info("Рабочий обьем : {}", vol);
 //        log.info("Working volume : {}", vol);
         Deal createDeal = Deal.builder()
@@ -335,7 +319,7 @@ public class LimitOrder implements StrategyExecutor {
                 .openDate(lastBar.getCreateDate().plusMinutes(1))
                 .open(openPrice)
                 .status(STARTED)
-                .side(sell)
+                .side(side)
                 .sl(sl)
                 .tp(tp)
                 .vol(vol)
@@ -362,7 +346,7 @@ public class LimitOrder implements StrategyExecutor {
         if (isTestStrategy) {
             shift = 0;
         }
-        if (deal.getSide() == Side.Buy) {
+        if (deal.getSide() == Side.BUY) {
             if (low - shift <= deal.getSl()) {
                 // закрытие по стоп лосс
                 commonCloseAction(deal, bar, deal.getSl(), deal.getSl() - deal.getOpen());
@@ -374,7 +358,7 @@ public class LimitOrder implements StrategyExecutor {
             }
         }
 
-        if (deal.getSide() == Side.Sell) {
+        if (deal.getSide() == Side.SELL) {
             if (high + shift >= deal.getSl()) {
                 // закрытие по стоп лосс
                 commonCloseAction(deal, bar, deal.getSl(), deal.getOpen() - deal.getSl());
@@ -415,9 +399,9 @@ public class LimitOrder implements StrategyExecutor {
         double low = bar.getLow();
         double high = bar.getHigh();
 
-        if (deal.getSide() == Side.Buy && low <= deal.getOpen()) {
+        if (deal.getSide() == Side.BUY && low <= deal.getOpen()) {
             return true;
-        } else return deal.getSide() == Side.Sell && high >= deal.getOpen();
+        } else return deal.getSide() == Side.SELL && high >= deal.getOpen();
     }
 
     private void commonCloseAction(Deal deal, Bar bar, double close, double result) {
@@ -450,7 +434,9 @@ public class LimitOrder implements StrategyExecutor {
                     deal.getSide(),
                     Double.toString(deal.getOpen()),
                     Double.toString(deal.getSl()),
-                    deal.getSymbol()
+                    Double.toString(deal.getTp()),
+                    deal.getSymbol(),
+                    deal.getSide() == Side.SELL ? PositionIdx.HEDGE_MODE_SELL : PositionIdx.HEDGE_MODE_BUY
             );
         } else {
             dealService.save(deal);
@@ -477,23 +463,23 @@ public class LimitOrder implements StrategyExecutor {
         return Math.round(value * ((int) round)) / round;
     }
 
-    UUID openOrder(double size, Side side, String tvh, String sl, Symbol symbol) {
+    UUID openOrder(double size, Side side, String tvh, String sl, String tp, Symbol symbol, PositionIdx hedgeMode) {
         Pair<String, String> pairKeySecret = map.get(strategy);
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
 
         log.info("Open limit order size : {}, side : {}, tvh : {}", size, side, tvh);
-        return bybitOrderService.openLimitOrder(
+        return bybitOrderService.openOrder(
                 key,
                 secret,
                 symbol,
                 tvh,
                 sl,
+                tp,
                 Double.toString(size),
                 side,
-                OrderType.LIMIT,
-                UUID.randomUUID(),
-                d -> log.info("open order {} ", d));
+                hedgeMode
+        );
     }
 
     @SneakyThrows

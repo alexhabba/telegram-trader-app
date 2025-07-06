@@ -1,7 +1,7 @@
 package com.dao.bot.entity;
 
+import com.bybit.api.client.domain.trade.Side;
 import com.dao.bot.enums.OrderType;
-import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Status;
 import com.dao.bot.enums.Symbol;
 import lombok.AllArgsConstructor;

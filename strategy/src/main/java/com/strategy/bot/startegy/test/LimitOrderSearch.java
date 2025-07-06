@@ -1,11 +1,10 @@
 package com.strategy.bot.startegy.test;
 
+import com.bybit.api.client.domain.trade.Side;
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Deal;
 import com.dao.bot.entity.Statistic;
-import com.dao.bot.enums.OrderType;
 import com.dao.bot.enums.Owner;
-import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import com.dao.bot.repository.StatisticRepository;
 import com.dao.bot.service.BarService;
@@ -16,7 +15,6 @@ import com.strategy.bot.service.BybitOrderService;
 import com.strategy.bot.service.BybitPositionService;
 import com.strategy.bot.utils.PositionUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.UUID;
@@ -282,10 +279,10 @@ public class LimitOrderSearch {
             Deal createDeal;
             if (strategy.equals("8")) {
                 openPrice = openPrice + shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
+                createDeal = createDeal(lastBar, openPrice, Side.SELL, openPrice + sl, openPrice - tp, vol);
             } else {
                 openPrice = openPrice - shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
+                createDeal = createDeal(lastBar, openPrice, Side.BUY, openPrice - sl, openPrice + tp, vol);
             }
             deals.get().add(createDeal);
         }
@@ -295,10 +292,10 @@ public class LimitOrderSearch {
 
             if (strategy.equals("8")) {
                 openPrice = openPrice - shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Buy, openPrice - sl, openPrice + tp, vol);
+                createDeal = createDeal(lastBar, openPrice, Side.BUY, openPrice - sl, openPrice + tp, vol);
             } else {
                 openPrice = openPrice + shift;
-                createDeal = createDeal(lastBar, openPrice, Side.Sell, openPrice + sl, openPrice - tp, vol);
+                createDeal = createDeal(lastBar, openPrice, Side.BUY, openPrice + sl, openPrice - tp, vol);
             }
 
             deals.get().add(createDeal);
@@ -329,7 +326,7 @@ public class LimitOrderSearch {
         double low = bar.getLow();
         double high = bar.getHigh();
 
-        if (deal.getSide() == Side.Buy) {
+        if (deal.getSide() == Side.BUY) {
             if (low <= deal.getSl()) {
                 // закрытие по стоп лосс
                 commonCloseAction(deal, bar, deal.getSl(), deal.getSl() - deal.getOpen());
@@ -341,7 +338,7 @@ public class LimitOrderSearch {
             }
         }
 
-        if (deal.getSide() == Side.Sell) {
+        if (deal.getSide() == Side.SELL) {
             if (high >= deal.getSl()) {
                 // закрытие по стоп лосс
                 commonCloseAction(deal, bar, deal.getSl(), deal.getOpen() - deal.getSl());
@@ -372,9 +369,9 @@ public class LimitOrderSearch {
         double low = bar.getLow();
         double high = bar.getHigh();
 
-        if (deal.getSide() == Side.Buy && low <= deal.getOpen()) {
+        if (deal.getSide() == Side.BUY && low <= deal.getOpen()) {
             return true;
-        } else return deal.getSide() == Side.Sell && high >= deal.getOpen();
+        } else return deal.getSide() == Side.SELL && high >= deal.getOpen();
     }
 
     private void commonCloseAction(Deal deal, Bar bar, double close, double result) {

@@ -1,8 +1,8 @@
 package com.trade.bot.job;
 
+import com.bybit.api.client.domain.trade.Side;
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Tick;
-import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import com.dao.bot.repository.BarRepository;
 import com.dao.bot.repository.TickRepository;
@@ -94,13 +94,13 @@ public class BarCreator {
 
         if (binance.isEmpty()) return null;
         BigDecimal buy = binance.stream()
-                .filter(tick -> tick.getSide() == Side.Buy)
+                .filter(tick -> tick.getSide() == Side.BUY)
                 .map(Tick::getQuantity)
                 .map(BigDecimal::new)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal sell = binance.stream()
-                .filter(tick -> tick.getSide() == Side.Sell)
+                .filter(tick -> tick.getSide() == Side.SELL)
                 .map(Tick::getQuantity)
                 .map(BigDecimal::new)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

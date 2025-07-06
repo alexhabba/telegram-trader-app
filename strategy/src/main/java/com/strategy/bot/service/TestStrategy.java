@@ -1,11 +1,11 @@
 package com.strategy.bot.service;
 
 import com.bybit.api.client.config.BybitApiConfig;
+import com.bybit.api.client.domain.trade.Side;
 import com.bybit.api.client.exception.BybitApiException;
 import com.bybit.api.client.restApi.BybitApiCallback;
 import com.bybit.api.client.service.BybitApiClientFactory;
 import com.dao.bot.enums.OrderType;
-import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import lombok.SneakyThrows;
 
@@ -13,8 +13,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class TestStrategy {
 
@@ -34,7 +32,7 @@ public class TestStrategy {
                     order.put("takeProfit", tp);
                     order.put("slOrderType", "Market");
                     order.put("tpslMode", "Full");
-//                    order.put("positionIdx", hedgeMode);
+                    order.put("positionIdx", hedgeMode);
 
             Object response = client.createOrder(order);
 
@@ -53,24 +51,57 @@ public class TestStrategy {
     public static void main(String[] args) {
 //        closeOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy", true);
         TestStrategy service = new TestStrategy();
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-        executorService.submit(() -> {
-            while (true) {
-                service.openOrder(
-                        "6CKgANrPFtih7TAAI4",
-                        "lu5WwteC0SOcT5IDgxYC9gMEFCuFONUIbaOR",
-                        Symbol.SOL,
-                        "150",
-                        "140",
-                        "0.4",
-                        Side.Sell,
-                        OrderType.MARKET,
-                        UUID.randomUUID(),
-                        2,
-                        System.out::println);
-                Thread.sleep(3000000);
-            }
-        });
+
+//        service.openOrder(
+//                "Bm93uykPRKyNZqaGeI",
+//                "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe",
+//                Symbol.SOL,
+//                "150",
+//                "140",
+//                "0.1",
+//                Side.Sell,
+//                OrderType.MARKET,
+//                UUID.randomUUID(),
+//                2,
+//                System.out::println);
+
+
+
+        service.openOrder(
+                "Bm93uykPRKyNZqaGeI",
+                "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe",
+                Symbol.SOL,
+                "144",
+                "154",
+                "0.1",
+                Side.BUY,
+                OrderType.MARKET,
+                UUID.randomUUID(),
+                1,
+                System.out::println);
+
+
+//        ExecutorService executorService = Executors.newFixedThreadPool(2);
+//        executorService.submit(() -> {
+//            while (true) {
+//                service.openOrder(
+//                        "Bm93uykPRKyNZqaGeI",
+//                        "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe",
+//                        Symbol.SOL,
+//                        "150",
+//                        "140",
+//                        "0.1",
+//                        Side.Sell,
+//                        OrderType.MARKET,
+//                        UUID.randomUUID(),
+//                        2,
+//                        System.out::println);
+//                Thread.sleep(3000000);
+//            }
+//        });
+
+
+
 //        Unrecognized field "retCode" (class com.strategy.bot.dto.ResponseDto), not marked as ignorable
 //        {retCode=0, retMsg=OK, result={orderId=8e5cd745-a01f-4bbf-87dc-4c595a02b2d6, orderLinkId=e1117ad5-bdaf-4610-886f-d882afe95408}, retExtInfo={}, time=1732446468730}
 

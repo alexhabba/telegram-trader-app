@@ -1,10 +1,10 @@
 package com.trade.bot.handler;
 
+import com.bybit.api.client.domain.trade.Side;
 import com.bybit.api.client.websocket.callback.WebSocketClosedCallback;
 import com.bybit.api.client.websocket.callback.WebSocketClosingCallback;
 import com.bybit.api.client.websocket.callback.WebSocketFailureCallback;
 import com.dao.bot.entity.Tick;
-import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import com.dao.bot.enums.TradeLastTick;
 import com.dao.bot.repository.TickRepository;

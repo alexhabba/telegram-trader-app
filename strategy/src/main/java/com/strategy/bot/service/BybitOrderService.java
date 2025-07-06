@@ -2,12 +2,12 @@ package com.strategy.bot.service;
 
 import com.bybit.api.client.config.BybitApiConfig;
 import com.bybit.api.client.domain.CategoryType;
+import com.bybit.api.client.domain.trade.Side;
 import com.bybit.api.client.domain.trade.request.TradeOrderRequest;
 import com.bybit.api.client.exception.BybitApiException;
 import com.bybit.api.client.restApi.BybitApiCallback;
 import com.bybit.api.client.service.BybitApiClientFactory;
 import com.dao.bot.enums.OrderType;
-import com.dao.bot.enums.Side;
 import com.dao.bot.enums.Symbol;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +17,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -135,7 +134,10 @@ public class BybitOrderService {
             var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN).newTradeRestClient();
 
 
-            var result = client.cancelOrder(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol(symbol.name() + "USDT").orderId(orderId).build());
+            var result = client.cancelOrder(TradeOrderRequest.builder()
+                    .category(CategoryType.LINEAR)
+                    .symbol(symbol.name() + "USDT")
+                    .orderId(orderId).build());
             System.out.println("Отмена лимитной заявки\n" + result);
         } catch (BybitApiException e) {
             // Обработка ошибок
@@ -166,7 +168,7 @@ public class BybitOrderService {
     public static BybitLimitOrderResponse getOpenLimitOrderr(String key, String secret) {
         try {
             var client = BybitApiClientFactory.newInstance(key, secret, BybitApiConfig.MAINNET_DOMAIN).newTradeRestClient();
-            var openLinearOrdersResult = client.getOpenOrders(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol("WLDUSDT").build());
+            var openLinearOrdersResult = client.getOpenOrders(TradeOrderRequest.builder().category(CategoryType.LINEAR).symbol("SOLUSDT").build());
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(objectMapper.writeValueAsString(openLinearOrdersResult), BybitLimitOrderResponse.class);
         } catch (BybitApiException | JsonProcessingException e) {
@@ -181,12 +183,13 @@ public class BybitOrderService {
 //            "10", Pair.of("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF")
 
         //.  8a50bd47-4711-44bf-8b5e-c20ed26e464f       orderStatus=New
-        BybitLimitOrderResponse openLimitOrderr = getOpenLimitOrderr("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy");
+
+        BybitLimitOrderResponse openLimitOrderr = getOpenLimitOrderr("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe");
 //        CommonUtils.isOpenPositionFromLimitOrder("XoX4nqAL5ZZxqr3r0j", "TavNLVR6Q6nkbOvGye3JeeEvLNksptTwrIxF",
 //                UUID.fromString("8a50bd47-4711-44bf-8b5e-c20ed26e464f"), "WLDUSDT");
 //        System.out.println(openLimitOrderr);
         BybitOrderService bybitOrderService = new BybitOrderService(new ObjectMapper());
-        bybitOrderService.closeOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy", Symbol.SOL);
+        bybitOrderService.closeOpenLimitOrder("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe", Symbol.SOL);
     }
 
 }
