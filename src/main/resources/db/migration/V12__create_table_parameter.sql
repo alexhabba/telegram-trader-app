@@ -14,28 +14,6 @@ CREATE TABLE parameter
 );
 
 INSERT INTO trader."parameter"
-(id, symbol, sl, tp, vol, "minute", shift, coefficient, strategy, description)
-VALUES('f5e7e73c-f111-40ca-b815-575c8649b6a2'::uuid, 'AAVE', 1.9, 6.7, 600.0, 34, 0.9, 1.1, 1, 'strategy = 1 контракт = 3
-commonResult : 2099
-result : 505.4673299999999
-убыточных сделок : 247
-успешных сделок : 104
-maxVolInStrategy : 8.559350118330006');
-
-INSERT INTO trader."parameter"
-(id, symbol, sl, tp, vol, "minute", shift, coefficient, strategy, description)
-VALUES('06299b95-5bcd-4c21-859e-9958ca40fb0d'::uuid, 'AAVE', 1.7, 5.5, 1000.0, 13, 0.5, 1.1, 7, 'strategy = 7 контракт = 3
-commonResult : 1500
-result : 399.57523999999995
-убыточных сделок : 282
-успешных сделок : 123
-maxVolInStrategy : 13.784918959071664');
-
-INSERT INTO trader."parameter"
-(id, symbol, sl, tp, vol, "minute", shift, coefficient, strategy, description)
-VALUES('49c08ab4-f01a-4b61-87d9-b356c5492ec6'::uuid, 'SOL', 1.9, 2.5, 3800.0, 22, 0.9, 1.1, 8, NULL);
-
-INSERT INTO trader."parameter"
 (id, symbol, sl, tp, vol, vol_position, "minute", shift, coefficient, strategy, description)
 VALUES('f831116a-7381-4e27-a148-85300d97de35'::uuid, 'SOL', 1.1, 4.9, 1900.0, 0.4, 61, 0.7, 1.4, 7, 'commonResult : 103
 result : 259.4505200000001
@@ -43,3 +21,12 @@ result : 259.4505200000001
 успешных сделок : 69
 maxVolInStrategy : 0.4
 баланс стал таким : 133.78020800000003736');
+
+INSERT INTO bot."parameter"
+(id, symbol, sl, tp, vol, vol_position, "minute", shift, coefficient, strategy, description)
+VALUES('49c08ab4-f01a-4b61-87d9-b356c5492ec6'::uuid, 'SOL', 1.3, 5.7, 3300.0, 0.4, 91, 0.5, 1.0, 8, 'commonResult : 95
+result : 240.14960000000002
+убыточных сделок : 117
+успешных сделок : 55
+maxVolInStrategy : 0.4
+баланс стал таким : 126.05984000000000740');
