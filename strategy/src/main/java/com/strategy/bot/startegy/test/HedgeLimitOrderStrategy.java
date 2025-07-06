@@ -80,18 +80,21 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
     private final BybitBalanceService balanceService;
     private final BybitPositionService positionService;
     private final ParameterService parameterService;
-    private final LinkedList<Deal> deals = new LinkedList<>();
+    private final List<Deal> deals = new ArrayList<>();
+
+
+    private List<Parameter> parameters;
 
     @EventListener({ContextRefreshedEvent.class})
     @SneakyThrows
     public void init() {
 //        showPositionAndBalance();
-    }
+        parameters = parameterService.getParameters(SOL, List.of(7, 8));
 
+    }
 
     @Override
     public void execute(Bar lastBar, LocalDateTime lastDateTime) {
-        List<Parameter> parameters = parameterService.getParameters(lastBar.getSymbol(), List.of(7, 8));
         parameters.forEach(parameter -> {
             setParameter(parameter);
             executeRun(lastBar, lastDateTime);
@@ -166,13 +169,21 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
         Symbol symbol = lastBar.getSymbol();
         if (isTestStrategy) {
             if (!deals.isEmpty()) {
-                lastDeal = deals.getLast();
+//                todo теперь не совсем последнюю сделку ищем
+                for (int i = deals.size() - 1; i >= 0; i--) {
+                    Deal deal = deals.get(i);
+                    if (nonNull(deal) && deal.getStrategy().equals(strategy)) {
+                        lastDeal = deal;
+                        break;
+                    }
+                }
             }
         } else {
             lastDeal = dealService.getLastDealStrategy(strategy, symbol.name());
         }
 
-        // Если есть не завершенная сделка то проверяем закрылась она или нет
+        // Проверка(закрылась или не закрылась)
+        // Если есть не завершенная сделка, то проверяем закрылась она или нет
         if (nonNull(lastDeal) && lastDeal.getStatus() == PROCESSING) {
             checkTpSl(lastBar, lastDeal);
             return;
@@ -210,6 +221,7 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
             return;
         }
 
+        // не влияет на двунаправленную торговлю
         if (nonNull(lastDeal) && lastDeal.getOpenDate().plusMinutes(13).isAfter(lastBar.getCreateDate())) {
             return;
         }
@@ -275,7 +287,7 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
 
 //            double avg = barService.getAvg(lastBar.getSymbol().name(), lastBar.getCreateDate());
 //            coefficient = nonNull(lastDeal) && lastDeal.getResult() < 0 ? coefficient + 0.1 : 1.3;
-//            vol = nonNull(lastDeal) && lastDeal.getResult() < 0 ? lastDeal.getVol() * coefficient : startVol;
+            volPosition = nonNull(lastDeal) && lastDeal.getResult() < 0 ? lastDeal.getVol() * coefficient : volPosition;
 //            if (isTestStrategy && vol == startVol) {
 //                vol = getVol(null, null);
 //            }
@@ -448,7 +460,7 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
             log.info("Successful save deal {}", deal);
         } catch (Throwable e) {
             log.error("Error save deal {}", deal, e);
-            deals.addLast(deal);
+            deals.add(deal);
         }
     }
 
@@ -512,15 +524,22 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
         String secret = pairKeySecret.getValue();
 
         ResponsePosition position = positionService.getPosition(key, secret, deal.getSymbol());
-        BigDecimal size = position.getResult().getPositions().get(0)
-                .getSize();
-        boolean isNotPosition = size.equals(BigDecimal.ZERO);
-        if (!isNotPosition) {
-            deal.setCurrentResult(Double.parseDouble(position.getResult().getPositions().get(0).getUnrealisedPnl()));
-            dealService.save(deal);
+
+        String side = deal.getSide().getTransactionSide();
+        Optional<ResponsePosition.Position> any = position.getResult().getPositions().stream()
+                .filter(p -> side.equals(p.getSide()))
+                .findAny();
+
+        if (any.isEmpty()) {
+            return true;
         }
-        return isNotPosition;
+
+        deal.setCurrentResult(Double.parseDouble(any.get().getUnrealisedPnl()));
+        dealService.save(deal);
+        return false;
     }
+//Position{symbol='SOLUSDT', leverage='100', autoAddMargin=0, avgPrice=146.76, liqPrice=null, riskLimitValue='50000', takeProfit=null, positionValue='14.676', isReduceOnly=false, tpslMode='Full', riskId=281, trailingStop='0', unrealisedPnl='-0.011', markPrice='146.87', adlRankIndicator=0, cumRealisedPnl='-22.32050068', positionMM='0.02964552', createdTime='1733169914762', positionIdx=2, positionIM='0.17640552', seq=210657888573, updatedTime='1751795788474', side='Sell', bustPrice='', positionBalance='0', leverageSysUpdatedTime='', curRealisedPnl='-0.014676', size=0.1, positionStatus='Normal', mmrSysUpdatedTime='', stopLoss=null, tradeMode=0, sessionAvgPrice=''}
+//Position{symbol='SOLUSDT', leverage='100', autoAddMargin=0, avgPrice=146.97, liqPrice=null, riskLimitValue='50000', takeProfit=null, positionValue='14.697', isReduceOnly=false, tpslMode='Full', riskId=281, trailingStop='0', unrealisedPnl='-0.01', markPrice='146.87', adlRankIndicator=0, cumRealisedPnl='0.07098046', positionMM='0.02910006', createdTime='1733169914762', positionIdx=1, positionIM='0.02910006', seq=210657688522, updatedTime='1751795581469', side='Buy', bustPrice='', positionBalance='0', leverageSysUpdatedTime='', curRealisedPnl='-0.014697', size=0.1, positionStatus='Normal', mmrSysUpdatedTime='', stopLoss=null, tradeMode=0, sessionAvgPrice=''}
 
     private double getVol(String key, String secret) {
 
