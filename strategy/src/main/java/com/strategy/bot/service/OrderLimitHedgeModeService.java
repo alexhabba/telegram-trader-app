@@ -33,6 +33,7 @@ public class OrderLimitHedgeModeService {
                     .price(tvh)
                     .takeProfit(tp)// Цена входа
                     .stopLoss(sl)
+                    .tpslMode("Partial")
                     .timeInForce(TimeInForce.GTC) // Good Till Cancel
                     .positionIdx(hedgeMode) // Режим позиции (0 для one-way)
                     .orderLinkId(UUID.randomUUID().toString()) // Кастомный ID ордера
@@ -72,18 +73,17 @@ public class OrderLimitHedgeModeService {
     public static void main(String[] args) {
 //        closeOpenLimitOrder("x29QaRh6pSDzmTLUAO", "ZGDBtgo5GX1KBoLl1RTjsJk0CWHeIpwgdSxy", true);
         OrderLimitHedgeModeService service = new OrderLimitHedgeModeService();
+                                                // main account
+        UUID uuidBuy = service.openOrder("6CKgANrPFtih7TAAI4", "lu5WwteC0SOcT5IDgxYC9gMEFCuFONUIbaOR",
+                Symbol.SOL,
+                "140",
+                "146",
+                "149",
+                "0.1",
+                Side.BUY,
+                PositionIdx.HEDGE_MODE_BUY);
 
-//        UUID uuidBuy = service.openOrder(
-//                "Bm93uykPRKyNZqaGeI",
-//                "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe",
-//                Symbol.SOL,
-//                "140",
-//                "134",
-//                "154",
-//                "0.1",
-//                Side.BUY,
-//                PositionIdx.HEDGE_MODE_BUY);
-//
+
 //        System.out.println("buy orderId: " + uuidBuy);
 //
 //
@@ -100,8 +100,8 @@ public class OrderLimitHedgeModeService {
 //
 //        System.out.println("sell orderId: " + uuidSell);
 
-        service.closeOpenLimitOrder("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe",
-                Symbol.SOL, UUID.fromString("bb67fafc-f1b1-414f-b3e7-d20ce8c0be68"));
+//        service.closeOpenLimitOrder("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe",
+//                Symbol.SOL, UUID.fromString("bb67fafc-f1b1-414f-b3e7-d20ce8c0be68"));
     }
 
 }
