@@ -14,7 +14,7 @@ spring:
           time_zone: Europe/Moscow
 
   datasource:
-    url: jdbc:postgresql://${HOSTNAME:localhost}:${PORT:5432}/${DB_NAME:postgres}?currentSchema=trader
+    url: jdbc:postgresql://${HOSTNAME:localhost}:${PORT:5433}/${DB_NAME:postgres}?currentSchema=trader
 #    url: jdbc:postgresql://${HOSTNAME:localhost}:${PORT:5433}/${DB_NAME:postgres}?currentSchema={spring.flyway.schemas}
 #    url: jdbc:postgresql://${HOSTNAME:45.8.251.166}:${PORT:5433}/${RDS_DB_NAME:postgres}?currentSchema=trader
 #    url: jdbc:postgresql://${RDS_HOSTNAME:host.docker.internal:${RDS_PORT:5432}/${RDS_DB_NAME:bot}?currentSchema=bot

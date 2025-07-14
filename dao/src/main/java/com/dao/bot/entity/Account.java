@@ -29,5 +29,6 @@ public class Account {
     private String name;
     private String key;
     private String secret;
+    private boolean isActive;
     private LocalDateTime createDate;
 }

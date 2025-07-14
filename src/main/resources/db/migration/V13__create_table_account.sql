@@ -3,5 +3,6 @@ CREATE TABLE account (
     name VARCHAR(255),
     key VARCHAR(255),
     secret VARCHAR(255),
+    is_active boolean,
     create_date TIMESTAMP
 );

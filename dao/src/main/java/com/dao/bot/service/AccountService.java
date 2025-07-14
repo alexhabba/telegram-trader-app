@@ -13,7 +13,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
 
-    public List<Account> findAll() {
-        return accountRepository.findAll();
+    public List<Account> findAccountByIsActiveTrue() {
+        return accountRepository.findAccountByIsActiveTrue();
     }
 }
