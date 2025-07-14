@@ -2,11 +2,13 @@ package com.strategy.bot.startegy.test;
 
 import com.bybit.api.client.domain.trade.PositionIdx;
 import com.bybit.api.client.domain.trade.Side;
+import com.dao.bot.entity.Account;
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Deal;
 import com.dao.bot.entity.Parameter;
 import com.dao.bot.enums.Owner;
 import com.dao.bot.enums.Symbol;
+import com.dao.bot.service.AccountService;
 import com.dao.bot.service.BarService;
 import com.dao.bot.service.DealService;
 import com.dao.bot.service.ParameterService;
@@ -71,9 +73,9 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
     private double coefficient = 1.3;
     private double volPosition = 1.3;
 
-
     private double maxVolInStrategy = 0;
 
+    private final AccountService accountService;
     private final DealService dealService;
     private final BarService barService;
     private final OrderLimitHedgeModeService bybitOrderService;
@@ -89,13 +91,14 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
     @SneakyThrows
     public void init() {
 //        showPositionAndBalance();
-        parameters = parameterService.getParameters(SOL, List.of(7, 8));
+//        parameters = parameterService.getParameters(SOL, List.of(7, 8));
 
     }
 
     @Override
     public void execute(Bar lastBar, LocalDateTime lastDateTime) {
-        parameters.forEach(parameter -> {
+        List<Account> accounts = accountService.findAll();
+        parameterService.getParameters(SOL, List.of(7, 8)).forEach(parameter -> {
             setParameter(parameter);
             executeRun(lastBar, lastDateTime);
         });
