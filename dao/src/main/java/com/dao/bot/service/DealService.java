@@ -27,6 +27,10 @@ public class DealService {
         return deals.isEmpty() ? null : deals.get(0);
     }
 
+    public List<Deal> getDealsStrategy(int count, String strategy, String symbol) {
+        return dealRepository.findLastDealStrategy(count, strategy, symbol);
+    }
+
     public List<Deal> getLastDealByStatusAndBySymbol(Status status, Symbol symbol) {
         return dealRepository.findDealByStatusAndSymbol(status, symbol);
     }

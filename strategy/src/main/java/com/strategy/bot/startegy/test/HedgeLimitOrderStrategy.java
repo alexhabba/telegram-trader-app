@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.dao.bot.enums.Status.*;
 import static com.dao.bot.enums.Symbol.SOL;
@@ -97,7 +98,7 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
 
     @Override
     public void execute(Bar lastBar, LocalDateTime lastDateTime) {
-        List<Account> accounts = accountService.findAll();
+//        List<Account> accounts = accountService.findAccountByIsActiveTrue();
         parameterService.getParameters(SOL, List.of(7, 8)).forEach(parameter -> {
             setParameter(parameter);
             executeRun(lastBar, lastDateTime);
@@ -285,12 +286,15 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
             return;
         }
 
+        // todo сейчас пока счет маленький я хочу чтобы если 3 последние позиции(все одного обьема) были убыточные то увеличить обьем на 2
+        getVolPosition(symbol);
+
         if (!isBuyMore && volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
 
 //            double avg = barService.getAvg(lastBar.getSymbol().name(), lastBar.getCreateDate());
 //            coefficient = nonNull(lastDeal) && lastDeal.getResult() < 0 ? coefficient + 0.1 : 1.3;
-            volPosition = nonNull(lastDeal) && lastDeal.getResult() < 0 ? lastDeal.getVol() * coefficient : volPosition;
+//            volPosition = nonNull(lastDeal) && lastDeal.getResult() < 0 ? lastDeal.getVol() * coefficient : volPosition;
 //            if (isTestStrategy && vol == startVol) {
 //                vol = getVol(null, null);
 //            }
@@ -313,6 +317,26 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
         }
         return;
 
+    }
+
+    private void getVolPosition(Symbol symbol) {
+        int count = 3;
+        List<Deal> threeDeals = dealService.getDealsStrategy(count, strategy, symbol.name());
+        Map<Double, List<Deal>> volDeals = threeDeals.stream()
+                .collect(Collectors.groupingBy(Deal::getVol));
+
+        if (volDeals.size() == 1) {
+            long countResultMoreZero = volDeals.values().stream()
+                    .flatMap(List::stream)
+                    .filter(d -> d.getResult() < 0)
+                    .count();
+
+            if (countResultMoreZero == count) {
+                volPosition = volDeals.keySet().stream().findFirst().get() * 2;
+            }
+        } else {
+            volPosition = threeDeals.get(threeDeals.size() - 1).getVol();
+        }
     }
 
     private void setParameter(Parameter parameter) {
