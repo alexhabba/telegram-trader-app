@@ -39,7 +39,6 @@ public class OrderLimitHedgeModeService {
                     .orderLinkId(UUID.randomUUID().toString()) // Кастомный ID ордера
                     .build();
 
-
             Object response = client.createOrder(orderRequest);
 
             Object orderId = ((LinkedHashMap<?, ?>) ((LinkedHashMap<?, ?>) response).get("result")).get("orderId");

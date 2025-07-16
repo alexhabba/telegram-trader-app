@@ -345,12 +345,12 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
                 .collect(Collectors.groupingBy(Deal::getVol));
 
         // Если все сделки имеют одинаковый объем
-        if (dealsByVolume.size() == 1) {
+        if (dealsByVolume.size() == 1 && recentDeals.size() == 3) {
             // Проверяем, что все сделки убыточные
             boolean allDealsAreLoss = recentDeals.stream()
                     .allMatch(deal -> deal.getResult() < 0);
 
-            if (allDealsAreLoss) {
+            if (allDealsAreLoss ) {
                 // Удваиваем объем для новой позиции
                 volPosition = recentDeals.get(0).getVol() * 2;
             }
