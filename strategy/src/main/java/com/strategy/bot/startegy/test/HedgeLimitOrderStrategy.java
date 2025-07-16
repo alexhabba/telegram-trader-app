@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -99,7 +100,8 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
     @Override
     public void execute(Bar lastBar, LocalDateTime lastDateTime) {
 //        List<Account> accounts = accountService.findAccountByIsActiveTrue();
-        parameterService.getParameters(SOL, List.of(7, 8)).forEach(parameter -> {
+        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(7, 8));
+        parameters1.forEach(parameter -> {
             setParameter(parameter);
             executeRun(lastBar, lastDateTime);
         });
@@ -354,6 +356,9 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
             }
         } else {
             // Если объемы разные, работаем с последней сделкой
+            if (CollectionUtils.isEmpty(recentDeals)) {
+                return;
+            }
             Deal lastDeal = recentDeals.get(recentDeals.size() - 1);
             if (lastDeal.getResult() < 0) {
                 volPosition = lastDeal.getVol();

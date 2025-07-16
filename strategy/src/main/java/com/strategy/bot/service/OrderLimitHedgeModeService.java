@@ -28,7 +28,7 @@ public class OrderLimitHedgeModeService {
                     .category(CategoryType.LINEAR)  // Для USDT perpetual
                     .symbol(symbol.name() + "USDT")          // Торговая пара
                     .side(side)             // Покупка
-                    .orderType(TradeOrderType.MARKET)  // Лимитный ордер
+                    .orderType(TradeOrderType.LIMIT)  // Лимитный ордер
                     .qty(qty)                // Количество
                     .price(tvh)
                     .takeProfit(tp)// Цена входа
@@ -41,7 +41,6 @@ public class OrderLimitHedgeModeService {
 
 
             Object response = client.createOrder(orderRequest);
-            System.out.println(response);
 
             Object orderId = ((LinkedHashMap<?, ?>) ((LinkedHashMap<?, ?>) response).get("result")).get("orderId");
             return UUID.fromString((String) orderId);
