@@ -203,6 +203,7 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
                 if (isOpenPosition(lastBar, lastDeal)) {
                     // todo если была открыта любая позиция открытая не ботом то переведет в статус PROCESSING
                     lastDeal.setStatus(PROCESSING);
+                    lastDeal.setOpenDate(LocalDateTime.now());
                 } else {
                     isCancelPosition(lastBar, lastDeal);
                 }
@@ -324,10 +325,10 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
      * Логика работы:
      * 1. Получает 3 последние сделки по указанному символу и стратегии
      * 2. Если все сделки имеют одинаковый объем И все сделки убыточные:
-     *    - Устанавливает volPosition в удвоенный объем этих сделок
+     * - Устанавливает volPosition в удвоенный объем этих сделок
      * 3. Если сделки имеют разный объем:
-     *    - Берет объем последней сделки, если она убыточная
-     *    - Иначе оставляет volPosition без изменений
+     * - Берет объем последней сделки, если она убыточная
+     * - Иначе оставляет volPosition без изменений
      *
      * @param symbol торговый символ, для которого анализируются сделки
      */
@@ -467,9 +468,9 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
 
     private void commonCloseAction(Deal deal, Bar bar, double close, double result) {
         if (!isTestStrategy && !isNotPosition(deal)) return;
-        deal.setCloseDate(bar.getCreateDate().plusMinutes(1));
         deal.setStatus(COMPLETED);
         deal.setClose(close);
+        // todo не учитывается комиссия и объем
         deal.setResult(result);
 
         resultBalance = resultBalance.add(BigDecimal.valueOf(result).multiply(BigDecimal.valueOf(deal.getVol())));
@@ -572,21 +573,11 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
         String key = pairKeySecret.getKey();
         String secret = pairKeySecret.getValue();
 
-        ResponsePosition position = positionService.getPosition(key, secret, deal.getSymbol());
+        boolean isOpen = CommonUtils.isOpenPosition(key, secret, deal);
 
-        String side = deal.getSide().getTransactionSide();
-        Optional<ResponsePosition.Position> any = position.getResult().getPositions().stream()
-                .filter(p -> side.equals(p.getSide()))
-                .findAny();
-
-        if (any.isEmpty()) {
-            return true;
-        }
-
-        deal.setCurrentResult(Double.parseDouble(any.get().getUnrealisedPnl()));
-        dealService.save(deal);
-        return false;
+        return !isOpen;
     }
+
 //Position{symbol='SOLUSDT', leverage='100', autoAddMargin=0, avgPrice=146.76, liqPrice=null, riskLimitValue='50000', takeProfit=null, positionValue='14.676', isReduceOnly=false, tpslMode='Full', riskId=281, trailingStop='0', unrealisedPnl='-0.011', markPrice='146.87', adlRankIndicator=0, cumRealisedPnl='-22.32050068', positionMM='0.02964552', createdTime='1733169914762', positionIdx=2, positionIM='0.17640552', seq=210657888573, updatedTime='1751795788474', side='Sell', bustPrice='', positionBalance='0', leverageSysUpdatedTime='', curRealisedPnl='-0.014676', size=0.1, positionStatus='Normal', mmrSysUpdatedTime='', stopLoss=null, tradeMode=0, sessionAvgPrice=''}
 //Position{symbol='SOLUSDT', leverage='100', autoAddMargin=0, avgPrice=146.97, liqPrice=null, riskLimitValue='50000', takeProfit=null, positionValue='14.697', isReduceOnly=false, tpslMode='Full', riskId=281, trailingStop='0', unrealisedPnl='-0.01', markPrice='146.87', adlRankIndicator=0, cumRealisedPnl='0.07098046', positionMM='0.02910006', createdTime='1733169914762', positionIdx=1, positionIM='0.02910006', seq=210657688522, updatedTime='1751795581469', side='Buy', bustPrice='', positionBalance='0', leverageSysUpdatedTime='', curRealisedPnl='-0.014697', size=0.1, positionStatus='Normal', mmrSysUpdatedTime='', stopLoss=null, tradeMode=0, sessionAvgPrice=''}
 
