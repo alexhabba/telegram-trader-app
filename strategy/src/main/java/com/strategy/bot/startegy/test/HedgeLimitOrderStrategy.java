@@ -319,23 +319,45 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
 
     }
 
+    /**
+     * Определяет позицию объема (volPosition) на основе анализа последних сделок.
+     * Логика работы:
+     * 1. Получает 3 последние сделки по указанному символу и стратегии
+     * 2. Если все сделки имеют одинаковый объем И все сделки убыточные:
+     *    - Устанавливает volPosition в удвоенный объем этих сделок
+     * 3. Если сделки имеют разный объем:
+     *    - Берет объем последней сделки, если она убыточная
+     *    - Иначе оставляет volPosition без изменений
+     *
+     * @param symbol торговый символ, для которого анализируются сделки
+     */
     private void getVolPosition(Symbol symbol) {
-        int count = 3;
-        List<Deal> threeDeals = dealService.getDealsStrategy(count, strategy, symbol.name());
-        Map<Double, List<Deal>> volDeals = threeDeals.stream()
+        final int requiredDealsCount = 3;
+
+        // Получаем 3 последние сделки
+        List<Deal> recentDeals = dealService.getDealsStrategy(requiredDealsCount, strategy, symbol.name());
+
+        // Группируем сделки по объему (vol)
+        Map<Double, List<Deal>> dealsByVolume = recentDeals.stream()
                 .collect(Collectors.groupingBy(Deal::getVol));
 
-        if (volDeals.size() == 1) {
-            long countResultMoreZero = volDeals.values().stream()
-                    .flatMap(List::stream)
-                    .filter(d -> d.getResult() < 0)
-                    .count();
+        // Если все сделки имеют одинаковый объем
+        if (dealsByVolume.size() == 1) {
+            // Проверяем, что все сделки убыточные
+            boolean allDealsAreLoss = recentDeals.stream()
+                    .allMatch(deal -> deal.getResult() < 0);
 
-            if (countResultMoreZero == count) {
-                volPosition = volDeals.keySet().stream().findFirst().get() * 2;
+            if (allDealsAreLoss) {
+                // Удваиваем объем для новой позиции
+                volPosition = recentDeals.get(0).getVol() * 2;
             }
         } else {
-            volPosition = threeDeals.get(threeDeals.size() - 1).getVol();
+            // Если объемы разные, работаем с последней сделкой
+            Deal lastDeal = recentDeals.get(recentDeals.size() - 1);
+            if (lastDeal.getResult() < 0) {
+                volPosition = lastDeal.getVol();
+            }
+            // Если последняя сделка прибыльная - volPosition не меняется
         }
     }
 
