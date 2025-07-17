@@ -51,7 +51,9 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
 
     private final static Map<String, Pair<String, String>> map = Map.of(
             "7", Pair.of("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe"),
-            "8", Pair.of("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe")
+            "8", Pair.of("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe"),
+            "10", Pair.of("pcmNk8vTZurgJQHM9b", "NrKYnnW37Xfd42vbXpOcM7VyKrCgRTbzd7k9"),
+            "6", Pair.of("pcmNk8vTZurgJQHM9b", "NrKYnnW37Xfd42vbXpOcM7VyKrCgRTbzd7k9")
     );
 
     @Value("#{${accounts}}")
@@ -100,7 +102,7 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
     @Override
     public void execute(Bar lastBar, LocalDateTime lastDateTime) {
 //        List<Account> accounts = accountService.findAccountByIsActiveTrue();
-        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(7, 8));
+        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(6, 7, 8, 10));
         parameters1.forEach(parameter -> {
             setParameter(parameter);
             executeRun(lastBar, lastDateTime);
@@ -229,9 +231,9 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
         }
 
         // не влияет на двунаправленную торговлю
-        if (nonNull(lastDeal) && lastDeal.getOpenDate().plusMinutes(13).isAfter(lastBar.getCreateDate())) {
-            return;
-        }
+//        if (nonNull(lastDeal) && lastDeal.getOpenDate().plusMinutes(13).isAfter(lastBar.getCreateDate())) {
+//            return;
+//        }
 
 //        double shift = 0.007;
         double openPrice = lastBar.getClose();
@@ -355,11 +357,11 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
                 volPosition = recentDeals.get(0).getVol() * 2;
             }
         } else {
-            // Если объемы разные, работаем с последней сделкой
             if (CollectionUtils.isEmpty(recentDeals)) {
                 return;
             }
-            Deal lastDeal = recentDeals.get(recentDeals.size() - 1);
+            // Если объемы разные, работаем с последней сделкой
+            Deal lastDeal = recentDeals.get(0);
             if (lastDeal.getResult() < 0) {
                 volPosition = lastDeal.getVol();
             }
