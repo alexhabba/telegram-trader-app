@@ -1,7 +1,12 @@
 package com.strategy.bot.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.strategy.bot.startegy.test.BinanceTicks.getDateTime;
 
 //    TradeHistoryResponse.TradeRecord(symbol=SOLUSDT, orderType=Market, leverage=100,
 //    updatedTime=1752182252028, side=Sell, orderId=3acf427e-2aba-47d5-9249-417a39a7b94a,
@@ -9,6 +14,7 @@ import java.util.List;
 //    cumEntryValue=15.2245, createdTime=1752039966221, orderPrice=153.56,
 //    closedSize=0.1, avgExitPrice=161.7, execType=Trade, fillCount=1, cumExitValue=16.17)
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TradeHistoryResponse {
     private int retCode;
     private String retMsg;
@@ -17,6 +23,7 @@ public class TradeHistoryResponse {
     private long time;
 
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Result {
         private String nextPageCursor;
         private String category;
@@ -24,6 +31,7 @@ public class TradeHistoryResponse {
     }
 
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class TradeRecord {
         private String symbol;
         private String orderType;
@@ -45,6 +53,17 @@ public class TradeHistoryResponse {
         private String execType;
         private int fillCount;
         private double cumExitValue;
+
+        private LocalDateTime createDate;
+        private LocalDateTime updateDate;
+
+        public LocalDateTime getCreateDate() {
+            return getDateTime(createdTime);
+        }
+
+        public LocalDateTime getUpdateDate() {
+            return getDateTime(createdTime);
+        }
     }
 
     @Data

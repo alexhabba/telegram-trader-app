@@ -73,10 +73,12 @@ public class CommonUtils {
 //                .map(TradeHistoryResponse.TradeRecord::getClosedPnl)
                 .forEach(s -> {
                     // это уже с учетом комиссии
-                    System.out.println("res: : " + s.getClosedPnl());
-                    System.out.println("vol: : " + s.getClosedSize());
-                    System.out.println("createTime: " + getDateTime(s.getCreatedTime()));
-                    System.out.println("updateTime: " + getDateTime(s.getUpdatedTime()) + "\n");
+//                    System.out.println("res: : " + s.getClosedPnl());
+//                    System.out.println("vol: : " + s.getClosedSize());
+//                    System.out.println("createTime: " + getDateTime(s.getCreatedTime()));
+//                    System.out.println("updateTime: " + getDateTime(s.getUpdatedTime()) + "\n");
+                    System.out.println(s);
+                    System.out.println();
                 });
         TradeHistoryResponse.TradeRecord tradeRecord = closeOrderBySymbol.get(0);
 

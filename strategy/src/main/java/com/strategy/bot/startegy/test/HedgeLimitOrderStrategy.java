@@ -218,7 +218,6 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
                 lastDeal.setStatus(PROCESSING);
                 dealService.save(lastDeal);
                 // todo округлить до 3 цифр или в мапу добавить
-                PositionUtils.sentTpSl(key, secret, BigDecimal.valueOf(lastDeal.getSl()), BigDecimal.valueOf(lastDeal.getTp()), symbol);
                 log.info("Открытие лимитной заявки, перевод в статус PROCESSING");
             } else if (isCancelPosition(lastBar, lastDeal)) {
                 bybitOrderService.closeOpenLimitOrder(key, secret, symbol, lastDeal.getId());
