@@ -20,7 +20,7 @@ public class RangeComparator {
     // Проверяет, находятся ли два числа в одном диапазоне с учетом % отклонения
     public static boolean areNumbersInRange(double num1, double num2) {
         double[] numbers = {num1, num2};
-        double allowedDeviation = calculatePercentageRange(numbers, 0.03);
+        double allowedDeviation = calculatePercentageRange(numbers, 0.07);
 
         double average = (num1 + num2) / 2;
         double minVal = average - allowedDeviation;
@@ -31,8 +31,10 @@ public class RangeComparator {
     }
 
     public static void main(String[] args) {
-        double num1 = 161.7;
-        double num2 = 161.69;
+//        double num1 = 161.7;
+//        double num2 = 161.69;
+        double num1 = 171.85;
+        double num2 = 171.64;
         double allowedPercentage = 0.03; // 0.1% отклонение
 
         boolean isInRange = areNumbersInRange(num2, num1);

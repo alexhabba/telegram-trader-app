@@ -92,12 +92,13 @@ public class CommonUtils {
         double sl = deal.getSl();
         double tp = deal.getTp();
         if (deal.getVol() == tradeRecord.getClosedSize()) {
-            if (areNumbersInRange(avgExitPrice, sl) && deal.getVol() == tradeRecord.getClosedSize()) {
+            if (areNumbersInRange(avgExitPrice, sl)) {
                 deal.setCloseDate(LocalDateTime.now());
                 deal.setCurrentResult(tradeRecord.getClosedPnl());
                 System.out.println("закрытие по sl");
                 System.out.println(tradeRecord);
                 System.out.println(deal);
+                System.out.println(getDateTime(tradeRecord.getCreatedTime()));
                 return false;
             } else if (areNumbersInRange(avgExitPrice, tp)) {
                 deal.setCloseDate(LocalDateTime.now());
@@ -105,6 +106,7 @@ public class CommonUtils {
                 System.out.println("закрытие по tp");
                 System.out.println(tradeRecord);
                 System.out.println(deal);
+                System.out.println(getDateTime(tradeRecord.getCreatedTime()));
                 return false;
             }
         }
