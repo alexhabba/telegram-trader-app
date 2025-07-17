@@ -231,9 +231,9 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
         }
 
         // не влияет на двунаправленную торговлю
-//        if (nonNull(lastDeal) && lastDeal.getOpenDate().plusMinutes(13).isAfter(lastBar.getCreateDate())) {
-//            return;
-//        }
+        if (nonNull(lastDeal) && lastDeal.getOpenDate().plusMinutes(13).isAfter(lastBar.getCreateDate())) {
+            return;
+        }
 
 //        double shift = 0.007;
         double openPrice = lastBar.getClose();
@@ -259,6 +259,8 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
 ////            vol = 300 / Double.parseDouble(lastBar.getOpen()) * 13;
 //            volPosition = 13;
 //        }
+
+        getVolPosition(symbol);
 
         // todo тут похоже что нужно выбрать приоритет взависимости от того какой обьем больше на покупку или продажу
         boolean isBuyMore = volBuyLastBar > volSellLastBar;
@@ -292,7 +294,6 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
         }
 
         // todo сейчас пока счет маленький я хочу чтобы если 3 последние позиции(все одного обьема) были убыточные то увеличить обьем на 2
-        getVolPosition(symbol);
 
         if (!isBuyMore && volSellLastBar > maxVol && closeLastBar < openBuyLastBar) {
             Deal createDeal;
