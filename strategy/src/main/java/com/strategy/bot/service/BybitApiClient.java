@@ -38,26 +38,49 @@ public class BybitApiClient {
 
 //        symbols.forEach(System.out::println);
 
-
-        while (true) {
-            symbols.forEach(s -> {
+        new Thread(() -> {
+            while (true) {
                 try {
-                Object obj = client.getMarketTickers(MarketDataRequest.builder().category(CategoryType.LINEAR).symbol(s).build());
+                    Thread.sleep(1000 * 60 * 5);
+                } catch (InterruptedException e) {
+                    log.error("Error message: {}", e.getMessage(), e);
+                }
+                try {
+                    String s = "SOLUSDT";
+                    Object obj = client.getMarketTickers(MarketDataRequest.builder().category(CategoryType.LINEAR).symbol(s).build());
                     BybitTickerResponse bybitTickerResponse = objectMapper.readValue(objectMapper.writeValueAsString(obj), BybitTickerResponse.class);
                     BybitTickerResponse.TickerData tickerData = bybitTickerResponse.getResult().getList().get(0);
                     double fundingRate = Double.parseDouble(tickerData.getFundingRate());
                     String markPrice = tickerData.getMarkPrice();
+                    double openInterestValue = Double.parseDouble(tickerData.getOpenInterestValue());
+
+                    SolLogger.logToFile(s, openInterestValue, fundingRate, markPrice);
+                } catch (Exception e) {
+                    log.error("Error message: {}", e.getMessage(), e);
+                }
+            }
+        }).start();
+
+        while (true) {
+            symbols.forEach(s -> {
+                try {
+                    Object obj = client.getMarketTickers(MarketDataRequest.builder().category(CategoryType.LINEAR).symbol(s).build());
+                    BybitTickerResponse bybitTickerResponse = objectMapper.readValue(objectMapper.writeValueAsString(obj), BybitTickerResponse.class);
+                    BybitTickerResponse.TickerData tickerData = bybitTickerResponse.getResult().getList().get(0);
+                    double fundingRate = Double.parseDouble(tickerData.getFundingRate());
+                    String markPrice = tickerData.getMarkPrice();
+                    double openInterestValue = Double.parseDouble(tickerData.getOpenInterestValue());
 
                     if (Math.abs(fundingRate * 100) > 0.01) {
                         String link = "https://www.bybit.com/trade/usdt/" + s;
-                        FundingRateLogger.logToFile(s, fundingRate, markPrice);
+                        FundingRateLogger.logToFile(s, openInterestValue, fundingRate, markPrice);
                         System.out.println(s + "    " + fundingRate + "     " + LocalDateTime.now() + "     " + link);
                     }
                 } catch (Exception e) {
                     log.error("Error message: {}", e.getMessage(), e);
                 }
             });
-            Thread.sleep(1000*60*5);
+            Thread.sleep(1000 * 60 * 5);
         }
 
 //        System.out.println("конец");

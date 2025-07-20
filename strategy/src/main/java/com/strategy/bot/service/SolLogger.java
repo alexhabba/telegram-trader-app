@@ -4,11 +4,10 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
-public class FundingRateLogger {
+public class SolLogger {
 
-    private static final String LOG_FILE = FileSystems.getDefault().getPath("").toAbsolutePath() + "/funding_rates.log";
+    private static final String LOG_FILE = FileSystems.getDefault().getPath("").toAbsolutePath() + "/sol.log";
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
