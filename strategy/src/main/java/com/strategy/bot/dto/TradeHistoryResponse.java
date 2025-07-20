@@ -62,7 +62,7 @@ public class TradeHistoryResponse {
         }
 
         public LocalDateTime getUpdateDate() {
-            return getDateTime(createdTime);
+            return getDateTime(updatedTime);
         }
     }
 

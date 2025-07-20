@@ -89,27 +89,31 @@ public class CommonUtils {
     @SneakyThrows
     public static boolean isOpenPosition(String key, String secret, Deal deal) {
         List<TradeHistoryResponse.TradeRecord> closeOrderBySymbol = getCloseOrderBySymbol(key, secret, deal.getSymbol().name() + "USDT");
-        TradeHistoryResponse.TradeRecord tradeRecord = closeOrderBySymbol.get(0);
-        double avgExitPrice = tradeRecord.getAvgExitPrice();
-        double sl = deal.getSl();
-        double tp = deal.getTp();
-        if (deal.getVol() == tradeRecord.getClosedSize()) {
-            if (areNumbersInRange(avgExitPrice, sl)) {
-                deal.setCloseDate(LocalDateTime.now());
-                deal.setCurrentResult(tradeRecord.getClosedPnl());
-                System.out.println("закрытие по sl");
-                System.out.println(tradeRecord);
-                System.out.println(deal);
-                System.out.println(getDateTime(tradeRecord.getCreatedTime()));
-                return false;
-            } else if (areNumbersInRange(avgExitPrice, tp)) {
-                deal.setCloseDate(LocalDateTime.now());
-                deal.setCurrentResult(tradeRecord.getClosedPnl());
-                System.out.println("закрытие по tp");
-                System.out.println(tradeRecord);
-                System.out.println(deal);
-                System.out.println(getDateTime(tradeRecord.getCreatedTime()));
-                return false;
+
+        // todo тут нужен цикл проверок 2 сделок
+        for (int i = 0; i < 2; i++) {
+            TradeHistoryResponse.TradeRecord tradeRecord = closeOrderBySymbol.get(i);
+            double avgExitPrice = tradeRecord.getAvgExitPrice();
+            double sl = deal.getSl();
+            double tp = deal.getTp();
+            if (deal.getVol() == tradeRecord.getClosedSize()) {
+                if (areNumbersInRange(avgExitPrice, sl)) {
+                    deal.setCloseDate(LocalDateTime.now());
+                    deal.setCurrentResult(tradeRecord.getClosedPnl());
+                    System.out.println("закрытие по sl");
+                    System.out.println(tradeRecord);
+                    System.out.println(deal);
+                    System.out.println(getDateTime(tradeRecord.getCreatedTime()));
+                    return false;
+                } else if (areNumbersInRange(avgExitPrice, tp)) {
+                    deal.setCloseDate(LocalDateTime.now());
+                    deal.setCurrentResult(tradeRecord.getClosedPnl());
+                    System.out.println("закрытие по tp");
+                    System.out.println(tradeRecord);
+                    System.out.println(deal);
+                    System.out.println(getDateTime(tradeRecord.getCreatedTime()));
+                    return false;
+                }
             }
         }
         return true;
