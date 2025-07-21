@@ -1,4 +1,4 @@
-package com.strategy.bot.service;
+package com.strategy.bot.indicator;
 
 import com.bybit.api.client.config.BybitApiConfig;
 import com.bybit.api.client.domain.CategoryType;
@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strategy.bot.dto.BybitInstrumentsResponse;
 import com.strategy.bot.dto.BybitTickerResponse;
+import com.strategy.bot.service.FundingRateLogger;
+import com.strategy.bot.service.SolLogger;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -40,11 +42,7 @@ public class BybitApiClient {
 
         new Thread(() -> {
             while (true) {
-                try {
-                    Thread.sleep(1000 * 60 * 5);
-                } catch (InterruptedException e) {
-                    log.error("Error message: {}", e.getMessage(), e);
-                }
+
                 try {
                     String s = "SOLUSDT";
                     Object obj = client.getMarketTickers(MarketDataRequest.builder().category(CategoryType.LINEAR).symbol(s).build());
@@ -56,6 +54,11 @@ public class BybitApiClient {
 
                     SolLogger.logToFile(s, openInterestValue, fundingRate, markPrice);
                 } catch (Exception e) {
+                    log.error("Error message: {}", e.getMessage(), e);
+                }
+                try {
+                    Thread.sleep(1000 * 60 * 5);
+                } catch (InterruptedException e) {
                     log.error("Error message: {}", e.getMessage(), e);
                 }
             }
@@ -71,7 +74,7 @@ public class BybitApiClient {
                     String markPrice = tickerData.getMarkPrice();
                     double openInterestValue = Double.parseDouble(tickerData.getOpenInterestValue());
 
-                    if (Math.abs(fundingRate * 100) > 0.01) {
+                    if (Math.abs(fundingRate * 100) > 0.5) {
                         String link = "https://www.bybit.com/trade/usdt/" + s;
                         FundingRateLogger.logToFile(s, openInterestValue, fundingRate, markPrice);
                         System.out.println(s + "    " + fundingRate + "     " + LocalDateTime.now() + "     " + link);

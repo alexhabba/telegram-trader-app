@@ -13,6 +13,7 @@ import com.dao.bot.service.BarService;
 import com.dao.bot.service.DealService;
 import com.dao.bot.service.ParameterService;
 import com.strategy.bot.dto.ResponsePosition;
+import com.strategy.bot.indicator.FlatDetector;
 import com.strategy.bot.service.*;
 import com.strategy.bot.startegy.StrategyExecutor;
 import com.strategy.bot.utils.PositionUtils;
