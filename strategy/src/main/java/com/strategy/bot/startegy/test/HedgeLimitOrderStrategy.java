@@ -40,7 +40,7 @@ import static java.util.Objects.nonNull;
  *
  */
 @Slf4j
-@Service
+//@Service
 @RequiredArgsConstructor
 public class HedgeLimitOrderStrategy implements StrategyExecutor {
 
@@ -103,7 +103,7 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
     @Override
     public void execute(Bar lastBar, LocalDateTime lastDateTime) {
 //        List<Account> accounts = accountService.findAccountByIsActiveTrue();
-        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(6, 7, 8, 10));
+        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(7));
         parameters1.forEach(parameter -> {
             setParameter(parameter);
             executeRun(lastBar, lastDateTime);
@@ -208,7 +208,7 @@ public class HedgeLimitOrderStrategy implements StrategyExecutor {
                 if (isOpenPosition(lastBar, lastDeal)) {
                     // todo если была открыта любая позиция открытая не ботом то переведет в статус PROCESSING
                     lastDeal.setStatus(PROCESSING);
-                    lastDeal.setOpenDate(LocalDateTime.now());
+                    lastDeal.setOpenDate(lastBar.getCreateDate());
                 } else {
                     isCancelPosition(lastBar, lastDeal);
                 }

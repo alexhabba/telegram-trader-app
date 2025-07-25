@@ -18,14 +18,17 @@ spring:
           time_zone: Europe/Moscow
 
 management:
-  endpoints.web.exposure.include: 'prometheus, health'
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,metrics
   metrics:
-    export:
-      prometheus:
-        enabled: true
+    enable:
+      all: true
     distribution:
-      percentiles-histogram:
-        "[http.server.requests]": true
+      percentiles:
+        fast.request: [0.5, 0.95]  # Перцентили для метрики
+        slow.request: [0.5, 0.95]
 
 server:
   port: 8090

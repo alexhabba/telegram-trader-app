@@ -30,6 +30,12 @@ public interface BarRepository extends JpaRepository<Bar, LocalDateTime> {
     Optional<Bar> findLastBarBySymbol(String symbol);
 
     @Query(value = "SELECT *\n" +
+            "FROM bar where symbol = :symbol and create_date <= :currentDate " +
+            "ORDER BY create_date DESC\n" +
+            "LIMIT :count", nativeQuery = true)
+    List<Bar> findLastBarBySymbolAndByCount(String symbol, LocalDateTime currentDate, int count);
+
+    @Query(value = "SELECT *\n" +
             "FROM bar where symbol = :symbol " +
             "ORDER BY create_date DESC\n" +
             "LIMIT :count", nativeQuery = true)

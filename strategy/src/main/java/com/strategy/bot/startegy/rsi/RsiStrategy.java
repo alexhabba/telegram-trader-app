@@ -1,7 +1,8 @@
-package com.strategy.bot.startegy.test;
+package com.strategy.bot.startegy.rsi;
 
 import com.bybit.api.client.domain.trade.PositionIdx;
 import com.bybit.api.client.domain.trade.Side;
+import com.dao.bot.entity.Account;
 import com.dao.bot.entity.Bar;
 import com.dao.bot.entity.Deal;
 import com.dao.bot.entity.Parameter;
@@ -10,7 +11,6 @@ import com.dao.bot.service.AccountService;
 import com.dao.bot.service.BarService;
 import com.dao.bot.service.DealService;
 import com.dao.bot.service.ParameterService;
-import com.strategy.bot.dto.ResponsePosition;
 import com.strategy.bot.indicator.Rsi;
 import com.strategy.bot.service.BybitBalanceService;
 import com.strategy.bot.service.BybitPositionService;
@@ -38,23 +38,30 @@ import static com.dao.bot.enums.Symbol.SOL;
 import static java.util.Objects.nonNull;
 
 /**
- *
+ * Стратегия торговли на основе RSI с использованием лимитных ордеров в режиме хеджирования.
+ * Основные особенности:
+ * - Использует RSI для определения точек входа
+ * - Работает с лимитными ордерами со смещением от текущей цены
+ * - Поддерживает хеджирование (одновременные длинные и короткие позиции)
+ * - Автоматически регулирует объем позиции на основе предыдущих результатов
  */
 @Timed  // Замеряет все методы в классе
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class HedgeLimitRsiStrategy implements StrategyExecutor {
+public class RsiStrategy implements StrategyExecutor {
 
 
     public static final Map<LocalDateTime, Pair<Double, Double>> MAP_DATE_TIME_RSI_SMA = new HashMap<>();
 
-    private final static Map<String, Pair<String, String>> map = Map.of(
-            "7", Pair.of("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe"),
-            "8", Pair.of("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe"),
-            "10", Pair.of("pcmNk8vTZurgJQHM9b", "NrKYnnW37Xfd42vbXpOcM7VyKrCgRTbzd7k9"),
-            "1", Pair.of("pcmNk8vTZurgJQHM9b", "NrKYnnW37Xfd42vbXpOcM7VyKrCgRTbzd7k9")
-    );
+//    private final static Map<String, Pair<String, String>> map = Map.of(
+//            "7", Pair.of("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe"),
+//            "8", Pair.of("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe"),
+//            "10", Pair.of("pcmNk8vTZurgJQHM9b", "NrKYnnW37Xfd42vbXpOcM7VyKrCgRTbzd7k9"),
+//            "1", Pair.of("pcmNk8vTZurgJQHM9b", "NrKYnnW37Xfd42vbXpOcM7VyKrCgRTbzd7k9")
+//    );
+
+    private static final int windowSize = 13;
 
     private BigDecimal resultBalance = BigDecimal.valueOf(30);
 
@@ -73,6 +80,7 @@ public class HedgeLimitRsiStrategy implements StrategyExecutor {
     private double volPosition = 1.3;
 
     private double maxVolInStrategy = 0;
+    private Account account;
 
     private final AccountService accountService;
     private final DealService dealService;
@@ -91,14 +99,13 @@ public class HedgeLimitRsiStrategy implements StrategyExecutor {
     public void init() {
 //        showPositionAndBalance();
 //        parameters = parameterService.getParameters(SOL, List.of(7, 8));
-
+        account = accountService.findAccountByIsActiveTrue("first").orElse(new Account());
     }
 
     boolean fl = true;
 
     @Override
     public void execute(Bar lastBar, LocalDateTime lastDateTime) {
-//        List<Account> accounts = accountService.findAccountByIsActiveTrue();
         if (isTestStrategy && fl) {
             fillRsiMap(barService.findAll());
             fl = false;
@@ -196,9 +203,8 @@ public class HedgeLimitRsiStrategy implements StrategyExecutor {
 
         // todo нужно реализовать механизм проверки открытия позиции через лимитку
         if (nonNull(lastDeal) && lastDeal.getStatus() == STARTED) {
-            Pair<String, String> pairKeySecret = map.get(strategy);
-            String key = pairKeySecret.getKey();
-            String secret = pairKeySecret.getValue();
+            String key = account.getKey();
+            String secret = account.getSecret();
             if (isTestStrategy) {
                 if (isOpenPosition(lastBar, lastDeal)) {
                     // todo если была открыта любая позиция открытая не ботом то переведет в статус PROCESSING
@@ -246,9 +252,9 @@ public class HedgeLimitRsiStrategy implements StrategyExecutor {
                 rsiValue = doubleDoublePair.getLeft();
             }
         } else {
-            List<Bar> lastBarBySymbolAndByCount = barService.findLastBarBySymbolAndByCount(symbol.name(), lastBar.getCreateDate(), 19)
+            List<Bar> lastBarBySymbolAndByCount = barService.findLastBarBySymbolAndByCount(symbol.name(), lastBar.getCreateDate(), windowSize)
                     .stream().sorted(Comparator.comparing(Bar::getCreateDate)).collect(Collectors.toList());
-            rsiValue = Rsi.getValue(lastBarBySymbolAndByCount, 19);
+            rsiValue = Rsi.getValue(lastBarBySymbolAndByCount, windowSize);
         }
 
         if (rsiValue == null) return;
@@ -307,6 +313,7 @@ public class HedgeLimitRsiStrategy implements StrategyExecutor {
      *
      * @param symbol торговый символ, для которого анализируются сделки
      */
+    // todo попробовать постепенно увеличивать коэффициент
     private void getVolPosition(Symbol symbol) {
         final int requiredDealsCount = 2;
 
@@ -333,7 +340,6 @@ public class HedgeLimitRsiStrategy implements StrategyExecutor {
                     .allMatch(deal -> deal.getResult() < 0);
 
             if (allDealsAreLoss) {
-                // Удваиваем объем для новой позиции
                 volPosition = recentDeals.get(0).getVol() * 2.3;
             }
         } else {
@@ -508,9 +514,8 @@ public class HedgeLimitRsiStrategy implements StrategyExecutor {
     }
 
     UUID openOrder(double size, Side side, String tvh, String sl, String tp, Symbol symbol, PositionIdx hedgeMode) {
-        Pair<String, String> pairKeySecret = map.get(strategy);
-        String key = pairKeySecret.getKey();
-        String secret = pairKeySecret.getValue();
+        String key = account.getKey();
+        String secret = account.getSecret();
 
         log.info("Open limit order size : {}, side : {}, tvh : {}", size, side, tvh);
         return bybitOrderService.openOrder(
@@ -526,34 +531,14 @@ public class HedgeLimitRsiStrategy implements StrategyExecutor {
         );
     }
 
-    @SneakyThrows
-    private void showPositionAndBalance() {
-        Thread.sleep(5000);
-        ArrayList<BigDecimal> commonBalance = new ArrayList<>();
-        map.forEach((k, v) -> {
-            ResponsePosition position = positionService.getPosition(v.getKey(), v.getValue(), Symbol.SOL);
-            BigDecimal size = position.getResult().getPositions().get(0).getSize();
-            String side = position.getResult().getPositions().get(0).getSide();
-
-            BigDecimal balance = balanceService.getBalance(v.getKey(), v.getValue());
-            commonBalance.add(balance);
-            System.out.println();
-            System.out.println("=======================================================");
-            System.out.println("account : " + k + " balance : " + balance + " side : " + side + " size : " + size);
-            System.out.println("=======================================================");
-        });
-        System.out.println("commonBalance : " + commonBalance.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
-    }
-
     /**
      * Проверка на наличие открытых позиций
      *
      * @return TRUE - если нет открытых позиций
      */
     private boolean isNotPosition(Deal deal) {
-        Pair<String, String> pairKeySecret = map.get(strategy);
-        String key = pairKeySecret.getKey();
-        String secret = pairKeySecret.getValue();
+        String key = account.getKey();
+        String secret = account.getSecret();
 
         boolean isOpen = CommonUtils.isOpenPosition(key, secret, deal);
 
@@ -563,7 +548,6 @@ public class HedgeLimitRsiStrategy implements StrategyExecutor {
     private void fillRsiMap(List<Bar> bars) {
         bars = bars.stream().sorted(Comparator.comparing(Bar::getCreateDate)).collect(Collectors.toList());
 
-        int windowSize = 13;
         for (int i = windowSize; i < bars.size() - 1; i++) {
             List<Bar> subList = safeGetWindow(i, windowSize, bars);
             double rsiValue = Rsi.getValue(subList, windowSize);

@@ -18,7 +18,11 @@ public class BarService {
     private final BarRepository barRepository;
 
     public Bar findLastBarBySymbol(String symbol) {
-      return barRepository.findLastBarBySymbol(symbol).orElseThrow(EntityNotFoundException::new);
+        return barRepository.findLastBarBySymbol(symbol).orElseThrow(EntityNotFoundException::new);
+    }
+
+    public List<Bar> findLastBarBySymbolAndByCount(String symbol, LocalDateTime currentDate, int count) {
+        return barRepository.findLastBarBySymbolAndByCount(symbol, currentDate, count);
     }
 
     public void saveAll(List<Bar> bars) {

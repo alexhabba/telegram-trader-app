@@ -4,7 +4,7 @@ import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.BaseBar;
 import org.ta4j.core.BaseBarSeries;
-import org.ta4j.core.indicators.RSIIndicator;
+import org.ta4j.core.indicators.MMAIndicator;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.num.DecimalNum;
 
@@ -12,7 +12,7 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.util.List;
 
-public class Rsi {
+public class Sma {
 
     public static double getValue(List<com.dao.bot.entity.Bar> bars, int windowSize) {
         BarSeries series = new BaseBarSeries("market");
@@ -22,7 +22,7 @@ public class Rsi {
             Bar bar = createBar(barEntity);
             series.addBar(bar);
         }
-        RSIIndicator rsi = new RSIIndicator(new ClosePriceIndicator(series), windowSize);
+        MMAIndicator rsi = new MMAIndicator(new ClosePriceIndicator(series), windowSize);
         int endIndex = series.getEndIndex();
 
         return rsi.getValue(endIndex).doubleValue();

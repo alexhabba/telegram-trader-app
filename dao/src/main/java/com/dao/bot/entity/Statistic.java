@@ -33,4 +33,7 @@ public class Statistic {
     private double successCount;
     private double result;
     private double commonResult;
+    private double rsiInterval;
+    private double atrInterval;
+
 }

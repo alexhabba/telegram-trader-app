@@ -31,9 +31,11 @@ public class OrderLimitHedgeModeService {
                     .orderType(TradeOrderType.LIMIT)  // Лимитный ордер
                     .qty(qty)                // Количество
                     .price(tvh)
-                    .takeProfit(tp)// Цена входа
+                    .takeProfit(tp)
                     .stopLoss(sl)
                     .tpslMode("Partial")
+//                    .tpLimitPrice(sl)
+//                    .slLimitPrice(tp)
                     .timeInForce(TimeInForce.GTC) // Good Till Cancel
                     .positionIdx(hedgeMode) // Режим позиции (0 для one-way)
                     .orderLinkId(UUID.randomUUID().toString()) // Кастомный ID ордера

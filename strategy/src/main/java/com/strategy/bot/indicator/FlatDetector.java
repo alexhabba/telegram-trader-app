@@ -33,8 +33,7 @@ public class FlatDetector {
 
         // Строим серию из цен
         for (var barEntity : bars) {
-            ZonedDateTime now = ZonedDateTime.now();
-            Bar bar = createBar(barEntity, now);
+            Bar bar = createBar(barEntity);
             series.addBar(bar);
         }
 
@@ -58,7 +57,7 @@ public class FlatDetector {
         return rsiInFlatRange && priceNearSma && lowAtr;
     }
 
-    public static Bar createBar(com.dao.bot.entity.Bar bar, ZonedDateTime time) {
+    public static Bar createBar(com.dao.bot.entity.Bar bar) {
         return BaseBar.builder()
                 .timePeriod(Duration.ofMinutes(1))
                 .endTime(bar.getCreateDate().atZone(ZoneId.of("Europe/Moscow")))

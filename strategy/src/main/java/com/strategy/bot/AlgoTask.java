@@ -20,11 +20,15 @@ public class AlgoTask {
 //        var firstArr = new int[]{1, 10, 5, 15, 20};
 //        var secondArr = new int[]{1, 13, 8, 12};
 //        System.out.println(findMinDifference(firstArr, secondArr));
-        int factorial = factorial(2);
-        int fibo = fibonacci(7);
-        printAllNumber(5);
+//        int factorial = factorial(2);
+//        int fibo = fibonacci(7);
+//        printAllNumber(5);
+//
+//        System.out.println();
 
-        System.out.println();
+        double size = 0.12;
+        System.out.println(Double.toString(size));
+        System.out.println(String.format("%.1f", size).replace(",", "."));
     }
 
     public static int[] sum(int[] arr, int n) {
@@ -86,9 +90,6 @@ public class AlgoTask {
         head.next = null;
         return newNode;
     }
-
-
-
 
 
     public static Node reverse(Node head) {
@@ -216,7 +217,7 @@ public class AlgoTask {
         }
     }
 
-//    Дано натуральное число n. Выведите все числа от 1 до n.
+    //    Дано натуральное число n. Выведите все числа от 1 до n.
 //    5
     public static int printAllNumber(int n) {
         if (n < 1) {
