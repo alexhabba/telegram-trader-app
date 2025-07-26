@@ -1,13 +1,13 @@
 spring:
   datasource:
 #    url: jdbc:postgresql://${HOSTNAME:localhost}:${PORT:5433}/${DB_NAME:postgres}?currentSchema=trader
-#    url: jdbc:postgresql://${HOSTNAME:45.8.251.166}:${PORT:5432}/${DB_NAME:postgres}?currentSchema=bot
-    url: jdbc:postgresql://${HOSTNAME:45.8.251.166}:${PORT:5432}/${DB_NAME:postgres}?currentSchema=trader
+#    url: jdbc:postgresql://${HOSTNAME:45.8.251.166}:${PORT:5432}/${DB_NAME:postgres}
+    url: jdbc:postgresql://${HOSTNAME:45.8.251.166}:${PORT:5432}/${DB_NAME:postgres}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
     hikari:
-      schema: ${POSTGRES_SCHEMA:reader}
+      schema: ${POSTGRES_SCHEMA:trader}
       pool-name: HikariPoolReader
       maximum-pool-size: ${DB_POOL_SIZE:30}
       auto-commit: true
