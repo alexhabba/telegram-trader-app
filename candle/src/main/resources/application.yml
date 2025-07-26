@@ -3,13 +3,19 @@ spring:
 #    url: jdbc:postgresql://${HOSTNAME:localhost}:${PORT:5433}/${DB_NAME:postgres}?currentSchema=trader
 #    url: jdbc:postgresql://${HOSTNAME:45.8.251.166}:${PORT:5432}/${DB_NAME:postgres}?currentSchema=bot
     url: jdbc:postgresql://${HOSTNAME:45.8.251.166}:${PORT:5432}/${DB_NAME:postgres}?currentSchema=trader
-
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
-    pool-size: 10
     hikari:
-      maxLifetime: 600000
+      schema: ${POSTGRES_SCHEMA:reader}
+      pool-name: HikariPoolReader
+      maximum-pool-size: ${DB_POOL_SIZE:30}
+      auto-commit: true
+      connection-timeout: ${DB_IDLE_TIMEOUT:600000}
+      minimum-idle: ${DB_IDLE_SIZE:10}
+      data-source-properties:
+        socketTimeout: 60
+
   jpa:
     show-sql: false
     hibernate:
