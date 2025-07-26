@@ -124,14 +124,12 @@ public class RsiStrategy implements StrategyExecutor {
 
         if (isPrintRes && isTestStrategy && lastDateTime.minusMinutes(1).equals(lastBar.getCreateDate())) {
             isPrintRes = false;
-            dealService.saveAll(deals);
-            List<Deal> collect = deals.stream().sorted(Comparator.comparing(Deal::getOpenDate))
-                    .collect(Collectors.toList());
+//            dealService.saveAll(deals);
             for (int i = 0; i < deals.size() - 1; i++) {
                 System.out.println(i + 1 + ".  " + deals.get(i));
             }
             Double commonResult = deals.stream()
-                    .map(deal -> deal.getResult() * deal.getVol() - deal.getVol() * 0.0015)
+                    .map(deal -> deal.getResult() * deal.getVol() - deal.getVol() * 0.015)
                     .reduce(0d, Double::sum);
 
             Double result = deals.stream()

@@ -45,8 +45,8 @@ public class RsiStrategyJob {
 //        runTestStrategy();
     }
 
-//    @Scheduled(cron = "03 * * * * *")
-    @Scheduled(fixedDelay = 1000000000)
+    @Scheduled(cron = "03 * * * * *")
+//    @Scheduled(fixedDelay = 1000000000)
     public void runTestStrategy() {
 
         if (isTestStrategy && isTestRun) {

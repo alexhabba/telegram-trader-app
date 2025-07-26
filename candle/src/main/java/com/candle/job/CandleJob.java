@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +38,8 @@ public class CandleJob {
         //  я все же хочу реализовать при запуске этого модуля чтобы наполнилась таблица барами
 
 
-        List<Symbol> symbols = symbolService.getAllSymbol();
-        List<Bar> bars = symbols.stream()
+//        List<Symbol> symbols = symbolService.getAllSymbol();
+        List<Bar> bars = Stream.of(Symbol.builder().symbol("SOL").build())
                 .map(Symbol::getSymbol)
                 .map(com.dao.bot.enums.Symbol::valueOf)
                 .map(this::execute)
