@@ -29,9 +29,11 @@ public class RsiStrategyJob {
     private boolean isTestStrategy;
 
     // 1 - index, 2 - windowSize, 3 - valueRsi
-    private final Map<Integer, Map<Integer, Double>> MAP_INDEX_ARRAY_WINDOW_SIZE_RSI_VALUE = new HashMap<>(150000);
+    private final Map<Integer, Map<Integer, Double>> MAP_INDEX_ARRAY_WINDOW_SIZE_RSI_VALUE = new HashMap<>(400000);
 
     private boolean isTestRun = true;
+    private final int startRsiValue = 5;
+    private final int endRsiValue = 13;
 
     private final BarService barService;
     private final ExecutorService executorService;
@@ -71,10 +73,10 @@ public class RsiStrategyJob {
     }
 
     private void fillRsiMap(List<Bar> bars) {
-        for (int i = 13; i < bars.size() - 1; i++) {
+        for (int i = startRsiValue; i < bars.size() - 1; i++) {
             HashMap<Integer, Double> hashMap = new HashMap<>();
             MAP_INDEX_ARRAY_WINDOW_SIZE_RSI_VALUE.put(i, hashMap);
-            for (int y = 13; y <= 25; y++) {
+            for (int y = startRsiValue; y <= endRsiValue; y++) {
                 List<Bar> subList = safeGetWindow(i, y, bars);
                 double rsiValue = Rsi.getValue(subList, y);
                 hashMap.put(y, rsiValue);
@@ -89,14 +91,14 @@ public class RsiStrategyJob {
 
     public void testOptimization(List<Bar> bars, LocalDateTime lastLocalDateTime) {
         int count = 0;
-        int windowSizeRsi = 13;
-        while (windowSizeRsi <= 30) {
+        int windowSizeRsi = startRsiValue;
+        while (windowSizeRsi <= endRsiValue) {
             double shift = 0.3;
             while (shift < 2) {
-                double sl = 1;
+                double sl = 0.5;
                 while (sl < 1.5) {
-                    double tp = 3;
-                    while (tp < 5) {
+                    double tp = 1;
+                    while (tp < 3) {
                         double maxVol = 3000;
 //                        while (maxVol < 20000) {
                             int min = 13;
@@ -120,7 +122,7 @@ public class RsiStrategyJob {
                 }
                 shift += 0.2;
             }
-            windowSizeRsi += 2;
+            windowSizeRsi += 1;
         }
 
         // 6207516
@@ -132,7 +134,7 @@ public class RsiStrategyJob {
         LinkedList<Deal> list = new LinkedList<>();
         WrapperDouble w = WrapperDouble.builder().value(0).build();
         WrapperBalance wrapperBalance = WrapperBalance.builder().balance(BigDecimal.valueOf(400)).build();
-        for (int i = 13; i < bars.size() -1; i++) {
+        for (int i = startRsiValue; i < bars.size() -1; i++) {
             Double rsiValue = MAP_INDEX_ARRAY_WINDOW_SIZE_RSI_VALUE.get(i).get(windowSizeRsi);
             rsiOptimizerStrategy.execute(bars.get(i), shift, sl, tp, "7", list, maxVol, min, count, w, wrapperBalance, lastLocalDateTime, windowSizeRsi, rsiValue);
         }
@@ -140,7 +142,7 @@ public class RsiStrategyJob {
         LinkedList<Deal> list1 = new LinkedList<>();
         WrapperDouble w1 = WrapperDouble.builder().value(0).build();
         WrapperBalance wrapperBalance1 = WrapperBalance.builder().balance(BigDecimal.valueOf(400)).build();
-        for (int i = 13; i < bars.size() -1; i++) {
+        for (int i = startRsiValue; i < bars.size() -1; i++) {
             Double rsiValue = MAP_INDEX_ARRAY_WINDOW_SIZE_RSI_VALUE.get(i).get(windowSizeRsi);
             rsiOptimizerStrategy.execute(bars.get(i), shift, sl, tp, "8", list1, maxVol, min, count, w1, wrapperBalance1, lastLocalDateTime, windowSizeRsi, rsiValue);
         }

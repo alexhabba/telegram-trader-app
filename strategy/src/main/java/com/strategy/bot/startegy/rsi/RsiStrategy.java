@@ -51,8 +51,15 @@ import static java.util.Objects.nonNull;
 @RequiredArgsConstructor
 public class RsiStrategy implements StrategyExecutor {
 
+    private final Map<LocalDateTime, Map<Integer, Double>> MAP_DATE_MAP_WINDOW_SIZE_RSI_VALUE = new HashMap<>(400000);
 
-    public static final Map<LocalDateTime, Pair<Double, Double>> MAP_DATE_TIME_RSI_SMA = new HashMap<>();
+
+    public static final Map<String, Integer> MAP_STRATEGY_WINDOW_SIZE_RSI = Map.of(
+            "7", 13,
+            "8", 13,
+            "9", 6,
+            "6", 6
+    );
 
 //    private final static Map<String, Pair<String, String>> map = Map.of(
 //            "7", Pair.of("Bm93uykPRKyNZqaGeI", "NLrdAqquHmoCjxXU3ynmx6f4XypEq5gOufMe"),
@@ -60,8 +67,6 @@ public class RsiStrategy implements StrategyExecutor {
 //            "10", Pair.of("pcmNk8vTZurgJQHM9b", "NrKYnnW37Xfd42vbXpOcM7VyKrCgRTbzd7k9"),
 //            "1", Pair.of("pcmNk8vTZurgJQHM9b", "NrKYnnW37Xfd42vbXpOcM7VyKrCgRTbzd7k9")
 //    );
-
-    private static final int windowSize = 13;
 
     private BigDecimal resultBalance = BigDecimal.valueOf(30);
 
@@ -111,7 +116,8 @@ public class RsiStrategy implements StrategyExecutor {
             fl = false;
         }
 
-        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(7, 8));
+        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(6, 7, 8, 9));
+//        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(8));
         parameters1.forEach(parameter -> {
             setParameter(parameter);
             executeRun(lastBar, lastDateTime);
@@ -245,11 +251,12 @@ public class RsiStrategy implements StrategyExecutor {
 
         Double rsiValue = null;
         if (isTestStrategy) {
-            Pair<Double, Double> doubleDoublePair = MAP_DATE_TIME_RSI_SMA.get(lastBar.getCreateDate());
-            if (nonNull(doubleDoublePair)) {
-                rsiValue = doubleDoublePair.getLeft();
+            Map<Integer, Double> integerDoubleMap = MAP_DATE_MAP_WINDOW_SIZE_RSI_VALUE.get(lastBar.getCreateDate());
+            if (nonNull(integerDoubleMap)) {
+                rsiValue = integerDoubleMap.get(MAP_STRATEGY_WINDOW_SIZE_RSI.get(strategy));
             }
         } else {
+            Integer windowSize = MAP_STRATEGY_WINDOW_SIZE_RSI.get(strategy);
             List<Bar> lastBarBySymbolAndByCount = barService.findLastBarBySymbolAndByCount(symbol.name(), lastBar.getCreateDate(), windowSize)
                     .stream().sorted(Comparator.comparing(Bar::getCreateDate)).collect(Collectors.toList());
             rsiValue = Rsi.getValue(lastBarBySymbolAndByCount, windowSize);
@@ -261,7 +268,7 @@ public class RsiStrategy implements StrategyExecutor {
             getVolPosition(symbol);
             Deal createDeal;
 
-            if (strategy.equals("8")) {
+            if (strategy.equals("8") || strategy.equals("9")) {
                 openPrice = openPrice + shift;
                 createDeal = createDeal(lastBar, openPrice, Side.SELL, openPrice + sl, openPrice - tp, volPosition, symbol);
             } else {
@@ -280,7 +287,7 @@ public class RsiStrategy implements StrategyExecutor {
             getVolPosition(symbol);
             Deal createDeal;
 
-            if (strategy.equals("8")) {
+            if (strategy.equals("8") || strategy.equals("9")) {
                 openPrice = openPrice - shift;
                 createDeal = createDeal(lastBar, openPrice, Side.BUY, openPrice - sl, openPrice + tp, volPosition, symbol);
             } else {
@@ -338,7 +345,7 @@ public class RsiStrategy implements StrategyExecutor {
                     .allMatch(deal -> deal.getResult() < 0);
 
             if (allDealsAreLoss) {
-                volPosition = recentDeals.get(0).getVol() * 2.3;
+                volPosition = recentDeals.get(0).getVol() * coefficient;
             }
         } else {
             if (CollectionUtils.isEmpty(recentDeals)) {
@@ -546,10 +553,18 @@ public class RsiStrategy implements StrategyExecutor {
     private void fillRsiMap(List<Bar> bars) {
         bars = bars.stream().sorted(Comparator.comparing(Bar::getCreateDate)).collect(Collectors.toList());
 
+        int windowSize = 13;
         for (int i = windowSize; i < bars.size() - 1; i++) {
-            List<Bar> subList = safeGetWindow(i, windowSize, bars);
-            double rsiValue = Rsi.getValue(subList, windowSize);
-            MAP_DATE_TIME_RSI_SMA.put(bars.get(i).getCreateDate(), Pair.of(rsiValue, null));
+            List<Bar> subList13 = safeGetWindow(i, 13, bars);
+            List<Bar> subList6 = safeGetWindow(i, 6, bars);
+            double rsiValue13 = Rsi.getValue(subList13, windowSize);
+            double rsiValu6 = Rsi.getValue(subList6, windowSize);
+
+            Map<Integer, Double> hashMap = Map.of(
+                    6, rsiValu6,
+                    13, rsiValue13
+            );
+            MAP_DATE_MAP_WINDOW_SIZE_RSI_VALUE.put(bars.get(i).getCreateDate(), hashMap);
         }
     }
 
