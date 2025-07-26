@@ -44,7 +44,7 @@ logging:
     #    root: WARN
     org.springframework: info
     org.apache: info
-    com.zaxxer: info
+    com.zaxxer: ERROR
     org.hibernate.SQL: INFO
     o.h.internal.util: info
     o.h.internal.util.EntityPrinter: info
