@@ -116,8 +116,8 @@ public class RsiStrategy implements StrategyExecutor {
             fl = false;
         }
 
-//        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(6, 7, 8, 9));
-        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(6));
+        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(6, 7, 8, 9));
+//        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(6));
         parameters1.forEach(parameter -> {
             setParameter(parameter);
             executeRun(lastBar, lastDateTime);
