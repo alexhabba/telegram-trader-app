@@ -116,8 +116,8 @@ public class RsiStrategy implements StrategyExecutor {
             fl = false;
         }
 
-        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(6, 7, 8, 9));
-//        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(8));
+//        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(6, 7, 8, 9));
+        List<Parameter> parameters1 = parameterService.getParameters(SOL, List.of(6));
         parameters1.forEach(parameter -> {
             setParameter(parameter);
             executeRun(lastBar, lastDateTime);
@@ -131,6 +131,63 @@ public class RsiStrategy implements StrategyExecutor {
         if (isPrintRes && isTestStrategy && lastDateTime.minusMinutes(1).equals(lastBar.getCreateDate())) {
             isPrintRes = false;
 //            dealService.saveAll(deals);
+            Map<String, List<Deal>> mapStrategyDeals = deals.stream()
+                    .collect(Collectors.groupingBy(Deal::getStrategy));
+
+            mapStrategyDeals.forEach((k, dealsStrategy) -> {
+                System.out.println("=============================================================================");
+                System.out.println("Strategy: " + k);
+                System.out.println("=============================================================================");
+                for (int i = 0; i < dealsStrategy.size() - 1; i++) {
+                    System.out.println(i + 1 + ".  " + dealsStrategy.get(i));
+                }
+
+                Double commonResult = dealsStrategy.stream()
+                        .map(deal -> deal.getResult() * deal.getVol() - deal.getVol() * 0.015)
+                        .reduce(0d, Double::sum);
+
+                Double result = dealsStrategy.stream()
+                        .map(Deal::getResult)
+                        .reduce(0d, Double::sum);
+
+                long badCount = dealsStrategy.stream()
+                        .map(Deal::getResult)
+                        .filter(r -> r < 0)
+                        .count();
+
+                long successCount = dealsStrategy.stream()
+                        .map(Deal::getResult)
+                        .filter(r -> r > 0)
+                        .count();
+
+                OptionalDouble maxVolInStrategy = dealsStrategy.stream()
+                        .mapToDouble(Deal::getVol)
+                        .max();
+
+                System.out.println("commonResult : " + commonResult.intValue());
+                System.out.println("result : " + result);
+                System.out.println("убыточных сделок : " + badCount);
+                System.out.println("успешных сделок : " + successCount);
+                System.out.println("maxVolInStrategy : " + maxVolInStrategy.orElse(0.1));
+
+                LinkedList<Double> lst = new LinkedList<>();
+                lst.addLast(125.0);
+                dealsStrategy.stream()
+                        .map(deal -> deal.getResult() * deal.getVol())
+                        .forEach(res -> lst.addLast(lst.getLast() + res));
+
+                List<String> lstString = lst.stream()
+                        .map(number -> String.format("%.1f", number).replace(",", "."))
+                        .collect(Collectors.toList());
+
+                System.out.println("Strategy: " + k);
+                System.out.println(lstString);
+            });
+
+            System.out.println("=============================================================================");
+            System.out.println("Common result");
+            System.out.println("=============================================================================");
+
             for (int i = 0; i < deals.size() - 1; i++) {
                 System.out.println(i + 1 + ".  " + deals.get(i));
             }
@@ -330,8 +387,7 @@ public class RsiStrategy implements StrategyExecutor {
                 recentDeals = collect.subList(collect.size() - requiredDealsCount, collect.size());
             }
         } else {
-            recentDeals = dealService.getDealsStrategy(requiredDealsCount, strategy, symbol.name());
-
+            recentDeals = dealService.getDealsStrategy(requiredDealsCount, strategy, symbol.name()).stream().sorted(Comparator.comparing(Deal::getOpenDate)).collect(Collectors.toList());
         }
 
         // Группируем сделки по объему (vol)

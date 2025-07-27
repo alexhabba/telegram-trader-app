@@ -58,7 +58,7 @@ public class RsiStrategyJob {
 //                    .filter(bar -> bar.getCreateDate().getMonth() == Month.DECEMBER)
                     .sorted(Comparator.comparing(Bar::getCreateDate))
 //                    .skip(280000)
-//                    .filter(bar -> bar.getCreateDate().isAfter(LocalDateTime.now().minusDays(30)))
+                    .filter(bar -> bar.getCreateDate().isAfter(LocalDateTime.now().minusDays(30)))
                     .collect(Collectors.toList());
             LocalDateTime lastLocalDateTime = collect.get(collect.size() - 1).getCreateDate();
             collect.forEach(bar -> rsiStrategy.execute(bar, lastLocalDateTime));
